@@ -2,21 +2,25 @@ import Sheet from '@mui/joy/Sheet';
 import MessagesPane from './MessagePane';
 import ChatsPane from './ChatsPane';
 import { useSelector } from 'react-redux';
-import { ChatProps } from '../utils/types';
+// import { ChatProps } from '../utils/types';
 
 export default function MyProfile() {
   // Get the entire chat state from Redux
-  const currentChat = useSelector((state: any) => state.userChat);
-  
-  // Use the chatId and user from Redux
-  const selectedChat = currentChat.chatId ? {
-    id: currentChat.chatId,
-    user: currentChat.user,
-    // Add other necessary chat properties here
-  } : null;
+  // const currentChat = useSelector((state: any) => state.userChat);
 
-  console.log('Current chat from Redux:', currentChat);
-  console.log('Selected chat:', selectedChat);
+  // // Construct selectedChat from Redux state
+  // const selectedChat: ChatProps | null = currentChat.chatId ? {
+  //   id: currentChat.chatId,
+  //   user: currentChat.user,
+  //   isCurrentUserBlocked: currentChat.isCurrentUserBlocked,
+  //   isReceiverBlocked: currentChat.isReceiverBlocked,
+  // } : null;
+
+  // console.log('Current chat from Redux:', currentChat);
+  // console.log('Selected chat:', selectedChat);
+
+  const selectedChatId = useSelector((state : any) => state.userChat?.selectedChatId);
+
 
   return (
     <Sheet
@@ -46,12 +50,11 @@ export default function MyProfile() {
         }}
       >
         <ChatsPane
-          selectedChatId={currentChat.chatId} setSelectedChat={function (chat: ChatProps): void {
-            throw new Error('Function not implemented.');
-          } }          // You might not need setSelectedChat if using Redux
+          selectedChatId={selectedChatId}
+          // Removed setSelectedChat as it's managed via Redux
         />
       </Sheet>
-      {selectedChat && <MessagesPane chat={selectedChat} />}
+      <MessagesPane  />
     </Sheet>
   );
 }

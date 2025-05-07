@@ -1,4 +1,4 @@
-import * as React from 'react';
+// import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
@@ -10,7 +10,7 @@ export default function JoyOrderDashboardTemplate() {
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
+      <Box sx={{ display: 'flex', minHeight: '100dvh',width:"98vw" }}>
         <Sidebar />
         <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
           <Header />
