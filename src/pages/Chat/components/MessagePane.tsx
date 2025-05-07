@@ -9,125 +9,179 @@ import AvatarWithStatus from './AvatarWithStatus';
 import ChatBubble from './ChatsBubble';
 import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
-import { ChatProps, MessageProps } from '../utils/types';
+import { MessageProps } from '../utils/types';
 
-type MessagesPaneProps = {
-  chat: ChatProps;
-};
+// type MessagesPaneProps = {
+//   chat: ChatProps;
+// };
 
-export default function MessagesPane(props: MessagesPaneProps) {
-  const { chat } = props;
+export default function MessagesPane() {
+  // const { chat } = props;
   const [chatMessages, setChatMessages] = React.useState<MessageProps[]>([]);
   const [textAreaValue, setTextAreaValue] = React.useState('');
   const endRef = React.useRef<HTMLDivElement>(null);
 
-  const { chatId } = useSelector((state: any) => state.userChat);
+  const { chatId,user } = useSelector((state: any) => state.userChat);
   const professional = useSelector((state: any) => state.professional?.data);
-  const professionalId = professional?.uid;
+  const professionalUID = professional?.uid;
+
+  // React.useEffect(() => {
+  //   if (!chatId) {
+  //     setChatMessages([]);
+  //     return;
+  //   }
+
+  //   const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
+  //     if (!docSnapshot.exists()) {
+  //       setChatMessages([]);
+  //       return;
+  //     }
+
+  //     const messagesData = docSnapshot.data().messages || [];
+  //     const formattedMessages = messagesData.map((msg: any) => ({
+  //       id: msg.id.toString(),
+  //       sender: msg.senderId === professionalId 
+  //         ? 'You' 
+  //         : {
+  //             name: chat.sender?.displayName || chat.sender?.name || 'Unknown',
+  //             avatar: chat.sender?.photoURL || chat.sender?.avatar || '',
+  //             online: true,
+  //             id: chat.sender?.id
+  //           },
+  //       content: msg.text,
+  //       timestamp: formatTimestamp(msg.date),
+  //       date: msg.date
+  //     }));
+
+  //     setChatMessages(formattedMessages.sort((a, b) => a.date - b.date));
+  //   });
+
+  //   return () => unSub();
+  // }, [chatId, professionalId, chat.sender]);
 
   React.useEffect(() => {
-    if (!chatId) {
-      setChatMessages([]);
-      return;
-    }
-
-    const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
-      if (!docSnapshot.exists()) {
-        setChatMessages([]);
-        return;
-      }
-
-      const messagesData = docSnapshot.data().messages || [];
-      const formattedMessages = messagesData.map((msg: any) => ({
-        id: msg.id.toString(),
-        sender: msg.senderId === professionalId 
-          ? 'You' 
-          : {
-              name: chat.sender?.displayName || chat.sender?.name || 'Unknown',
-              avatar: chat.sender?.photoURL || chat.sender?.avatar || '',
-              online: true,
-              id: chat.sender?.id
-            },
-        content: msg.text,
-        timestamp: formatTimestamp(msg.date),
-        date: msg.date
-      }));
-
-      setChatMessages(formattedMessages.sort((a, b) => a.date - b.date));
-    });
-
-    return () => unSub();
-  }, [chatId, professionalId, chat.sender]);
+      if (!chatId) return;
+  
+      console.log("Chat for header",chatId);
+      console.log("User for which Chat",user);
+  
+      const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          setChatMessages(docSnapshot.data().messages);
+        }
+      });
+  
+      return () => unSub();
+    }, [chatId]);
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  const handleSend = async () => {
-    const trimmedValue = textAreaValue.trim();
-    if (!trimmedValue || !chatId || !professionalId) return;
+  // const handleSend = async () => {
+  //   const trimmedValue = textAreaValue.trim();
+  //   if (!trimmedValue || !chatId || !professionalId) return;
 
-    const newMessage = {
-      id: Date.now(),
-      text: trimmedValue,
-      senderId: professionalId,
-      date: Date.now(),
-    };
+  //   const newMessage = {
+  //     id: Date.now(),
+  //     text: trimmedValue,
+  //     senderId: professionalId,
+  //     date: Date.now(),
+  //   };
 
-    try {
-      // Update messages in chats collection
-      await updateDoc(doc(db, 'chats', chatId), {
-        messages: arrayUnion(newMessage),
-      });
+  //   try {
+  //     // Update messages in chats collection
+  //     await updateDoc(doc(db, 'chats', chatId), {
+  //       messages: arrayUnion(newMessage),
+  //     });
 
-      // Update last message in user chats
-      const updatePromises = [professionalId, chat.sender?.id]
-        .filter(Boolean)
-        .map(async (userId) => {
-          if (!userId) return;
+  //     // Update last message in user chats
+  //     const updatePromises = [professionalId, chat.sender?.id]
+  //       .filter(Boolean)
+  //       .map(async (userId) => {
+  //         if (!userId) return;
           
-          const userChatsRef = doc(db, "userchats", userId);
-          const userChatsSnap = await getDoc(userChatsRef);
+  //         const userChatsRef = doc(db, "userchats", userId);
+  //         const userChatsSnap = await getDoc(userChatsRef);
           
-          if (userChatsSnap.exists()) {
-            const chats = userChatsSnap.data().chats || [];
-            const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
+  //         if (userChatsSnap.exists()) {
+  //           const chats = userChatsSnap.data().chats || [];
+  //           const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
             
-            if (chatIndex !== -1) {
-              const updatedChats = [...chats];
-              updatedChats[chatIndex] = {
-                ...updatedChats[chatIndex],
-                lastMessage: trimmedValue,
-                isSeen: userId === professionalId,
-                updatedAt: Date.now(),
-              };
+  //           if (chatIndex !== -1) {
+  //             const updatedChats = [...chats];
+  //             updatedChats[chatIndex] = {
+  //               ...updatedChats[chatIndex],
+  //               lastMessage: trimmedValue,
+  //               isSeen: userId === professionalId,
+  //               updatedAt: Date.now(),
+  //             };
               
-              await updateDoc(userChatsRef, { chats: updatedChats });
+  //             await updateDoc(userChatsRef, { chats: updatedChats });
+  //           }
+  //         }
+  //       });
+
+  //     await Promise.all(updatePromises);
+  //     setTextAreaValue('');
+  //   } catch (error) {
+  //     console.error('Error sending message:', error);
+  //   }
+  // };
+
+    const handleSend = async () => {
+      if (textAreaValue.trim() === '') return;
+  
+      const newMessage = {
+        id: Date.now(),
+        text: textAreaValue,
+        senderId: professionalUID,
+        date: Date.now(),
+      };
+  
+      try {
+        await updateDoc(doc(db, 'chats', chatId), {
+          messages: arrayUnion(newMessage),
+        });
+  
+        const userIds = [professionalUID, user.id];
+  
+        userIds.forEach(async (id) => {
+          const userChatsRef = doc(db, 'userchats', id);
+          const userChatsSnapshot = await getDoc(userChatsRef);
+  
+          if (userChatsSnapshot.exists()) {
+            const chats = userChatsSnapshot.data().chats;
+            const chatIndex = chats.findIndex((c) => c.chatId === chatId);
+            if (chatIndex !== -1) {
+              chats[chatIndex].lastMessage = textAreaValue;
+              chats[chatIndex].isSeen = id === professionalUID;
+              chats[chatIndex].updatedAt = Date.now();
+              await updateDoc(userChatsRef, { chats });
             }
           }
         });
+  
+        setTextAreaValue('');
+      } catch (error) {
+        console.error('Error sending message:', error);
+      }
+    };
 
-      await Promise.all(updatePromises);
-      setTextAreaValue('');
-    } catch (error) {
-      console.error('Error sending message:', error);
-    }
-  };
+  // const formatTimestamp = (timestamp: number) => {
+  //   const now = new Date();
+  //   const date = new Date(timestamp);
+  //   const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
 
-  const formatTimestamp = (timestamp: number) => {
-    const now = new Date();
-    const date = new Date(timestamp);
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInDays === 1) {
-      return 'Yesterday';
-    } else if (diffInDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
-    }
-    return date.toLocaleDateString();
-  };
+  //   if (diffInDays === 0) {
+  //     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  //   } else if (diffInDays === 1) {
+  //     return 'Yesterday';
+  //   } else if (diffInDays < 7) {
+  //     return date.toLocaleDateString([], { weekday: 'short' });
+  //   }
+  //   return date.toLocaleDateString();
+  // };
 
   // Simplified rendering
   return (
@@ -139,7 +193,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         backgroundColor: 'background.level1',
       }}
     >
-      {!chatId ? (
+      {!user ? (
         <Box
           sx={{
             display: 'flex',
@@ -154,9 +208,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         </Box>
       ) : (
         <>
-          <MessagesPaneHeader 
-            sender={chat.sender} 
-          />
+          <MessagesPaneHeader />
 
           <Box
             sx={{
@@ -169,29 +221,27 @@ export default function MessagesPane(props: MessagesPaneProps) {
               flexDirection: 'column-reverse',
             }}
           >
-            <Stack spacing={2} justifyContent="flex-end">
-              {chatMessages.map((message) => (
-                <Stack
-                  key={message.id}
-                  direction="row"
-                  spacing={2}
-                  sx={{ 
-                    flexDirection: message.sender === 'You' ? 'row-reverse' : 'row' 
-                  }}
-                >
-                  {message.sender !== 'You' && (
-                    <AvatarWithStatus
-                      online={message.sender.online}
-                      src={message.sender.avatar}
+            <Stack spacing={2} sx={{ justifyContent: 'flex-end' }}>
+              {chatMessages.map((message) => {
+                console.log("Message coming",message)
+                const isYou = message.senderId === professionalUID;
+                return (
+                  <Stack
+                    key={message.id}
+                    direction="row"
+                    spacing={2}
+                    sx={{ flexDirection: isYou ? 'row-reverse' : 'row' }}
+                  >
+                    {!isYou && <AvatarWithStatus />}
+                    <ChatBubble
+                      variant={isYou ? 'sent' : 'received'}
+                      sender={isYou ? "Me" : message.sender}
+                      content={message.text}
+                      timestamp={new Date(message.date).toLocaleTimeString()}
                     />
-                  )}
-                  <ChatBubble
-                    variant={message.sender === 'You' ? 'sent' : 'received'}
-                    {...message}
-                  />
-                </Stack>
-              ))}
-              <div ref={endRef} />
+                  </Stack>
+                );
+              })}
             </Stack>
           </Box>
 

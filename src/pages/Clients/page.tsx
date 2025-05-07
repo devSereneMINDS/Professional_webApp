@@ -2,7 +2,6 @@ import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
 import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
@@ -10,7 +9,6 @@ import { useSelector } from 'react-redux';
 
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import SearchIcon from '@mui/icons-material/Search';
 
 import Sidebar from '../../components/Slidebar';
@@ -25,7 +23,7 @@ export default function JoyOrderDashboardTemplate() {
   const [clients, setClients] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const professionalId = useSelector((state) => state.professional?.data?.id);
+  const professionalId = useSelector((state: any) => state.professional?.data?.id);
 
   // Fetch clients from API
   React.useEffect(() => {

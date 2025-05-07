@@ -66,7 +66,7 @@ function RowMenu() {
 export default function OrderTable({ clients, isLoading }: OrderTableProps) {
   const [order, setOrder] = React.useState<Order>('desc');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
   
   if (isLoading) {
     return (
@@ -83,11 +83,11 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
         variant="outlined"
         sx={{
           display: { xs: 'none', sm: 'initial' },
-          width: '100%',
           borderRadius: 'sm',
           flexShrink: 1,
           overflow: 'auto',
           minHeight: 0,
+          maxWidth:"95vw"
         }}
       >
         <Table
