@@ -34,6 +34,7 @@ interface PaymentStats {
 }
 
 export default function JoyOrderDashboardTemplate() {
+
     const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
 
   const NavigatePersonalWebsite = () => {

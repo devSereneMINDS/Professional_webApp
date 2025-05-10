@@ -49,9 +49,12 @@ export default function Sidebar() {
     }
   };
 
-  if(localStorage.getItem("userEmail") === null && localStorage.getItem("googleAccessToken") === null) {
-    navigate("/login");
-  }
+    const userEmail = localStorage.getItem("userEmail");
+    const googleAccessToken = localStorage.getItem("googleAccessToken");
+    if(!userEmail || !googleAccessToken || !professional?.data?.id) {
+      // Redirect to login page if userEmail or googleAccessToken is not available
+      navigate("/login");
+    }
 
 
   const handleLogout = () => {
