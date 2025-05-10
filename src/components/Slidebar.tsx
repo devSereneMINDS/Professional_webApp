@@ -51,7 +51,7 @@ export default function Sidebar() {
 
     const userEmail = localStorage.getItem("userEmail");
     const googleAccessToken = localStorage.getItem("googleAccessToken");
-    if(!userEmail || !googleAccessToken || !professional?.data?.id) {
+    if(!userEmail && !googleAccessToken && !professional?.data?.id) {
       // Redirect to login page if userEmail or googleAccessToken is not available
       navigate("/login");
     }
