@@ -49,6 +49,11 @@ export default function Sidebar() {
     }
   };
 
+  if(localStorage.getItem("userEmail") === null && localStorage.getItem("googleAccessToken") === null) {
+    navigate("/login");
+  }
+
+
   const handleLogout = () => {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("googleAccessToken");
