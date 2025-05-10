@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { getDoc, updateDoc, doc, onSnapshot, arrayUnion } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
@@ -11,179 +12,109 @@ import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
 import { MessageProps } from '../utils/types';
 
-// type MessagesPaneProps = {
-//   chat: ChatProps;
-// };
-
 export default function MessagesPane() {
-  // const { chat } = props;
   const [chatMessages, setChatMessages] = React.useState<MessageProps[]>([]);
   const [textAreaValue, setTextAreaValue] = React.useState('');
   const endRef = React.useRef<HTMLDivElement>(null);
 
-  const { chatId,user } = useSelector((state: any) => state.userChat);
+  const { chatId, user } = useSelector((state: any) => state.userChat);
   const professional = useSelector((state: any) => state.professional?.data);
   const professionalUID = professional?.uid;
 
-  // React.useEffect(() => {
-  //   if (!chatId) {
-  //     setChatMessages([]);
-  //     return;
-  //   }
-
-  //   const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
-  //     if (!docSnapshot.exists()) {
-  //       setChatMessages([]);
-  //       return;
-  //     }
-
-  //     const messagesData = docSnapshot.data().messages || [];
-  //     const formattedMessages = messagesData.map((msg: any) => ({
-  //       id: msg.id.toString(),
-  //       sender: msg.senderId === professionalId 
-  //         ? 'You' 
-  //         : {
-  //             name: chat.sender?.displayName || chat.sender?.name || 'Unknown',
-  //             avatar: chat.sender?.photoURL || chat.sender?.avatar || '',
-  //             online: true,
-  //             id: chat.sender?.id
-  //           },
-  //       content: msg.text,
-  //       timestamp: formatTimestamp(msg.date),
-  //       date: msg.date
-  //     }));
-
-  //     setChatMessages(formattedMessages.sort((a, b) => a.date - b.date));
-  //   });
-
-  //   return () => unSub();
-  // }, [chatId, professionalId, chat.sender]);
-
   React.useEffect(() => {
-      if (!chatId) return;
-  
-      console.log("Chat for header",chatId);
-      console.log("User for which Chat",user);
-  
-      const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
-        if (docSnapshot.exists()) {
-          setChatMessages(docSnapshot.data().messages);
-        }
-      });
-  
-      return () => unSub();
-    }, [chatId]);
+    if (!chatId) {
+      setChatMessages([]);
+      return;
+    }
+
+    const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
+      if (!docSnapshot.exists()) {
+        setChatMessages([]);
+        return;
+      }
+
+      const messagesData = docSnapshot.data().messages || [];
+      const formattedMessages = messagesData.map((msg: any) => ({
+        id: msg.id.toString(),
+        content: msg.text || msg.content,
+        timestamp: new Date(msg.date).toLocaleTimeString(),
+        sender: msg.senderId === professionalUID 
+          ? 'You' 
+          : {
+              displayName: user?.displayName || 'Unknown',
+              name: user?.name || '',
+              username: user?.username || '',
+              avatar: user?.photoURL || user?.avatar || '',
+              online: true,
+            },
+        senderId: msg.senderId,
+        date: msg.date
+      }));
+
+      setChatMessages(
+        formattedMessages.sort(
+          (a: MessageProps, b: MessageProps) => (a.date || 0) - (b.date || 0)
+        )
+      );
+    });
+
+    return () => unSub();
+  }, [chatId, professionalUID, user]);
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // const handleSend = async () => {
-  //   const trimmedValue = textAreaValue.trim();
-  //   if (!trimmedValue || !chatId || !professionalId) return;
+  const handleSend = async () => {
+    const trimmedValue = textAreaValue.trim();
+    if (!trimmedValue || !chatId || !professionalUID) return;
 
-  //   const newMessage = {
-  //     id: Date.now(),
-  //     text: trimmedValue,
-  //     senderId: professionalId,
-  //     date: Date.now(),
-  //   };
-
-  //   try {
-  //     // Update messages in chats collection
-  //     await updateDoc(doc(db, 'chats', chatId), {
-  //       messages: arrayUnion(newMessage),
-  //     });
-
-  //     // Update last message in user chats
-  //     const updatePromises = [professionalId, chat.sender?.id]
-  //       .filter(Boolean)
-  //       .map(async (userId) => {
-  //         if (!userId) return;
-          
-  //         const userChatsRef = doc(db, "userchats", userId);
-  //         const userChatsSnap = await getDoc(userChatsRef);
-          
-  //         if (userChatsSnap.exists()) {
-  //           const chats = userChatsSnap.data().chats || [];
-  //           const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
-            
-  //           if (chatIndex !== -1) {
-  //             const updatedChats = [...chats];
-  //             updatedChats[chatIndex] = {
-  //               ...updatedChats[chatIndex],
-  //               lastMessage: trimmedValue,
-  //               isSeen: userId === professionalId,
-  //               updatedAt: Date.now(),
-  //             };
-              
-  //             await updateDoc(userChatsRef, { chats: updatedChats });
-  //           }
-  //         }
-  //       });
-
-  //     await Promise.all(updatePromises);
-  //     setTextAreaValue('');
-  //   } catch (error) {
-  //     console.error('Error sending message:', error);
-  //   }
-  // };
-
-    const handleSend = async () => {
-      if (textAreaValue.trim() === '') return;
-  
-      const newMessage = {
-        id: Date.now(),
-        text: textAreaValue,
-        senderId: professionalUID,
-        date: Date.now(),
-      };
-  
-      try {
-        await updateDoc(doc(db, 'chats', chatId), {
-          messages: arrayUnion(newMessage),
-        });
-  
-        const userIds = [professionalUID, user.id];
-  
-        userIds.forEach(async (id) => {
-          const userChatsRef = doc(db, 'userchats', id);
-          const userChatsSnapshot = await getDoc(userChatsRef);
-  
-          if (userChatsSnapshot.exists()) {
-            const chats = userChatsSnapshot.data().chats;
-            const chatIndex = chats.findIndex((c) => c.chatId === chatId);
-            if (chatIndex !== -1) {
-              chats[chatIndex].lastMessage = textAreaValue;
-              chats[chatIndex].isSeen = id === professionalUID;
-              chats[chatIndex].updatedAt = Date.now();
-              await updateDoc(userChatsRef, { chats });
-            }
-          }
-        });
-  
-        setTextAreaValue('');
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
+    const newMessage = {
+      id: Date.now().toString(),
+      content: trimmedValue,
+      senderId: professionalUID,
+      date: Date.now(),
+      timestamp: new Date().toLocaleTimeString(),
+      sender: 'You' as const,
     };
 
-  // const formatTimestamp = (timestamp: number) => {
-  //   const now = new Date();
-  //   const date = new Date(timestamp);
-  //   const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    try {
+      await updateDoc(doc(db, 'chats', chatId), {
+        messages: arrayUnion(newMessage),
+      });
 
-  //   if (diffInDays === 0) {
-  //     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  //   } else if (diffInDays === 1) {
-  //     return 'Yesterday';
-  //   } else if (diffInDays < 7) {
-  //     return date.toLocaleDateString([], { weekday: 'short' });
-  //   }
-  //   return date.toLocaleDateString();
-  // };
+      const userIds = [professionalUID, user?.id].filter(Boolean);
 
-  // Simplified rendering
+      await Promise.all(
+        userIds.map(async (id) => {
+          if (!id) return;
+          const userChatsRef = doc(db, 'userchats', id);
+          const userChatsSnap = await getDoc(userChatsRef);
+          
+          if (userChatsSnap.exists()) {
+            const chats = userChatsSnap.data().chats || [];
+            const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
+            
+            if (chatIndex !== -1) {
+              const updatedChats = [...chats];
+              updatedChats[chatIndex] = {
+                ...updatedChats[chatIndex],
+                lastMessage: trimmedValue,
+                isSeen: id === professionalUID,
+                updatedAt: Date.now(),
+              };
+              await updateDoc(userChatsRef, { chats: updatedChats });
+            }
+          }
+        })
+      );
+
+      setTextAreaValue('');
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
   return (
     <Sheet
       sx={{
@@ -223,8 +154,7 @@ export default function MessagesPane() {
           >
             <Stack spacing={2} sx={{ justifyContent: 'flex-end' }}>
               {chatMessages.map((message) => {
-                console.log("Message coming",message)
-                const isYou = message.senderId === professionalUID;
+                const isYou = message.sender === 'You' || message.senderId === professionalUID;
                 return (
                   <Stack
                     key={message.id}
@@ -232,16 +162,24 @@ export default function MessagesPane() {
                     spacing={2}
                     sx={{ flexDirection: isYou ? 'row-reverse' : 'row' }}
                   >
-                    {!isYou && <AvatarWithStatus />}
+                    {!isYou && (
+                      <AvatarWithStatus 
+                        src={typeof message.sender !== 'string' ? message.sender.avatar : ''}
+                        online={typeof message.sender !== 'string' ? message.sender.online : false}
+                      />
+                    )}
                     <ChatBubble
+                      id={message.id}
+                      senderId={message.senderId}
+                      date={message.date}
                       variant={isYou ? 'sent' : 'received'}
-                      sender={isYou ? "Me" : message.sender}
-                      content={message.text}
-                      timestamp={new Date(message.date).toLocaleTimeString()}
-                    />
+                      sender={isYou ? 'You' : message.sender}
+                      content={message.content}
+                      timestamp={message.timestamp} chatId={''} messageId={''}                    />
                   </Stack>
                 );
               })}
+              <div ref={endRef} />
             </Stack>
           </Box>
 

@@ -14,7 +14,11 @@ import { useSelector } from 'react-redux';
 
 export default function JoyOrderDashboardTemplate() {
 
-  const appointment = useSelector((state: any) => state.appointment);
+  interface RootState {
+    appointment: { id: string; date: string; time: string; clientName: string; status: string }; // Replace with the actual structure of 'appointment'
+  }
+
+  const appointment = useSelector((state: RootState) => state.appointment);
   console.log('appointment', appointment);
   return (
     <CssVarsProvider disableTransitionOnChange>

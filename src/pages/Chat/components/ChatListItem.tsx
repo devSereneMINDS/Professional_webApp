@@ -41,7 +41,7 @@ export default function ChatListItem(props: ChatListItemProps) {
       id,
       sender,
       messages,
-      updatedAt
+      updatedAt // Now valid because ChatProps includes this
     });
     dispatch(changeChat({ chatId: id, user: sender }));
     toggleMessagesPane();
@@ -71,7 +71,7 @@ export default function ChatListItem(props: ChatListItemProps) {
                 noWrap
                 sx={{ display: { xs: 'none', md: 'block' } }}
               >
-                {formatTime(updatedAt || messages[0]?.timestamp)}
+                {formatTime(updatedAt || Number(messages[0]?.timestamp))}
               </Typography>
             </Box>
           </Stack>

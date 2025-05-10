@@ -6,11 +6,10 @@ import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import Sidebar from '../../components/Slidebar';
-import Header from '../../components/Header';
 import { Input, Stack } from '@mui/joy';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
 export default function JoyOrderDashboardTemplate() {
   return (
@@ -22,8 +21,6 @@ export default function JoyOrderDashboardTemplate() {
         overflow: 'hidden',
         position: 'relative',
       }}>
-        <Header />
-        <Sidebar />
         <Box
           component="main"
           className="MainContent"
@@ -48,7 +45,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link
@@ -75,8 +72,7 @@ export default function JoyOrderDashboardTemplate() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"
-                type="date"
-                value={today.format('YYYY-MM-DD')}
+                value={dayjs().format('YYYY-MM-DD')}
                 readOnly
                 sx={{
                   width: 120,

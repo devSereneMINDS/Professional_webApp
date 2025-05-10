@@ -17,25 +17,36 @@ import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import QuestionAnswerRoundedIcon from '@mui/icons-material/QuestionAnswerRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import { useColorScheme } from '@mui/joy/styles';
 import ColorSchemeToggle from './modules/ColorSchemeToggle';
 import { closeSidebar } from './utils';
 import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resetProfessionalData } from '../store/slices/ProfessionalSlice';
+import { useColorScheme } from '@mui/joy';
+
+interface ProfessionalData {
+  id?: string;
+  full_name?: string;
+  email?: string;
+  photo_url?: string;
+}
 
 export default function Sidebar() {
-  const { mode } = useColorScheme();
-  const professional = useSelector((state) => state.professional);
+  const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { mode } = useColorScheme();
+
   const AddNewClient = () => {
-    window.location.href = `http://booking.sereneminds.life/${professional?.data?.id}`;
+    if (professional?.data?.id) {
+      window.location.href = `http://booking.sereneminds.life/${professional.data.id}`;
+    }
   };
 
   const handleLogout = () => {
@@ -45,13 +56,11 @@ export default function Sidebar() {
     navigate("/login");
   };
 
-  // Helper function to determine if a path is active
   const isActive = (path: string) => {
     if (path === '/' && currentPath === '/') return true;
     return currentPath.startsWith(path) && path !== '/';
   };
 
-  // Style for active menu items
   const activeStyle = (path: string) => ({
     backgroundColor: isActive(path) ? 'var(--joy-palette-primary-softBg)' : 'initial',
     '&:hover': {

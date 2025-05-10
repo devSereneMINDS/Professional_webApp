@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Autocomplete from '@mui/joy/Autocomplete';
 import AutocompleteOption from '@mui/joy/AutocompleteOption';
 import AspectRatio from '@mui/joy/AspectRatio';
@@ -7,8 +6,21 @@ import FormLabel from '@mui/joy/FormLabel';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
 import Typography from '@mui/joy/Typography';
 
-export default function ContrySelector(props: FormControlProps) {
-  const { sx, ...other } = props;
+interface CountrySelectorProps extends Omit<FormControlProps, 'onChange'> {
+  value: CountryType | null;
+  onChange: (value: CountryType | null) => void;
+}
+
+interface CountryType {
+  code: string;
+  label: string;
+  phone: string;
+  suggested?: boolean;
+}
+
+export default function CountrySelector(props: CountrySelectorProps) {
+  const { value, onChange, sx, ...other } = props;
+  
   return (
     <FormControl
       {...other}
@@ -18,7 +30,9 @@ export default function ContrySelector(props: FormControlProps) {
       <Autocomplete
         size="sm"
         autoHighlight
-        isOptionEqualToValue={(option, value) => option.code === value.code}
+        value={value}
+        onChange={(_, newValue) => onChange(newValue)}
+        isOptionEqualToValue={(option, value) => option.code === value?.code}
         placeholder='Select a country...'
         options={countries}
         renderOption={(optionProps, option) => (
@@ -48,13 +62,6 @@ export default function ContrySelector(props: FormControlProps) {
       />
     </FormControl>
   );
-}
-
-interface CountryType {
-  code: string;
-  label: string;
-  phone: string;
-  suggested?: boolean;
 }
 
 // From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js

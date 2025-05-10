@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import AspectRatio from '@mui/joy/AspectRatio';
 import Box from '@mui/joy/Box';
@@ -31,47 +32,75 @@ import CountrySelector from './ContrySelector';
 import EditorToolbar from './EditorToolbar';
 import { useSelector, useDispatch } from 'react-redux';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { setProfessionalData } from '../../../store/slices/ProfessionalSlice'; // Assuming you have a Redux slice
+import { setProfessionalData } from '../../../store/slices/ProfessionalSlice';
 import axios from 'axios';
 
+interface Service {
+  name: string;
+  description: string;
+  duration: string;
+  price: string;
+  currency: string;
+}
+
+interface AvailabilityDay {
+  day: string;
+  times: string[];
+}
+interface CountryType {
+  code: string;
+  label: string;
+  phone: string;
+  suggested?: boolean;
+}
+
+interface FormData {
+  full_name: string;
+  email: string;
+  phone: string;
+  area_of_expertise: string;
+  country: CountryType | null;  // Changed from string
+  about_me: string;
+}
+
 export default function MyProfile() {
-  const professional = useSelector((state) => state.professional);
+  const professional = useSelector((state: { professional: any }) => state.professional);
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
   
   // Form state
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = React.useState<FormData>({
     full_name: '',
     email: '',
     phone: '',
     area_of_expertise: '',
-    country: '',
+    country: null,
     about_me: '',
   });
 
-  // Initialize availability from professional data or with one empty slot
-  const [availability, setAvailability] = React.useState(
+  // Initialize availability
+  const [availability, setAvailability] = React.useState<AvailabilityDay[]>(
     professional?.data?.availability 
       ? Object.entries(professional.data.availability).map(([day, times]) => ({
           day,
-          times: [times] // Assuming times is a string like "09:00-19:00"
+          times: [times as string]
         }))
-      : [{ day: '', times: [''] }
-  ]);
+      : [{ day: '', times: [''] }]
+  );
 
-  // Initialize services from professional data or with one empty service
-  const [services, setServices] = React.useState(
+  // Initialize services
+  const [services, setServices] = React.useState<Service[]>(
     professional?.data?.services 
-      ? professional.data.services.map(service => ({
+      ? professional.data.services.map((service: any) => ({
           name: service.serviceTitle || '',
           description: service.serviceDescription || '',
-          duration: service.duration || '',
-          price: service.price || '',
-          currency: service.currency || ''
+          duration: String(service.duration) || '',
+          price: String(service.price) || '',
+          currency: service.currency || 'INR'
         }))
-      : [{ name: '', description: '', duration: '', price: '', currency: '' }
-  ]);
+      : [{ name: '', description: '', duration: '', price: '', currency: 'INR' }]
+  );
 
   // Set form data when professional data is available
   React.useEffect(() => {
@@ -87,7 +116,7 @@ export default function MyProfile() {
     }
   }, [professional]);
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -95,16 +124,16 @@ export default function MyProfile() {
   };
 
   const handleAddService = () => {
-    setServices([...services, { name: '', description: '', duration: '', price: '', currency: '' }]);
+    setServices([...services, { name: '', description: '', duration: '', price: '', currency: 'INR' }]);
   };
 
-  const handleServiceChange = (index, field, value) => {
+  const handleServiceChange = (index: number, field: keyof Service, value: string) => {
     const updatedServices = [...services];
     updatedServices[index][field] = value;
     setServices(updatedServices);
   };
 
-  const handleRemoveService = (index) => {
+  const handleRemoveService = (index: number) => {
     const updatedServices = services.filter((_, i) => i !== index);
     setServices(updatedServices);
   };
@@ -113,31 +142,31 @@ export default function MyProfile() {
     setAvailability([...availability, { day: '', times: [''] }]);
   };
 
-  const handleDayChange = (index, value) => {
+  const handleDayChange = (index: number, value: string | null) => {
     const updatedAvailability = [...availability];
-    updatedAvailability[index].day = value;
+    updatedAvailability[index].day = value || '';
     setAvailability(updatedAvailability);
   };
 
-  const handleAddAvailabilityTime = (dayIndex) => {
+  const handleAddAvailabilityTime = (dayIndex: number) => {
     const updatedAvailability = [...availability];
     updatedAvailability[dayIndex].times.push('');
     setAvailability(updatedAvailability);
   };
 
-  const handleAvailabilityTimeChange = (dayIndex, timeIndex, value) => {
+  const handleAvailabilityTimeChange = (dayIndex: number, timeIndex: number, value: string) => {
     const updatedAvailability = [...availability];
     updatedAvailability[dayIndex].times[timeIndex] = value;
     setAvailability(updatedAvailability);
   };
 
-  const handleRemoveAvailabilityTime = (dayIndex, timeIndex) => {
+  const handleRemoveAvailabilityTime = (dayIndex: number, timeIndex: number) => {
     const updatedAvailability = [...availability];
     updatedAvailability[dayIndex].times = updatedAvailability[dayIndex].times.filter((_, i) => i !== timeIndex);
     setAvailability(updatedAvailability);
   };
 
-  const handleRemoveDay = (dayIndex) => {
+  const handleRemoveDay = (dayIndex: number) => {
     const updatedAvailability = availability.filter((_, i) => i !== dayIndex);
     setAvailability(updatedAvailability);
   };
@@ -151,16 +180,16 @@ export default function MyProfile() {
         services: services.map(service => ({
           serviceTitle: service.name,
           serviceDescription: service.description,
-          duration: service.duration,
-          price: service.price,
+          duration: Number(service.duration),
+          price: Number(service.price),
           currency: service.currency
         })),
-        availability: availability.reduce((acc, day) => {
+        availability: availability.reduce((acc: Record<string, string>, day) => {
           if (day.day && day.times[0]) {
             acc[day.day] = day.times[0];
           }
           return acc;
-        }, {})
+        }, {} as Record<string, string>)
       };
 
       const response = await axios.put(
@@ -169,10 +198,8 @@ export default function MyProfile() {
       );
 
       dispatch(setProfessionalData(response.data));
-      // Show success message
     } catch (error) {
       console.error('Error updating profile:', error);
-      // Show error message
     } finally {
       setIsLoading(false);
     }
@@ -186,8 +213,8 @@ export default function MyProfile() {
         services: services.map(service => ({
           serviceTitle: service.name,
           serviceDescription: service.description,
-          duration: service.duration,
-          price: service.price,
+          duration: Number(service.duration),
+          price: Number(service.price),
           currency: service.currency
         }))
       };
@@ -197,11 +224,9 @@ export default function MyProfile() {
         updatedProfessional
       );
 
-      dispatch(updateProfessional(response.data));
-      // Show success message
+      dispatch(setProfessionalData(response.data));
     } catch (error) {
       console.error('Error updating services:', error);
-      // Show error message
     } finally {
       setIsLoading(false);
     }
@@ -212,12 +237,12 @@ export default function MyProfile() {
     try {
       const updatedProfessional = {
         ...professional.data,
-        availability: availability.reduce((acc, day) => {
+        availability: availability.reduce((acc: Record<string, string>, day) => {
           if (day.day && day.times[0]) {
             acc[day.day] = day.times[0];
           }
           return acc;
-        }, {})
+        }, {} as Record<string, string>)
       };
 
       const response = await axios.put(
@@ -225,11 +250,9 @@ export default function MyProfile() {
         updatedProfessional
       );
 
-      dispatch(updateProfessional(response.data));
-      // Show success message
+      dispatch(setProfessionalData(response.data));
     } catch (error) {
       console.error('Error updating availability:', error);
-      // Show error message
     } finally {
       setIsLoading(false);
     }
@@ -283,7 +306,7 @@ export default function MyProfile() {
             My profile
           </Typography>
         </Box>
-        <Tabs defaultValue={0} onChange={(event, value) => setActiveTab(value)} sx={{ bgcolor: 'transparent' }}>
+        <Tabs defaultValue={0} onChange={(_, value) => typeof value === 'number' && setActiveTab(value)} sx={{ bgcolor: 'transparent' }}>
           <TabList
             tabFlex={1}
             size="sm"
@@ -315,7 +338,6 @@ export default function MyProfile() {
         </Tabs>
       </Box>
       
-      {/* Centered content container */}
       <Box sx={{ 
         display: 'flex',
         justifyContent: 'center',
@@ -414,10 +436,15 @@ export default function MyProfile() {
                       </FormControl>
                     </Stack>
                     <div>
-                      <CountrySelector 
-                        value={formData.country}
-                        onChange={(value) => handleInputChange('country', value)}
-                      />
+                    <CountrySelector 
+  value={formData.country}
+  onChange={(newCountry) => {
+    setFormData(prev => ({
+      ...prev,
+      country: newCountry
+    }));
+  }}
+/>
                     </div>
                     <Input
                       size="sm"
@@ -509,10 +536,15 @@ export default function MyProfile() {
                     />
                   </FormControl>
                   <div>
-                    <CountrySelector 
-                      value={formData.country}
-                      onChange={(value) => handleInputChange('country', value)}
-                    />
+                  <CountrySelector 
+  value={formData.country}
+  onChange={(newCountry) => {
+    setFormData(prev => ({
+      ...prev,
+      country: newCountry
+    }));
+  }}
+/>
                   </div>
                 </Stack>
                 <CardOverflow sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
@@ -627,7 +659,7 @@ export default function MyProfile() {
                               startDecorator={
                                 <Select 
                                   value={service.currency || 'INR'}
-                                  onChange={(e, value) => handleServiceChange(index, 'currency', value)}
+                                  onChange={(_, value) => handleServiceChange(index, 'currency', value as string)}
                                   sx={{ width: '80px' }}
                                 >
                                   <Option value="INR">₹</Option>
@@ -698,7 +730,7 @@ export default function MyProfile() {
                           <Select
                             size="sm"
                             value={day.day}
-                            onChange={(e, value) => handleDayChange(dayIndex, value)}
+                            onChange={(_, value) => handleDayChange(dayIndex, value)}
                           >
                             <Option value="Monday">Monday</Option>
                             <Option value="Tuesday">Tuesday</Option>

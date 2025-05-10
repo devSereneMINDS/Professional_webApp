@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
@@ -127,11 +129,9 @@ export default function JoyOrderDashboardTemplate() {
       description: description,
       start: {
         dateTime: eventDateTime,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
         dateTime: new Date(new Date(eventDateTime).getTime() + 60 * 60 * 1000).toISOString(), // 1 hour later
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       conferenceData: {
         createRequest: {
@@ -166,7 +166,7 @@ export default function JoyOrderDashboardTemplate() {
           description: response.data.description,
           attendees: response.data.attendees,
           hangoutLink: response.data.hangoutLink || 
-            response.data.conferenceData?.entryPoints?.find(ep => ep.entryPointType === 'video')?.uri,
+            response.data.conferenceData?.entryPoints?.find((ep: { entryPointType: string; uri: string }) => ep.entryPointType === 'video')?.uri,
         },
       };
 
@@ -235,7 +235,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link

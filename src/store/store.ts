@@ -1,3 +1,4 @@
+// src/store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import appointmentsReducer from "./slices/appointmentSlice";
 import professionalReducer from "./slices/ProfessionalSlice";
@@ -7,7 +8,6 @@ import userReducer from "./slices/userSlice";
 import userChatReducer from "./slices/userChatSlice";
 import clientReducer from "./slices/clientSlice";
 
-
 const store = configureStore({
   reducer: {
     appointments: appointmentsReducer,
@@ -15,10 +15,12 @@ const store = configureStore({
     paymentStats: paymentStatsReducer,
     professionalJournal: professionalJournalReducer,
     stepper: userReducer,
-    userChat:userChatReducer,
+    userChat: userChatReducer,
     client: clientReducer
   },
 });
 
-// If type declaration is needed, consider converting this file to TypeScript
+// Infer the `RootState` type from the store itself
+export type RootState = ReturnType<typeof store.getState>;
+
 export default store;

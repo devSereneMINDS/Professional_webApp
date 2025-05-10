@@ -17,6 +17,19 @@ import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Skeleton from '@mui/joy/Skeleton';
 
+interface AppointmentCardProps {
+  name?: string;
+  photoUrl?: string;
+  date?: string;
+  time?: string;
+  duration?: string;
+  contact?: string;
+  message?: string;
+  meetLink?: string;
+  isUpcoming?: boolean;
+  isLoading?: boolean;
+}
+
 export default function AppointmentCard({
   name = 'N/A',
   photoUrl,
@@ -28,7 +41,7 @@ export default function AppointmentCard({
   meetLink,
   isUpcoming = true,
   isLoading = false,
-}) {
+}: AppointmentCardProps) {
   const [open, setOpen] = React.useState(false);
 
   const formattedDuration = duration
@@ -136,7 +149,12 @@ export default function AppointmentCard({
   );
 }
 
-function DetailRow({ label, value }) {
+interface DetailRowProps {
+  label: string;
+  value: string;
+}
+
+function DetailRow({ label, value }: DetailRowProps) {
   return (
     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
       <Typography level="body-sm" color="neutral">{label}</Typography>

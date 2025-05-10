@@ -16,16 +16,35 @@ import dayjs from 'dayjs';
 import PageViewsBarChart from './components/PageViewBar';
 import { useSelector } from 'react-redux';
 import { StatCard, ActionCard } from './components/DashboardCard';
+import { RootState } from '../../store/store';
+
+interface ProfessionalData {
+  id?: string;
+  full_name?: string;
+  email?: string;
+  photo_url?: string;
+}
+
+// types/paymentStatsTypes.ts
+interface PaymentStats {
+  totalAppointments: number;
+  distinctClientsThisMonth: number;
+  totalFeesThisMonth: number;
+  // ... other stats properties
+}
 
 export default function JoyOrderDashboardTemplate() {
-  const today = dayjs();
-  const professional = useSelector((state) => state.professional);
+    const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
 
   const NavigatePersonalWebsite = () => {
     window.location.href = `https://site.sereneminds.life/${professional?.data?.id}`;
   };
 
-  const { stats, status, error } = useSelector((state) => state.paymentStats);
+  const { stats, status, error } = useSelector((state: RootState) => state.paymentStats) as {
+    stats: PaymentStats | null;
+    status: string;
+    error: string | null;
+  };
   console.log('Payment Stats:', stats, status, error);
 
   const statCardsData = [
@@ -35,7 +54,7 @@ export default function JoyOrderDashboardTemplate() {
       change: '+25%',
       changeColor: 'success.plainColor',
       timePeriod: 'Last 30 days',
-      gradientColors: ['#C8FAD9', '#D4FDE1'],
+      gradientColors: ['#C8FAD9', '#D4FDE1'] as [string, string],
       barColor: '#00A36C'
     },
     {
@@ -44,7 +63,7 @@ export default function JoyOrderDashboardTemplate() {
       change: '-25%',
       changeColor: 'danger.plainColor',
       timePeriod: 'Last 30 days',
-      gradientColors: ['#FAD4D4', '#FDE1E1'],
+      gradientColors: ['#FAD4D4', '#FDE1E1'] as [string, string],
       barColor: '#D32F2F'
     },
     {
@@ -53,7 +72,7 @@ export default function JoyOrderDashboardTemplate() {
       change: '+5%',
       changeColor: 'primary.plainColor',
       timePeriod: 'Last 30 days',
-      gradientColors: ['#E8EAF6', '#F0F2FA'],
+      gradientColors: ['#E8EAF6', '#F0F2FA'] as [string, string],
       barColor: '#3F51B5'
     }
   ];
@@ -100,7 +119,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link
@@ -127,8 +146,7 @@ export default function JoyOrderDashboardTemplate() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"
-                type="date"
-                value={today.format('YYYY-MM-DD')}
+                value={dayjs().format('YYYY-MM-DD')}
                 readOnly
                 sx={{
                   width: 120,

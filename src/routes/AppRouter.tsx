@@ -3,7 +3,7 @@ import Signin from "../pages/SigninProfessional/page"
 import Onboading from "../pages/Onboarding/page"
 import MyClients from "../pages/Clients/page"
 import HomePage from "../pages/Dashboard/page"
-import Chats from "../pages/chats/page"
+import Chats from "../pages/Chat/page"
 import Calendar from "../pages/Calender/page"
 import Appointments from "../pages/Appointments/page"
 import Settings from "../pages/Settings/page"
@@ -53,10 +53,10 @@ const router = createBrowserRouter([
     path:"/demo",
     element: <Demo />,
   },
-  // {
-  //   path:"/professional/:id",
-  //   element: <ProfessionalProfile />,
-  // }
+  {
+    path:"/professional/:id",
+    element: <ProfessionalProfile />,
+  }
 
         ],
     );

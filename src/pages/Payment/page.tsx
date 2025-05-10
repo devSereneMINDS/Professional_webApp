@@ -12,9 +12,9 @@ import {  Input, Stack } from '@mui/joy';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
-import PageViewsBarChart from '../Dashboard/components/PageViewBar';
 import OrderList from './/components/OrderList';
 import OrderTable from './components/OrderTable';
+import SessionsChart from '../Dashboard/components/SessionChart';
 
 export default function JoyOrderDashboardTemplate() {
   const today = dayjs();
@@ -116,10 +116,10 @@ export default function JoyOrderDashboardTemplate() {
             </Typography>
           </Box>
 
-      <PageViewsBarChart />
+      <SessionsChart />
       
-            <OrderTable />
-      <OrderList />
+            <OrderTable clients={[]} isLoading={false} />
+      <OrderList clients={[]} isLoading={false} />
 
         </Box>
       </Box>

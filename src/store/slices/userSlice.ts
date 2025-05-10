@@ -1,16 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-
-interface Availability {
-  startTime: string;
-  endTime: string;
-  days: string[]; // Array of days (e.g., ["Monday", "Tuesday"])
-}
-interface ProfessionalDetails {
-  professionalId: string;
-  availability: Availability[]; // Array of availability objects
-  // Add other professional details as needed
-}
 interface PersonalDetails {
   fullName: string;
   area_of_expertise: string;
@@ -19,19 +8,31 @@ interface PersonalDetails {
   email: string;
   profilePic: string;
 }
+
+interface ProfessionalDetails {
+  expertise: string;
+  yearsOfExperience: number;
+  certifications?: string[];
+}
+
+interface Availability {
+  day: string;
+  startTime: string;
+  endTime: string;
+}
+
 interface UserState {
   activeStep: number;
   personalDetails: PersonalDetails;
   otp: string;
   professionalDetails: ProfessionalDetails;
-  document: File | null;
+  document: File | null; // Updated to use a more specific type
   isTermsChecked: boolean;
   professionalId: string | null;
-  availability: Availability[]; // Array of availability objects
+  availability: Availability;
 }
 
-
-const initialState = {
+const initialState: UserState = {
   activeStep: 0,
   personalDetails: {
     fullName: "",
@@ -42,18 +43,26 @@ const initialState = {
     profilePic: "",
   },
   otp: "",
-  professionalDetails: {},
+  professionalDetails: {
+    expertise: "",
+    yearsOfExperience: 0,
+    certifications: [],
+  },
   document: null,
   isTermsChecked: false,
   professionalId: null,
-  availability: {}, // Add availability to the initial state
+  availability: {
+    day: "",
+    startTime: "",
+    endTime: "",
+  },
 };
 
 const userSlice = createSlice({
   name: "stepper",
   initialState,
   reducers: {
-    setActiveStep: (state, action) => {
+    setActiveStep: (state, action: PayloadAction<number>) => {
       state.activeStep = action.payload;
     },
     nextStep: (state) => {
@@ -62,36 +71,36 @@ const userSlice = createSlice({
     prevStep: (state) => {
       if (state.activeStep > 0) state.activeStep -= 1;
     },
-    updatePersonalDetails: (state, action) => {
+    updatePersonalDetails: (state, action: PayloadAction<Partial<PersonalDetails>>) => {
       state.personalDetails = { ...state.personalDetails, ...action.payload };
     },
-    uploadProfilePic: (state, action) => {
+    uploadProfilePic: (state, action: PayloadAction<string>) => {
       state.personalDetails.profilePic = action.payload;
-      console.log("profile pic from redux bitch", action.payload);
     },
-    updateOtp: (state, action) => {
+    updateOtp: (state, action: PayloadAction<string>) => {
       state.otp = action.payload;
     },
-    updateEmail: (state, action) => {
+    updateEmail: (state, action: PayloadAction<string>) => {
       state.personalDetails.email = action.payload;
     },
-    updateProfessionalDetails: (state, action) => {
+    updateProfessionalDetails: (state, action: PayloadAction<ProfessionalDetails>) => {
       state.professionalDetails = { ...state.professionalDetails, ...action.payload };
+      console.log("updated", action.payload);
     },
-    uploadDocument: (state, action) => {
+    uploadDocument: (state, action: PayloadAction<File | null>) => {
       state.document = action.payload;
     },
-    toggleTermsChecked: (state, action) => {
+    toggleTermsChecked: (state, action: PayloadAction<boolean>) => {
       state.isTermsChecked = action.payload;
     },
     resetStepper: (state) => {
       Object.assign(state, initialState);
     },
-    setProfessionalId: (state, action) => {
+    setProfessionalId: (state, action: PayloadAction<string | null>) => {
       state.professionalId = action.payload;
     },
-    updateAvailability: (state, action) => {
-      state.availability = action.payload; // Reducer to update availability
+    updateAvailability: (state, action: PayloadAction<Availability>) => {
+      state.availability = action.payload;
     },
   },
 });

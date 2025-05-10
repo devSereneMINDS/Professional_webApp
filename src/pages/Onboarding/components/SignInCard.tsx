@@ -149,13 +149,7 @@ const BasicDetailsForm = ({
           label="Date of Birth"
           value={dob}
           onChange={(newValue) => setDob(newValue)}
-          renderInput={(params) => (
-            <TextField 
-              {...params} 
-              fullWidth 
-              required 
-            />
-          )}
+          slotProps={{ textField: { fullWidth: true, required: true } }}
         />
       </LocalizationProvider>
       <TextField

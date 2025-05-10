@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { useColorScheme } from '@mui/joy/styles';
 import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
@@ -76,7 +75,7 @@ export default function SessionsChart() {
             {
               scaleType: 'point',
               data,
-              tickInterval: (index, i) => (i + 1) % 5 === 0,
+              tickInterval: ( i) => (i + 1) % 5 === 0,
             },
           ]}
           series={[
@@ -138,9 +137,6 @@ export default function SessionsChart() {
             },
           }}
           slotProps={{
-            legend: {
-              hidden: true,
-            },
           }}
         >
           <AreaGradient color={colorPalette[2]} id="organic" />

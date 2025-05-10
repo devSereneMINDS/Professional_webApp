@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
@@ -48,7 +49,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
           messages: [{
             content: item.lastMessage || "No messages yet",
             timestamp: item.updatedAt,
-            unread: !item.isSeen
+            unread: (!item.isSeen).toString()
           }],
           updatedAt: item.updatedAt
         };

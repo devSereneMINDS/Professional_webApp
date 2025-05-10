@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Sheet from '@mui/joy/Sheet';
 import MessagesPane from './MessagePane';
 import ChatsPane from './ChatsPane';

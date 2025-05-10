@@ -98,7 +98,13 @@ export const OnboardingStepper: React.FC = () => {
     }
   };
 
-  const email = useSelector((state: any) => state.professional?.professionalEmail);
+  interface RootState {
+    professional?: {
+      professionalEmail?: string;
+    };
+  }
+
+  const email = useSelector((state: RootState) => state.professional?.professionalEmail);
   console.log('Email from Redux:', email);
   if (!email) {
     window.location.href = '/login';
@@ -120,6 +126,7 @@ export const OnboardingStepper: React.FC = () => {
             setDob={setDob}
             phone={phone}
             setPhone={setPhone}
+            handlePhoneChange={(newPhone) => setPhone(newPhone)}
             avatar={avatar}
             setAvatar={setAvatar}
             domain={areaOfExpertise}

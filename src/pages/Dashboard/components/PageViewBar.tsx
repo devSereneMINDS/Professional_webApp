@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
 import Chip from '@mui/joy/Chip';
@@ -7,10 +6,13 @@ import Stack from '@mui/joy/Stack';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useColorScheme } from '@mui/joy/styles';
 import { useSelector } from 'react-redux';
+import { RootState } from '../../../store/store'; // Adjust the path to your store file
 
 export default function AppointmentsBarChart() {
-  const { upcoming, completed } = useSelector((state) => state.appointments);
-  const paymentStats = useSelector((state) => state.paymentStats.stats);
+
+  const { upcoming, completed } = useSelector((state: RootState) => state.appointments);
+
+  const paymentStats = useSelector((state: RootState) => state.paymentStats.stats ?? { totalAppointments: 0, upcomingAppointmentsThisWeek: 0 });
   
   const { systemMode } = useColorScheme();
   const isDark = systemMode === 'dark';
@@ -34,13 +36,17 @@ export default function AppointmentsBarChart() {
   const monthLabels = getMonthLabels();
 
   // Count appointments by month
-  const countAppointmentsByMonth = (appointments, monthLabels) => {
+  interface Appointment {
+    appointment_time: string;
+  }
+
+  const countAppointmentsByMonth = (appointments: Appointment[], monthLabels: string[]): number[] => {
     return monthLabels.map(label => {
       const [monthStr, yearStr] = label.split(' ');
       const month = new Date(`${monthStr} 1, ${yearStr}`).getMonth();
       const year = parseInt(yearStr);
       
-      return appointments.filter(appt => {
+      return appointments.filter((appt: Appointment) => {
         const apptDate = new Date(appt.appointment_time);
         return (
           apptDate.getMonth() === month && 
@@ -109,8 +115,7 @@ export default function AppointmentsBarChart() {
           grid={{ horizontal: true }}
           slotProps={{
             legend: {
-              hidden: false,
-              position: { vertical: 'top', horizontal: 'right' },
+              position: { vertical: 'top', horizontal: 'end' },
             },
           }}
           sx={{

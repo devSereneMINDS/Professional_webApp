@@ -3,7 +3,7 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { DocumentUploadFormProps } from './types';
-import { supabase } from '../../../../supabaseClient.js'; // Make sure you have supabase configured
+import { supabase } from '../../../../supabaseClient.ts'; // Make sure you have supabase configured
 
 export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({ 
   handleNext, 
@@ -25,7 +25,7 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
 
     try {
       // Upload the file to Supabase storage
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("professional_docs")
         .upload(fileName, file);
 
