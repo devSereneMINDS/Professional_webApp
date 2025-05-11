@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 interface ProfessionalData {
   photo_url?: string;
+  country?: string;
   // Add other properties of the data object here if needed
 }
 

@@ -128,7 +128,7 @@ const AppointmentList = () => {
               display: 'flex',
               width: '100%',
               mx: 'auto',
-              px: { xs: 2, md: 6 },
+              px: { xs: 2, md: 2 },
               py: { xs: 2, md: 3 },
             }}
           >
@@ -141,7 +141,8 @@ const AppointmentList = () => {
                     flexWrap: 'wrap',
                     gap: 2,
                     maxHeight: 'calc(100vh - 200px)',
-                    justifyContent: 'flex-start',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     overflowY: 'auto',
                     pr: 1,
                     '&::-webkit-scrollbar': {

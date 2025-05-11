@@ -16,8 +16,16 @@ import ModalClose from '@mui/joy/ModalClose';
 import Button from '@mui/joy/Button';
 import Stack from '@mui/joy/Stack';
 import Skeleton from '@mui/joy/Skeleton';
+import { useTheme } from '@mui/joy/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { Textarea } from '@mui/joy';
 
 interface AppointmentCardProps {
+  id?: string;
   name?: string;
   photoUrl?: string;
   date?: string;
@@ -28,9 +36,13 @@ interface AppointmentCardProps {
   meetLink?: string;
   isUpcoming?: boolean;
   isLoading?: boolean;
+  professional?: {
+    full_name: string;
+  };
 }
 
 export default function AppointmentCard({
+  id = '',
   name = 'N/A',
   photoUrl,
   date = 'MM/DD/YYYY',
@@ -41,16 +53,113 @@ export default function AppointmentCard({
   meetLink,
   isUpcoming = true,
   isLoading = false,
+  professional = { full_name: 'Professional Name' },
 }: AppointmentCardProps) {
   const [open, setOpen] = React.useState(false);
+  const [openMessage, setOpenMessage] = React.useState(false);
+  const [openReschedule, setOpenReschedule] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = React.useState<Date | null>(null);
+  const [isRescheduling, setIsRescheduling] = React.useState(false);
+  const [clientMessage, setClientMessage] = React.useState('');
+  const [isSending, setIsSending] = React.useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const formattedDuration = duration
     ? `${parseInt(duration.split(':')[1])} minutes`
     : '0 minutes';
 
+  const openClientMessage = () => {
+    setClientMessage('');
+    setOpenMessage(true);
+  };
+
+  const handleSendMessage = async () => {
+    if (!clientMessage.trim()) {
+      alert("Message cannot be empty");
+      return;
+    }
+
+    if (!API_BASE_URL) {
+      alert("API configuration error. Please try again later.");
+      console.error("API_BASE_URL is missing");
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/whatsapp/send`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          campaignName: "client_professional_message02",
+          destination: contact,
+          userName: "Serene MINDS",
+          templateParams: [name, professional.full_name, clientMessage],
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Failed to send message");
+      }
+
+      alert("Message sent successfully!");
+      setOpenMessage(false);
+    } catch (error) {
+      console.error("Error sending message:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message";
+      alert(`Error: ${errorMessage}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleReschedule = async () => {
+    if (!selectedDate || !selectedTime) {
+      alert('Please select both date and time');
+      return;
+    }
+
+    try {
+      setIsRescheduling(true);
+      
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+      const hours = selectedTime.getHours().toString().padStart(2, '0');
+      const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
+      const formattedTime = `${hours}:${minutes}`;
+
+      await onReschedule(id, formattedDate, formattedTime);
+      
+      setOpenReschedule(false);
+      setOpen(false);
+      
+      alert('Appointment rescheduled successfully!');
+    } catch (error) {
+      console.error('Reschedule error:', error);
+      alert('Failed to reschedule appointment. Please try again.');
+    } finally {
+      setIsRescheduling(false);
+    }
+  };
+
   if (isLoading) {
     return (
-      <Card variant="outlined" sx={{ minWidth: 300, maxWidth: 300, p: 2 }}>
+      <Card variant="outlined" sx={{ 
+        minWidth: 300, 
+        maxWidth: 300, 
+        p: 2,
+        [theme.breakpoints.down('sm')]: {
+          minWidth: '100%',
+          maxWidth: '100%'
+        }
+      }}>
         <Skeleton variant="rectangular" width="100%" height={200} />
       </Card>
     );
@@ -58,7 +167,15 @@ export default function AppointmentCard({
 
   return (
     <>
-      <Card variant="outlined" sx={{ minWidth: 350, p: 2 }}>
+      <Card variant="outlined" sx={{ 
+        minWidth: 350, 
+        maxWidth: 300,
+        p: 2,
+        [theme.breakpoints.down('sm')]: {
+          minWidth: '100%',
+          maxWidth: '100%'
+        }
+      }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <Avatar src={photoUrl} alt={name} />
@@ -70,7 +187,7 @@ export default function AppointmentCard({
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-          <IconButton variant="solid" color="primary">
+          <IconButton variant="solid" onClick={openClientMessage} color="primary">
             <ChatBubbleOutlineIcon />
           </IconButton>
           {meetLink && (
@@ -94,24 +211,32 @@ export default function AppointmentCard({
         </CardContent>
       </Card>
 
-      {/* Modal */}
+      {/* Details Modal */}
       <Modal open={open} onClose={() => setOpen(false)}>
         <ModalDialog
           variant="outlined"
           sx={{
             borderRadius: '16px',
-            p: 3,
-            minWidth: 700,
-            maxWidth: 750,
+            p: isMobile ? 2 : 3,
+            width: isMobile ? '90%' : 'auto',
+            maxWidth: isMobile ? '100%' : 750,
+            maxHeight: '90vh',
+            overflow: 'auto',
             display: 'flex',
-            flexDirection: 'row',
-            gap: 4,
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? 2 : 4
           }}
         >
           <ModalClose />
 
           {/* Left Side */}
-          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 1,
+            mb: isMobile ? 2 : 0
+          }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <Avatar src={photoUrl} alt={name} />
               <Typography level="title-md" fontWeight="bold">{name}</Typography>
@@ -125,8 +250,26 @@ export default function AppointmentCard({
               <Button
                 variant="solid"
                 color="success"
-                onClick={() => setOpen(false)}
+                onClick={() => {
+                  setOpenReschedule(true);
+                  if (date && time) {
+                    try {
+                      const [month, day, year] = date.split('/');
+                      const [hours, minutes] = time.split(':');
+                      const ampm = time.includes('PM') ? 'PM' : 'AM';
+                      let hoursNum = parseInt(hours);
+                      if (ampm === 'PM' && hoursNum < 12) hoursNum += 12;
+                      if (ampm === 'AM' && hoursNum === 12) hoursNum = 0;
+                      
+                      setSelectedDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
+                      setSelectedTime(new Date(0, 0, 0, hoursNum, parseInt(minutes)));
+                    } catch (e) {
+                      console.error('Error parsing date/time:', e);
+                    }
+                  }
+                }}
                 sx={{ mt: 3 }}
+                fullWidth={isMobile}
               >
                 Confirm Reschedule
               </Button>
@@ -141,8 +284,101 @@ export default function AppointmentCard({
             <Typography level="body-md" sx={{ whiteSpace: 'pre-line' }}>
               {message}
             </Typography>
-
           </Box>
+        </ModalDialog>
+      </Modal>
+
+      {/* Reschedule Modal */}
+      <Modal open={openReschedule} onClose={() => setOpenReschedule(false)}>
+        <ModalDialog
+          variant="outlined"
+          sx={{
+            borderRadius: '16px',
+            p: 3,
+            width: isMobile ? '90%' : '400px',
+            maxWidth: '100%',
+          }}
+        >
+          <ModalClose />
+          <Typography level="h4" mb={2}>Reschedule Appointment</Typography>
+          
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <DatePicker
+                label="Select Date"
+                value={selectedDate}
+                onChange={(newValue) => setSelectedDate(newValue)}
+                minDate={new Date()}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                  },
+                }}
+              />
+              
+              <TimePicker
+                label="Select Time"
+                value={selectedTime}
+                onChange={(newValue) => setSelectedTime(newValue)}
+                minutesStep={15}
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                  },
+                }}
+              />
+              
+              <Button
+                variant="solid"
+                color="primary"
+                onClick={handleReschedule}
+                loading={isRescheduling}
+                sx={{ mt: 2 }}
+                fullWidth
+              >
+                Confirm New Time
+              </Button>
+            </Box>
+          </LocalizationProvider>
+        </ModalDialog>
+      </Modal>
+
+      {/* Message Modal */}
+      <Modal open={openMessage} onClose={() => setOpenMessage(false)}>
+        <ModalDialog
+          size="lg"
+          sx={{
+            minWidth: { xs: '90%', sm: '60%', md: '50%' },
+            maxWidth: '800px',
+            p: 3,
+          }}
+        >
+          <ModalClose />
+          <Typography level="h4" fontWeight="lg" mb={2}>
+            Send WhatsApp message to {name}
+          </Typography>
+          
+          <Textarea
+            minRows={3}
+            maxRows={6}
+            placeholder="Enter your message here..."
+            value={clientMessage}
+            onChange={(e) => setClientMessage(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          
+          <Stack direction="row" justifyContent="center" spacing={2}>
+            <Button
+              size="md"
+              variant="solid"
+              color="primary"
+              sx={{ borderRadius: 'xl' }}
+              onClick={handleSendMessage}
+              loading={isSending}
+            >
+              Send via WhatsApp
+            </Button>
+          </Stack>
         </ModalDialog>
       </Modal>
     </>
@@ -162,3 +398,44 @@ function DetailRow({ label, value }: DetailRowProps) {
     </Box>
   );
 }
+
+const onReschedule = async (appointmentID: string, newDate: string, newTime: string) => {
+  try {
+    if (!newDate || !newTime) {
+      throw new Error("Date and time are required for rescheduling.");
+    }
+
+    const appointmentTime = `${newDate}T${newTime}:00`;
+    console.log("Reschedule data:", { appointmentID, appointmentTime });
+
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const response = await fetch(
+      `${API_BASE_URL}/appointment/update/${appointmentID}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          appointment_time: appointmentTime,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to reschedule the appointment: ${errorText}`);
+    }
+
+    const result = await response.json();
+    console.log("Appointment rescheduled:", result);
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("Error rescheduling appointment:", error.message);
+    } else {
+      console.error("Error rescheduling appointment:", error);
+    }
+    throw error;
+  }
+};

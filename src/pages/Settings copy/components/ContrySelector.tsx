@@ -4,12 +4,7 @@ import AspectRatio from '@mui/joy/AspectRatio';
 import FormControl, { FormControlProps } from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
 import ListItemDecorator from '@mui/joy/ListItemDecorator';
-import Typography from '@mui/joy/Typography';
 
-interface CountrySelectorProps extends Omit<FormControlProps, 'onChange'> {
-  value: CountryType | null;
-  onChange: (value: CountryType | null) => void;
-}
 
 interface CountryType {
   code: string;
@@ -18,8 +13,16 @@ interface CountryType {
   suggested?: boolean;
 }
 
+interface CountrySelectorProps extends Omit<FormControlProps, 'onChange'> {
+  value: string | null; // Now expects country name string
+  onChange: (value: string | null) => void; // Returns country name
+}
+
 export default function CountrySelector(props: CountrySelectorProps) {
   const { value, onChange, sx, ...other } = props;
+  
+  // Find the country object that matches the current value (label/name)
+  const selectedCountry = countries.find(country => country.label === value) || null;
   
   return (
     <FormControl
@@ -30,11 +33,12 @@ export default function CountrySelector(props: CountrySelectorProps) {
       <Autocomplete
         size="sm"
         autoHighlight
-        value={value}
-        onChange={(_, newValue) => onChange(newValue)}
-        isOptionEqualToValue={(option, value) => option.code === value?.code}
+        value={selectedCountry}
+        onChange={(_, newValue) => onChange(newValue?.label || null)}
+        isOptionEqualToValue={(option, value) => option.label === value?.label}
         placeholder='Select a country...'
         options={countries}
+        getOptionLabel={(option) => option.label}
         renderOption={(optionProps, option) => (
           <AutocompleteOption {...optionProps}>
             <ListItemDecorator>
@@ -49,21 +53,17 @@ export default function CountrySelector(props: CountrySelectorProps) {
               </AspectRatio>
             </ListItemDecorator>
             {option.label}
-            <Typography component="span" textColor="text.tertiary" sx={{ ml: 0.5 }}>
-              (+{option.phone})
-            </Typography>
           </AutocompleteOption>
         )}
         slotProps={{
           input: {
-            autoComplete: 'new-password', // disable autocomplete and autofill
+            autoComplete: 'new-password',
           },
         }}
       />
     </FormControl>
   );
 }
-
 // From https://bitbucket.org/atlassian/atlaskit-mk-2/raw/4ad0e56649c3e6c973e226b7efaeb28cb240ccb0/packages/core/select/src/data/countries.js
 const countries: readonly CountryType[] = [
   { code: 'AD', label: 'Andorra', phone: '376' },

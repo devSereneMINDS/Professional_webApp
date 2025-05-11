@@ -6,12 +6,12 @@ import HomePage from "../pages/Dashboard/page";
 import Chats from "../pages/Chat/page";
 import Calendar from "../pages/Calender/page";
 import Appointments from "../pages/Appointments/page";
-import Settings from "../pages/Settings/page";
+import Settings from "../pages/Settings copy/page";
 import Payment from "../pages/Payment/page";
-import Demo from "../pages/Chat/page";
 import ProfessionalProfile from "../pages/ProfessionalProfile/page";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import AddNewClient from "../pages/AddNewClient/page";
 
 interface ProfessionalData {
   id?: string;
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
     element: <Onboading />,
   },
   {
-    path: "/professional/:id",
+    path: "/profile/:id",
     element: <ProfessionalProfile />,
   },
   // Protected Routes
@@ -104,11 +104,19 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
   },
+  // {
+  //   path: "/demo",
+  //   element: (
+  //     <ProtectedRoute>
+  //       <Demo />
+  //     </ProtectedRoute>
+  //   ),
+  // },
   {
-    path: "/demo",
+    path: "/add-new-client",
     element: (
       <ProtectedRoute>
-        <Demo />
+        <AddNewClient />
       </ProtectedRoute>
     ),
   },

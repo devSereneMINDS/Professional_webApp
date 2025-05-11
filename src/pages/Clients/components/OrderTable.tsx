@@ -12,6 +12,10 @@ import MenuItem from '@mui/joy/MenuItem';
 import Dropdown from '@mui/joy/Dropdown';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import { ArrowDropDownIcon } from '@mui/x-date-pickers/icons';
+import Skeleton from '@mui/joy/Skeleton';
+import { useNavigate } from 'react-router-dom';
+
+
 
 interface Client {
   id: string;
@@ -63,18 +67,32 @@ function RowMenu() {
   );
 }
 
+const SkeletonRow = () => (
+  <tr>
+    {[...Array(8)].map((_, index) => (
+      <td key={index}>
+        <Skeleton variant="text" level="body-xs" />
+      </td>
+    ))}
+  </tr>
+);
+
 export default function OrderTable({ clients, isLoading }: OrderTableProps) {
+
+  const navigate = useNavigate();
   const [order, setOrder] = React.useState<Order>('desc');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-  // const [open, setOpen] = React.useState(false);
-  
-  if (isLoading) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <Typography>Loading clients...</Typography>
-      </Box>
-    );
-  }
+
+  const handleRowClick = (clientId: string, event: React.MouseEvent) => {
+    // Prevent navigation if clicking on a checkbox or menu button
+    if (
+      (event.target as HTMLElement).closest('input[type="checkbox"]') ||
+      (event.target as HTMLElement).closest('button')
+    ) {
+      return;
+    }
+    navigate(`/profile/${clientId}`);
+  };
 
   return (
     <React.Fragment>
@@ -87,7 +105,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
           flexShrink: 1,
           overflow: 'auto',
           minHeight: 0,
-          maxWidth:"95vw"
+          maxWidth: "95vw"
         }}
       >
         <Table
@@ -157,53 +175,63 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
             </tr>
           </thead>
           <tbody>
-            {[...clients].sort(getComparator(order, 'id')).map((client) => (
-              <tr key={client.id}>
-                <td style={{ textAlign: 'center' }}>
-                  <Checkbox
-                    size="sm"
-                    checked={selected.includes(client.id)}
-                    color={selected.includes(client.id) ? 'primary' : undefined}
-                    onChange={(event) => {
-                      setSelected((ids) =>
-                        event.target.checked
-                          ? ids.concat(client.id)
-                          : ids.filter((itemId) => itemId !== client.id),
-                      );
-                    }}
-                    slotProps={{ checkbox: { sx: { textAlign: 'left' } } }}
-                    sx={{ verticalAlign: 'text-bottom' }}
-                  />
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.id}</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.name}</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.ageSex }</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.phoneNumber}</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.email}</Typography>
-                </td>
-                <td>
-                  <Typography level="body-xs">{client.diagnosis}</Typography>
-                </td>
-                <td>
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    <RowMenu />
-                  </Box>
-                </td>
-              </tr>
-            ))}
+            {isLoading ? (
+              [...Array(3)].map((_, index) => <SkeletonRow key={index} />)
+            ) : (
+              [...clients].sort(getComparator(order, 'id')).map((client) => (
+                <tr key={client.id} onClick={(e) => handleRowClick(client.id, e)}>
+                  <td style={{ textAlign: 'center' }} onChange={(event) => {
+                        event.stopPropagation();
+                        setSelected((ids) =>
+                          (event.target as HTMLInputElement).checked
+                            ? ids.concat(client.id)
+                            : ids.filter((itemId) => itemId !== client.id),
+                        );
+                      }}>
+                    <Checkbox
+                      size="sm"
+                      checked={selected.includes(client.id)}
+                      color={selected.includes(client.id) ? 'primary' : undefined}
+                      onChange={(event) => {
+                        setSelected((ids) =>
+                          event.target.checked
+                            ? ids.concat(client.id)
+                            : ids.filter((itemId) => itemId !== client.id),
+                        );
+                      }}
+                      slotProps={{ checkbox: { sx: { textAlign: 'left' } } }}
+                      sx={{ verticalAlign: 'text-bottom' }}
+                    />
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.id}</Typography>
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.name}</Typography>
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.ageSex}</Typography>
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.phoneNumber}</Typography>
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.email}</Typography>
+                  </td>
+                  <td>
+                    <Typography level="body-xs">{client.diagnosis}</Typography>
+                  </td>
+                  <td>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
+                      <RowMenu />
+                    </Box>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </Table>
       </Sheet>
-      {/* Pagination and other components remain the same */}
     </React.Fragment>
   );
 }

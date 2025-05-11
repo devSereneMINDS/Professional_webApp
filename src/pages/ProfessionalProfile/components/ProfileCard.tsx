@@ -1,120 +1,211 @@
-import { CssVarsProvider } from '@mui/joy/styles';
-import CssBaseline from '@mui/joy/CssBaseline';
+import AspectRatio from '@mui/joy/AspectRatio';
 import Box from '@mui/joy/Box';
-import Breadcrumbs from '@mui/joy/Breadcrumbs';
-import Link from '@mui/joy/Link';
+import Button from '@mui/joy/Button';
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import { Input, Stack } from '@mui/joy';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import dayjs from 'dayjs';
+import Sheet from '@mui/joy/Sheet';
+import Divider from '@mui/joy/Divider';
+import Stack from '@mui/joy/Stack';
+import Chip from '@mui/joy/Chip';
+import { useState } from 'react';
+import Textarea from '@mui/joy/Textarea';
+import EditNoteIcon from '@mui/icons-material/EditNote';
+import SaveIcon from '@mui/icons-material/Save';
 
-export default function JoyOrderDashboardTemplate() {
+export default function ClientProfile() {
+  // Mock data - in a real app, this would come from props or state
+  const client = {
+    name: "Noya Thera",
+    email: "yatolightyagami@gmail.com",
+    gender: "Not Available",
+    ageGroup: "Not Available",
+    maritalStatus: "Not Available",
+    occupation: "Not Available",
+  };
+
+  const [notes, setNotes] = useState("");
+  const [isNotesEditable, setIsNotesEditable] = useState(false);
+  interface Appointment {
+    date: string;
+    time: string;
+    message: string;
+  }
+
+  const [upcomingAppointments] = useState<Appointment[]>([
+    { date: "20/05/2025", time: "4:38:00 AM", message: "daf" }
+  ]);
+  const [completedAppointments] = useState<Appointment[]>([]);
+
+  const toggleNotesEdit = () => {
+    setIsNotesEditable(!isNotesEditable);
+  };
+
+  const saveNotes = () => {
+    // In a real app, you would save to an API here
+    console.log("Notes saved:", notes);
+    setIsNotesEditable(false);
+  };
+
   return (
-    <CssVarsProvider disableTransitionOnChange>
-      <CssBaseline />
-      <Box sx={{ 
-        display: 'flex', 
-        minHeight: '100dvh',
-        overflow: 'hidden',
-        position: 'relative',
-      }}>
-        <Box
-          component="main"
-          className="MainContent"
-          sx={{
-            px: { xs: 2, md: 6 },
-            pt: {
-              xs: 'calc(12px + var(--Header-height))',
-              sm: 'calc(12px + var(--Header-height))',
-              md: 3,
-            },
-            pb: { xs: 2, sm: 2, md: 3 },
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            minWidth: 0,
-            gap: 1,
-            overflow: 'auto',
-            height: '100vh',
-          }}
-        >
-          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
-            <Breadcrumbs
-              size="sm"
-              aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon />}
-              sx={{ pl: 0 }}
-            >
-              <Link
-                underline="none"
-                color="neutral"
-                href="#some-link"
-                aria-label="Home"
-              >
-                <HomeRoundedIcon />
-              </Link>
-              <Link
-                underline="hover"
-                color="neutral"
-                href="#some-link"
-                sx={{ fontSize: 12, fontWeight: 500 }}
-              >
-                Dashboard
-              </Link>
-              <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                HomePage
-              </Typography>
-            </Breadcrumbs>
-
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <Input
-                size="sm"
-                value={dayjs().format('YYYY-MM-DD')}
-                readOnly
-                sx={{
-                  width: 120,
-                  '& input': {
-                    padding: '0px',
-                    textAlign: 'center',
-                  },
-                  '& input::placeholder': {
-                    color: 'text.placeholder',
-                  }
-                }}
+    <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+      {/* Left Section - Client Info */}
+      <Card sx={{ flex: 1, minWidth: 300 }}>
+        <CardContent>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+            <AspectRatio ratio="1" sx={{ width: 100, borderRadius: 'sm' }}>
+              <img
+                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
+                alt=""
               />
-            </LocalizationProvider>
-          </Stack>
-          <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Box
-              sx={{
-                display: 'flex',
-                mb: 1,
-                gap: 1,
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: { xs: 'start', sm: 'center' },
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Typography level="h2" component="h1">
-                Welcome to your dashboard
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-                gap: 2,
-                mt: 1,
-              }}
-            >
+            </AspectRatio>
+            <Box>
+              <Typography level="h4">{client.name}</Typography>
+              <Typography level="body-sm">{client.email}</Typography>
+              <Button 
+                variant="outlined" 
+                size="sm" 
+                sx={{ mt: 1 }}
+              >
+                Add to Chat
+              </Button>
             </Box>
           </Box>
-        </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Stack spacing={2}>
+            <Box>
+              <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
+              <Typography>{client.gender}</Typography>
+            </Box>
+
+            <Box>
+              <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
+              <Typography>{client.ageGroup}</Typography>
+            </Box>
+
+            <Box>
+              <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
+              <Typography>{client.maritalStatus}</Typography>
+            </Box>
+
+            <Box>
+              <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
+              <Typography>{client.occupation}</Typography>
+            </Box>
+          </Stack>
+        </CardContent>
+      </Card>
+
+      {/* Right Section - Appointments and Notes */}
+      <Box sx={{ flex: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
+        {/* Appointments Section */}
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+              <Typography level="title-md">Appointments</Typography>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Chip variant="soft" color="neutral">
+                  Past
+                </Chip>
+                <Chip variant="solid" color="primary">
+                  Upcoming
+                </Chip>
+              </Box>
+            </Box>
+
+            <Divider sx={{ mb: 2 }} />
+
+            {/* Upcoming Appointments */}
+            <Box sx={{ mb: 3 }}>
+              <Typography level="title-sm" sx={{ mb: 1 }}>Upcoming</Typography>
+              {upcomingAppointments.length > 0 ? (
+                <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'sm' }}>
+                  {upcomingAppointments.map((appt, index) => (
+                    <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography>
+                        {appt.date} | {appt.time}
+                      </Typography>
+                      <Typography>{appt.message}</Typography>
+                    </Box>
+                  ))}
+                </Sheet>
+              ) : (
+                <Typography level="body-sm" textColor="text.tertiary">No upcoming appointments</Typography>
+              )}
+            </Box>
+
+            {/* Completed Appointments */}
+            <Box>
+              <Typography level="title-sm" sx={{ mb: 1 }}>Completed</Typography>
+              {completedAppointments.length > 0 ? (
+                <Sheet variant="outlined" sx={{ p: 2, borderRadius: 'sm' }}>
+                  {completedAppointments.map((appt, index) => (
+                    <Box key={index} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Typography>
+                        {appt.date} | {appt.time}
+                      </Typography>
+                      <Typography>{appt.message}</Typography>
+                    </Box>
+                  ))}
+                </Sheet>
+              ) : (
+                <Typography level="body-sm" textColor="text.tertiary">No completed appointments</Typography>
+              )}
+            </Box>
+          </CardContent>
+        </Card>
+
+        {/* Mental Health Assessment */}
+        <Card>
+          <CardContent>
+            <Typography level="title-md" sx={{ mb: 1 }}>Mental Health Assessment</Typography>
+            <Typography level="body-sm" textColor="text.tertiary">No data available</Typography>
+          </CardContent>
+        </Card>
+
+        {/* Notes Card */}
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography level="title-md">Notes</Typography>
+              {isNotesEditable ? (
+                <Button
+                  size="sm"
+                  startDecorator={<SaveIcon />}
+                  onClick={saveNotes}
+                >
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="outlined"
+                  startDecorator={<EditNoteIcon />}
+                  onClick={toggleNotesEdit}
+                >
+                  Edit
+                </Button>
+              )}
+            </Box>
+            
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Add notes about the client..."
+              minRows={4}
+              readOnly={!isNotesEditable}
+              variant={isNotesEditable ? "outlined" : "plain"}
+              sx={{
+                '& textarea': {
+                  cursor: isNotesEditable ? 'text' : 'pointer',
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
       </Box>
-    </CssVarsProvider>
+    </Box>
   );
 }

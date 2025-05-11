@@ -4,7 +4,6 @@ import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
 import Chip from '@mui/joy/Chip';
 import Divider from '@mui/joy/Divider';
-import Input from '@mui/joy/Input';
 import EventIcon from '@mui/icons-material/Event';
 import List from '@mui/joy/List';
 import ListItem from '@mui/joy/ListItem';
@@ -12,7 +11,6 @@ import ListItemButton, { listItemButtonClasses } from '@mui/joy/ListItemButton';
 import ListItemContent from '@mui/joy/ListItemContent';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
 import QuestionAnswerRoundedIcon from '@mui/icons-material/QuestionAnswerRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
@@ -25,7 +23,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resetProfessionalData } from '../store/slices/ProfessionalSlice';
-import { useColorScheme } from '@mui/joy';
+import { Button, useColorScheme } from '@mui/joy';
 
 interface ProfessionalData {
   id?: string;
@@ -44,9 +42,7 @@ export default function Sidebar() {
   const { mode } = useColorScheme();
 
   const AddNewClient = () => {
-    if (professional?.data?.id) {
-      window.location.href = `http://booking.sereneminds.life/${professional.data.id}`;
-    }
+    navigate("/add-new-client");
   };
 
     const userEmail = localStorage.getItem("userEmail");
@@ -147,21 +143,31 @@ export default function Sidebar() {
         <ColorSchemeToggle sx={{ ml: 'auto' }} />
       </Box>
       <Box sx={{ justifyContent: 'center', display: 'flex', flexDirection: 'column', mx: 'auto', my: 0.5 }}>
-        <button 
-          style={{
-            padding: '7px 25px',
-            backgroundColor: '#000',
-            color: '#fff',
-            borderRadius: 6,
-            border: 'none',
-            cursor: 'pointer',
-          }}
-          onClick={AddNewClient}
-        >
-          Add New
-        </button>
+        <Button 
+  sx={{
+    padding: '8px 20px',
+    background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
+    color: '#fff',
+    borderRadius: '6px',
+    border: 'none',
+    cursor: 'pointer',
+    fontWeight: 500,
+    fontSize: '0.875rem',
+    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+    },
+    '&:active': {
+      background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+    }
+  }}
+  onClick={AddNewClient}
+>
+  Add New
+</Button>
       </Box>
-      <Input size="sm" startDecorator={<SearchRoundedIcon />} placeholder="Search" />
       <Box
         sx={{
           minHeight: 0,
