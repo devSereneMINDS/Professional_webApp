@@ -6,30 +6,39 @@ import {
   setPaymentStatsSuccess,
   setPaymentStatsError,
 } from "../store/slices/paymentStatsSlice";
+import { RootState } from "../store/store";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+interface ProfessionalData {
+  id?: string;
+  // Add other properties as needed
+}
+
 export const useFetchPaymentStats = () => {
   const dispatch = useDispatch();
-  const { stats, status, error } = useSelector((state) => state.paymentStats);
-  const professionalId = useSelector((state) => state.professional?.data?.id); // Get professionalId from Redux store
+  const { stats, status, error } = useSelector((state: RootState) => state.paymentStats);
+  const professionalId = useSelector((state: RootState) => (state.professional as { data?: ProfessionalData }).data?.id);
 
   useEffect(() => {
     const fetchPaymentStats = async () => {
       dispatch(setPaymentStatsLoading());
       try {
-        if (!professionalId) return; // If professionalId is not available, don't make the API call
+        if (!professionalId) return;
 
         const response = await axios.get(
           `${API_BASE_URL}/appointment/professional/stats/${professionalId}`
         );
         dispatch(setPaymentStatsSuccess(response.data.stats));
       } catch (err) {
-        dispatch(setPaymentStatsError(err.message));
+        if (err instanceof Error) {
+          dispatch(setPaymentStatsError(err.message));
+        } else {
+          dispatch(setPaymentStatsError("An unknown error occurred"));
+        }
       }
     };
 
-    // Fetch stats only if the status is "idle" and professionalId is available
     if (status === "idle" && professionalId) {
       fetchPaymentStats();
     }

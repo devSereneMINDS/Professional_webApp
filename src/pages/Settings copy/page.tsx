@@ -1,4 +1,4 @@
-import * as React from 'react';
+// import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
@@ -10,9 +10,14 @@ export default function JoyOrderDashboardTemplate() {
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
+      <Box sx={{ display: 'flex', minHeight: '100dvh', width: "100vw" }}>
         <Sidebar />
-        <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          flex: 1,
+          overflow: 'hidden' // This prevents double scroll bars
+        }}>
           <Header />
           <Box
             component="main"
@@ -20,7 +25,7 @@ export default function JoyOrderDashboardTemplate() {
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
-              overflow: 'auto',
+              overflow: 'auto', // This enables scrolling for the content
               p: { xs: 2, md: 3 },
             }}
           >

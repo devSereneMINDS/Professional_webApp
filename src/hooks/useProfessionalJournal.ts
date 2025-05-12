@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 export const useProfessionalJournal = () => {
   const dispatch = useDispatch();
-  const professionalId = useSelector((state) => state.professional?.data?.id);
+  const professionalId = useSelector((state: { professional?: { data?: { id?: string } } }) => state.professional?.data?.id);
 
 
   useEffect(() => {
@@ -31,7 +31,8 @@ export const useProfessionalJournal = () => {
         dispatch(setJournals(data)); // Dispatch fetched journals to Redux
         dispatch(setError(null)); // Clear any existing errors
       } catch (error) {
-        dispatch(setError(error.message)); // Dispatch error if the API call fails
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+        dispatch(setError(errorMessage)); // Dispatch error if the API call fails
       } finally {
         dispatch(setLoading(false)); // Set loading to false once the API call is complete
       }

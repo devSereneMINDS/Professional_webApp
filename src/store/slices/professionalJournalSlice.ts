@@ -1,8 +1,22 @@
-// src/redux/professionalJournalSlice.js
+// src/redux/professionalJournalSlice.ts
 
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
+interface Journal {
+  id: string; // or number, depending on your data
+  // Add other journal properties here
+  // e.g., title: string;
+  // content: string;
+  // date: string;
+}
+
+interface ProfessionalJournalState {
+  journals: Journal[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: ProfessionalJournalState = {
   journals: [],
   loading: false,
   error: null,
@@ -12,21 +26,17 @@ const professionalJournalSlice = createSlice({
   name: "professionalJournal",
   initialState,
   reducers: {
-    setJournals: (state, action) => {
+    setJournals: (state, action: PayloadAction<Journal[]>) => {
       state.journals = action.payload; 
     },
-    setLoading: (state, action) => {
+    setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload; 
     },
-    setError: (state, action) => {
+    setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload; 
     },
-    deleteJournal: (state, action) => {
-      if (Array.isArray(state.journals)) {
-        state.journals = state.journals.filter(journal => journal.id !== action.payload);
-      } else {
-        state.journals = [];
-      }
+    deleteJournal: (state, action: PayloadAction<string>) => { // or number if id is number
+      state.journals = state.journals.filter(journal => journal.id !== action.payload);
     },
   },
 });

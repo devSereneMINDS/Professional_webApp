@@ -5,7 +5,7 @@ declare module '@mui/material/Paper' {
     highlighted: true;
   }
 }
-declare module '@mui/material/styles/createPalette' {
+declare module '@mui/material/styles' {
   interface ColorRange {
     50: string;
     100: string;
@@ -19,7 +19,7 @@ declare module '@mui/material/styles/createPalette' {
     900: string;
   }
 
-  interface PaletteColor extends ColorRange {}
+  // Removed redundant PaletteColor interface as it is equivalent to ColorRange
 
   interface Palette {
     baseShadow: string;
@@ -394,7 +394,7 @@ export const shape = {
   borderRadius: 8,
 };
 
-// @ts-ignore
+// @ts-expect-error: Custom shadow value is not part of the Shadows type definition
 const defaultShadows: Shadows = [
   'none',
   'var(--template-palette-baseShadow)',

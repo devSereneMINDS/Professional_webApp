@@ -19,6 +19,8 @@ import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import BlockIcon from '@mui/icons-material/Block';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
+import Skeleton from '@mui/joy/Skeleton';
+import React from 'react';
 
 interface Client {
   id: string;
@@ -35,6 +37,8 @@ interface OrderListProps {
   clients: Client[];
   isLoading: boolean;
 }
+
+
 
 function RowMenu() {
   return (
@@ -56,108 +60,187 @@ function RowMenu() {
 }
 
 export default function OrderList({ clients, isLoading }: OrderListProps) {
+  // Skeleton loading state
   if (isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-        <Typography>Loading clients...</Typography>
+      <Box sx={{ 
+        display: { xs: 'block', sm: 'none' },
+        height: 'calc(100vh - 200px)',
+        overflow: 'auto',
+        p: 1
+      }}>
+        {[...Array(5)].map((_, index) => (
+          <Box key={index} sx={{ mb: 2, p: 1.5 }}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Skeleton variant="circular" width={40} height={40} />
+              <Box sx={{ flex: 1 }}>
+                <Skeleton variant="text" width="60%" level="body-sm" />
+                <Skeleton variant="text" width="80%" level="body-sm" />
+                <Skeleton variant="text" width="50%" level="body-sm" />
+                <Skeleton variant="text" width="70%" level="body-sm" />
+              </Box>
+            </Box>
+            <ListDivider sx={{ my: 1 }} />
+          </Box>
+        ))}
       </Box>
     );
   }
 
   return (
-    <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-      {clients.map((client) => (
-        <List key={client.id} size="sm" sx={{ '--ListItem-paddingX': 0 }}>
-          <ListItem
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'start',
-            }}
-          >
-            <ListItemContent sx={{ display: 'flex', gap: 2, alignItems: 'start' }}>
-              <ListItemDecorator>
-                <Avatar size="sm">
-                  {client.name.charAt(0)}
-                </Avatar>
-              </ListItemDecorator>
-              <div>
-                <Typography gutterBottom sx={{ fontWeight: 600 }}>
-                  {client.name}
-                </Typography>
-                <Typography level="body-sm" gutterBottom>
-                  {client.email}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 0.5,
-                    mb: 1,
-                  }}
-                >
-                  <Typography level="body-sm">{client.phoneNumber}</Typography>
-                  <Typography level="body-sm">&bull;</Typography>
-                  <Typography level="body-sm">{client.ageSex}</Typography>
-                </Box>
-                <Typography level="body-sm" sx={{ mb: 1 }}>
-                  Issue: {client.diagnosis}
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <Link level="body-sm" component="button">
-                    View Details
-                  </Link>
-                  <RowMenu />
-                </Box>
-              </div>
-            </ListItemContent>
-            <Chip
-              variant="soft"
-              size="sm"
-              startDecorator={
-                {
-                  Banned: <BlockIcon />,
-                }[client.status]
-              }
-              color={
-                {
-                  Confirmed: 'success',
-                  Pending: 'neutral',
-                  Cancelled: 'danger',
-                }[client.status] as ColorPaletteProp
-              }
+    <Box sx={{ 
+      display: { xs: 'block', sm: 'none' },
+      height: 'calc(100vh - 200px)',
+      overflow: 'auto',
+      p: 1
+    }}>
+      <List size="sm" sx={{ '--ListItem-paddingX': 0 }}>
+        {clients.map((client) => (
+          <React.Fragment key={client.id}>
+            <ListItem
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'flex-start',
+                gap: 1.5,
+                p: 2,
+                borderRadius: 'sm',
+                '&:hover': {
+                  backgroundColor: 'background.level1',
+                }
+              }}
             >
-              {client.status}
-            </Chip>
-          </ListItem>
-          <ListDivider />
-        </List>
-      ))}
-      <Box
-        className="Pagination-mobile"
-        sx={{ display: { xs: 'flex', md: 'none' }, alignItems: 'center', py: 2 }}
-      >
-        <IconButton
-          aria-label="previous page"
-          variant="outlined"
-          color="neutral"
-          size="sm"
+              <Box sx={{ 
+                display: 'flex', 
+                width: '100%',
+                alignItems: 'flex-start',
+                gap: 2 
+              }}>
+                <ListItemDecorator>
+                  <Avatar size="sm" src={client.profileImage || undefined}>
+                    {client.name.charAt(0)}
+                  </Avatar>
+                </ListItemDecorator>
+                
+                <ListItemContent sx={{ flex: 1 }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    mb: 1
+                  }}>
+                    <Typography level="title-sm" sx={{ fontWeight: 600 }}>
+                      {client.name}
+                    </Typography>
+                    <Chip
+                      variant="soft"
+                      size="sm"
+                      startDecorator={
+                        {
+                          Banned: <BlockIcon fontSize="small" />,
+                        }[client.status]
+                      }
+                      color={
+                        {
+                          Confirmed: 'success',
+                          Pending: 'neutral',
+                          Cancelled: 'danger',
+                        }[client.status] as ColorPaletteProp
+                      }
+                      sx={{ 
+                        alignSelf: 'flex-start',
+                        fontSize: '0.75rem'
+                      }}
+                    >
+                      {client.status}
+                    </Chip>
+                  </Box>
+                  
+                  <Typography level="body-xs" sx={{ mb: 1 }}>
+                    {client.email}
+                  </Typography>
+                  
+                  <Box sx={{ 
+                    display: 'flex', 
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    mb: 1
+                  }}>
+                    <Typography level="body-xs">
+                      {client.phoneNumber}
+                    </Typography>
+                    <Typography level="body-xs" sx={{ color: 'text.tertiary' }}>
+                      •
+                    </Typography>
+                    <Typography level="body-xs">
+                      {client.ageSex}
+                    </Typography>
+                  </Box>
+                  
+                  <Typography level="body-xs" sx={{ mb: 1.5 }}>
+                    <Box component="span" sx={{ fontWeight: 600 }}>Issue:</Box> {client.diagnosis}
+                  </Typography>
+                  
+                  <Box sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}>
+                    <Link 
+                      level="body-xs" 
+                      component="button"
+                      sx={{ fontWeight: 600 }}
+                    >
+                      View Details
+                    </Link>
+                    <RowMenu />
+                  </Box>
+                </ListItemContent>
+              </Box>
+            </ListItem>
+            <ListDivider sx={{ mx: 2 }} />
+          </React.Fragment>
+        ))}
+      </List>
+      
+      {/* Pagination - Mobile */}
+      {clients.length > 0 && (
+        <Box
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            py: 2,
+            position: 'sticky',
+            bottom: 0,
+            backgroundColor: 'background.body'
+          }}
         >
-          <KeyboardArrowLeftIcon />
-        </IconButton>
-        <Typography level="body-sm" sx={{ mx: 'auto' }}>
-          Page 1 of 10
-        </Typography>
-        <IconButton
-          aria-label="next page"
-          variant="outlined"
-          color="neutral"
-          size="sm"
-        >
-          <KeyboardArrowRightIcon />
-        </IconButton>
-      </Box>
+          <IconButton
+            aria-label="previous page"
+            variant="outlined"
+            color="neutral"
+            size="sm"
+            disabled
+          >
+            <KeyboardArrowLeftIcon />
+          </IconButton>
+          <Typography level="body-sm" sx={{ mx: 'auto', px: 2 }}>
+            Page 1 of {Math.ceil(clients.length / 10)}
+          </Typography>
+          <IconButton
+            aria-label="next page"
+            variant="outlined"
+            color="neutral"
+            size="sm"
+            disabled={clients.length <= 10}
+          >
+            <KeyboardArrowRightIcon />
+          </IconButton>
+        </Box>
+      )}
     </Box>
   );
 }

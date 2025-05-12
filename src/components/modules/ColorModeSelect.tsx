@@ -11,7 +11,7 @@ export default function ColorModeSelect(props: SelectProps) {
     return null;
   }
 
-  const handleChange = (event: SelectChangeEvent) => {
+  const handleChange = (event: SelectChangeEvent<unknown>) => {
     const newMode = event.target.value as 'light' | 'dark' | 'system';
     setMode(newMode);
   };

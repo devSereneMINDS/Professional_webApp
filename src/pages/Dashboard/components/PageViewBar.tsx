@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Card from '@mui/joy/Card';
 import CardContent from '@mui/joy/CardContent';
 import Chip from '@mui/joy/Chip';
@@ -7,57 +6,50 @@ import Stack from '@mui/joy/Stack';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useColorScheme } from '@mui/joy/styles';
 import { useSelector } from 'react-redux';
-
-export default function AppointmentsBarChart() {
-  const { upcoming, completed } = useSelector((state) => state.appointments);
-  const paymentStats = useSelector((state) => state.paymentStats.stats);
-  
+import { RootState } from '../../../store/store'; // Adjust the path to your store file
+import { getCurrencySymbol } from './CurrencySymbol'
+export default function MaxEarningsBarChart() {
   const { systemMode } = useColorScheme();
   const isDark = systemMode === 'dark';
   
+
+  const professional = useSelector((state: RootState) => state.professional.data);
+  console.log('Professional Data:', professional?.country);
+
+  
+  const currencySymbol = getCurrencySymbol(professional?.country || null);
+  console.log('Currency Symbol:', currencySymbol);
+  // Get data from Redux store
+  const paymentStats = useSelector((state: RootState) => state.paymentStats.stats ?? { 
+    totalFeesThisMonth: 0, 
+    distinctClientsThisMonth: 0,
+    upcomingAppointmentsThisWeek: 0,
+    totalAppointments: 0
+  });
+
+  // Get current month and year for display
+  const currentDate = new Date();
+  const monthName = currentDate.toLocaleString('default', { month: 'short' });
+  const year = currentDate.getFullYear();
+
+  // Calculate maximum earnings (using totalFeesThisMonth from paymentStats)
+  const maxEarning = {
+    day: `${monthName} ${year}`,
+    value: paymentStats.totalFeesThisMonth || 0
+  };
+
+  const data = [maxEarning.day];
+  const earnings = [maxEarning.value];
+
   const colorPalette = [
-    isDark ? 'var(--joy-palette-primary-500)' : 'var(--joy-palette-primary-700)', // Upcoming
-    isDark ? 'var(--joy-palette-success-500)' : 'var(--joy-palette-success-700)', // Completed
+    isDark ? 'var(--joy-palette-success-500)' : 'var(--joy-palette-success-700)'
   ];
-
-  // Get the last 6 months names with years to avoid ambiguity
-  const getMonthLabels = () => {
-    const labels = [];
-    const date = new Date();
-    for (let i = 5; i >= 0; i--) {
-      const tempDate = new Date(date.getFullYear(), date.getMonth() - i, 1);
-      labels.push(tempDate.toLocaleString('default', { month: 'short', year: 'numeric' }));
-    }
-    return labels;
-  };
-
-  const monthLabels = getMonthLabels();
-
-  // Count appointments by month
-  const countAppointmentsByMonth = (appointments, monthLabels) => {
-    return monthLabels.map(label => {
-      const [monthStr, yearStr] = label.split(' ');
-      const month = new Date(`${monthStr} 1, ${yearStr}`).getMonth();
-      const year = parseInt(yearStr);
-      
-      return appointments.filter(appt => {
-        const apptDate = new Date(appt.appointment_time);
-        return (
-          apptDate.getMonth() === month && 
-          apptDate.getFullYear() === year
-        );
-      }).length;
-    });
-  };
-
-  const upcomingData = countAppointmentsByMonth(upcoming, monthLabels);
-  const completedData = countAppointmentsByMonth(completed, monthLabels);
 
   return (
     <Card variant="outlined" sx={{ width: '100%' }}>
       <CardContent>
         <Typography level="h2" fontSize="sm" gutterBottom>
-          Appointments Overview
+          Monthly Earnings
         </Typography>
         <Stack sx={{ justifyContent: 'space-between' }}>
           <Stack
@@ -69,14 +61,14 @@ export default function AppointmentsBarChart() {
             }}
           >
             <Typography level="h1" fontSize="xl4" component="p">
-              {paymentStats?.totalAppointments || '0'}
+              {currencySymbol}{maxEarning.value.toLocaleString()}
             </Typography>
-            <Chip size="sm" color="primary" variant="soft">
-              {paymentStats?.upcomingAppointmentsThisWeek || '0'} this week
+            <Chip size="sm" color="success" variant="soft">
+              {paymentStats.distinctClientsThisMonth} clients
             </Chip>
           </Stack>
           <Typography level="body-xs" sx={{ color: 'text.secondary' }}>
-            Appointments for the last 6 months
+            Total earnings for {monthName} {year}
           </Typography>
         </Stack>
         <BarChart
@@ -85,38 +77,27 @@ export default function AppointmentsBarChart() {
           xAxis={[
             {
               scaleType: 'band',
-              categoryGapRatio: 0.8,
-              barGapRatio: 0.1,
-              data: monthLabels,
+              data: data,
             },
           ]}
           series={[
             {
-              id: 'upcoming',
-              label: 'Upcoming',
-              data: upcomingData,
-              stack: 'A',
-            },
-            {
-              id: 'completed',
-              label: 'Completed',
-              data: completedData,
-              stack: 'A',
+              data: earnings,
+              label: 'Earnings',
             },
           ]}
-          height={350}
+          height={250}
           margin={{ left: 50, right: 0, top: 20, bottom: 20 }}
           grid={{ horizontal: true }}
-          slotProps={{
-            legend: {
-              hidden: false,
-              position: { vertical: 'top', horizontal: 'right' },
-            },
-          }}
           sx={{
             '& .MuiBarElement-root': {
-              rx: 0,
-              width: 40,
+              rx: 4,
+              width: 60,
+            },
+          }}
+          slotProps={{
+            legend: {
+              position: { vertical: 'top', horizontal: 'end' },
             },
           }}
         />

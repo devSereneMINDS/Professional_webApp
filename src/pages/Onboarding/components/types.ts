@@ -30,6 +30,8 @@ export interface OtpVerificationFormProps extends OnboardingFormProps {
 export interface DocumentUploadFormProps extends OnboardingFormProps {
   document: File | null;
   setDocument: (file: File | null) => void;
+  qAndA: Record<string, string>;
+  setQAndA: (value: Record<string, string>) => void;
 }
 
 export interface AvatarWithEditProps {

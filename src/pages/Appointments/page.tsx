@@ -14,12 +14,16 @@ import { useSelector } from 'react-redux';
 
 export default function JoyOrderDashboardTemplate() {
 
-  const appointment = useSelector((state: any) => state.appointment);
+  interface RootState {
+    appointment: { id: string; date: string; time: string; clientName: string; status: string }; // Replace with the actual structure of 'appointment'
+  }
+
+  const appointment = useSelector((state: RootState) => state.appointment);
   console.log('appointment', appointment);
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100dvh' }}>
+      <Box sx={{ display: 'flex', minHeight: '100dvh',width:"98vw" }}>
         <Header />
         <Sidebar />
         <Box

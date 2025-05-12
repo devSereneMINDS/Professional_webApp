@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
@@ -16,12 +17,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeChat } from '../../../store/slices/userChatSlice';
 
 type ChatsPaneProps = {
-  setSelectedChat: (chat: ChatProps) => void;
+  // setSelectedChat: (chat: ChatProps) => void;
   selectedChatId?: string;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
-  const { setSelectedChat, selectedChatId } = props;
+  const { selectedChatId } = props;
   const [chats, setChats] = React.useState<ChatProps[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const professionalId = useSelector((state: any) => state.professional?.data?.uid);
@@ -48,7 +49,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
           messages: [{
             content: item.lastMessage || "No messages yet",
             timestamp: item.updatedAt,
-            unread: !item.isSeen
+            unread: (!item.isSeen).toString()
           }],
           updatedAt: item.updatedAt
         };
@@ -69,7 +70,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
       } : item
     );
     setChats(updatedChats);
-    setSelectedChat(chat);
+    // setSelectedChat(chat);
     dispatch(changeChat({ chatId: chat.id, user: chat.sender }));
   };
 

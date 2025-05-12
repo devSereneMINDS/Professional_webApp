@@ -5,7 +5,6 @@ import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import IconButton, { IconButtonProps } from '@mui/joy/IconButton';
-import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
@@ -24,17 +23,9 @@ import { auth, db } from "../../../firebaseConfig";
 import { changeChat } from "../../store/slices/userChatSlice";
 import { useNavigate } from "react-router-dom";
 import { setProfessionalId, updateEmail } from "../../store/slices/userSlice";
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { RootState } from "../../store/store"; // Ensure this path points to where your Redux store types are defined
 
-
-interface FormElements extends HTMLFormControlsCollection {
-  email: HTMLInputElement;
-  password: HTMLInputElement;
-  persistent: HTMLInputElement;
-}
-interface SignInFormElement extends HTMLFormElement {
-  readonly elements: FormElements;
-}
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -62,6 +53,7 @@ function ColorSchemeToggle(props: IconButtonProps) {
     </IconButton>
   );
 }
+
 function Logo() {
   const { mode } = useColorScheme();
 
@@ -79,25 +71,25 @@ function Logo() {
   );
 }
 
-const customTheme = extendTheme({ defaultColorScheme: 'dark' });
-
+const customTheme = extendTheme({
+  colorSchemes: {
+    light: {},
+    dark: {},
+  },
+  // Removed invalid property 'colorScheme'
+});
 
 export default function JoySignInSideTemplate() {
-
-  
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const professionalToken = useSelector((state) => state.professional?.professionalToken);
-  const professionalEmail = useSelector((state) => state.professional?.professionalEmail);
-  const [id, setId] = useState("");
-  const [isLoading, setIsLoading] = useState(true); 
+
+  const professionalToken = useSelector((state: RootState) => state.professional?.professionalToken);
+  const professionalEmail = useSelector((state: RootState) => state.professional?.professionalEmail);
 
   useEffect(() => {
     const checkAccessToken = async () => {
-
       if (professionalToken && professionalEmail) {
         try {
-
           const response = await fetch(
             `${API_BASE_URL}/professionals/email/${professionalEmail}`
           );
@@ -117,13 +109,10 @@ export default function JoySignInSideTemplate() {
           alert("Error during verification. Please try again.");
         }
       }
-      setIsLoading(false); // End global loading
     };
 
     checkAccessToken();
-  }, [dispatch, navigate,professionalToken, professionalEmail]);
-
-
+  }, [dispatch, navigate, professionalToken, professionalEmail]);
 
   const handleGoogleSignIn = async () => {
     const provider = new GoogleAuthProvider();
@@ -134,7 +123,6 @@ export default function JoySignInSideTemplate() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log(user);
-      // console.log("User signed in:", user.uid);
       dispatch(setCurrentProfessionalUID(user.uid));
   
       const userRef = doc(db, "users", user.uid);
@@ -156,7 +144,7 @@ export default function JoySignInSideTemplate() {
       if (userChatsSnap.exists()) {
         const userChats = userChatsSnap.data().chats || [];
   
-        userChats.forEach((chat) => {
+        userChats.forEach((chat: { chatId: string; user: unknown }) => {
           dispatch(
             changeChat({
               chatId: chat.chatId,
@@ -167,17 +155,21 @@ export default function JoySignInSideTemplate() {
       } else {
         await setDoc(userChatsRef, { chats: [] });
       }
+      
       const credential = GoogleAuthProvider.credentialFromResult(result);
+      if (!credential) {
+        throw new Error('No credential returned from Google sign in');
+      }
+      
       const accessToken = credential.accessToken;
   
-      localStorage.setItem("googleAccessToken", accessToken);
-      localStorage.setItem("userEmail", user.email);
+      localStorage.setItem("googleAccessToken", accessToken || '');
+      localStorage.setItem("userEmail", user.email || '');
   
-      dispatch(setProfessionalToken(accessToken))
-      dispatch(setProfessionalEmail(user.email))
+      dispatch(setProfessionalToken(accessToken));
+      dispatch(setProfessionalEmail(user.email));
   
       console.log("Access Token:", accessToken);
-      // console.log("User Email:", user.email);
   
       const response = await fetch(
         `${API_BASE_URL}/professionals/email/${user.email}`
@@ -185,7 +177,6 @@ export default function JoySignInSideTemplate() {
   
       if (response.ok) {
         const responseData = await response.json(); 
-        setId(responseData.id); 
         dispatch(setProfessionalData(responseData)); 
         dispatch(setProfessionalId(responseData.id));
         await fetch(`${API_BASE_URL}/professionals/update/${responseData.id}`, {
@@ -197,17 +188,20 @@ export default function JoySignInSideTemplate() {
         });
         navigate("/");
       } else if (response.status === 404) {
-        dispatch(updateEmail(user.email));
+        dispatch(updateEmail(user.email || ''));
         console.log("Redux store updated with email:", user.email);
         navigate("/register");
       } else {
         alert("Error checking professional status. Please try again.");
       }
-    } catch (error) {
-      console.error("Error during Google Sign-In:", error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error during Google Sign-In:", error.message);
+      } else {
+        console.error("Unknown error during Google Sign-In:", error);
+      }
     }
   };
-
 
   return (
     <CssVarsProvider theme={customTheme} disableTransitionOnChange>
@@ -250,11 +244,9 @@ export default function JoySignInSideTemplate() {
             sx={{ py: 3, px:4, display: 'flex'}}
           >
             <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-  <Logo />
-  <ColorSchemeToggle />
-</Box>
-
-            
+              <Logo />
+              <ColorSchemeToggle />
+            </Box>
           </Box>
           <Box
             component="main"
@@ -299,55 +291,6 @@ export default function JoySignInSideTemplate() {
                 Continue with Google
               </Button>
             </Stack>
-            {/* <Divider
-              sx={(theme) => ({
-                [theme.getColorSchemeSelector('light')]: {
-                  color: { xs: '#FFF', md: 'text.tertiary' },
-                },
-              })}
-            >
-              or
-            </Divider> */}
-            {/* <Stack sx={{ gap: 4, mt: 2 }}>
-              <form
-                onSubmit={(event: React.FormEvent<SignInFormElement>) => {
-                  event.preventDefault();
-                  const formElements = event.currentTarget.elements;
-                  const data = {
-                    email: formElements.email.value,
-                    password: formElements.password.value,
-                    persistent: formElements.persistent.checked,
-                  };
-                  alert(JSON.stringify(data, null, 2));
-                }}
-              >
-                <FormControl required>
-                  <FormLabel>Email</FormLabel>
-                  <Input type="email" name="email" />
-                </FormControl>
-                <FormControl required>
-                  <FormLabel>Password</FormLabel>
-                  <Input type="password" name="password" />
-                </FormControl>
-                <Stack sx={{ gap: 4, mt: 2 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Checkbox size="sm" label="Remember me" name="persistent" />
-                    <Link level="title-sm" href="#replace-with-a-link">
-                      Forgot your password?
-                    </Link>
-                  </Box>
-                  <Button type="submit" fullWidth>
-                    Sign in
-                  </Button>
-                </Stack>
-              </form>
-            </Stack> */}
           </Box>
           <Box component="footer" sx={{ py: 3 }}>
             <Typography level="body-xs" sx={{ textAlign: 'center' }}>

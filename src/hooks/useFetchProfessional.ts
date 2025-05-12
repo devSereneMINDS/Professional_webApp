@@ -8,7 +8,7 @@ import {
 
 const useFetchProfessional = () => {
   const dispatch = useDispatch();
-  const professionalId = useSelector((state) => state.professional?.data?.id); // Get professionalId from Redux store
+  const professionalId = useSelector((state: { professional: { data?: { id?: string } } }) => state.professional?.data?.id); // Get professionalId from Redux store
 
   useEffect(() => {
     if (!professionalId) return; // If professionalId is not available, do not make the API call
@@ -28,7 +28,11 @@ const useFetchProfessional = () => {
 
         dispatch(setProfessionalData(data)); // Dispatch fetched data to Redux store
       } catch (error) {
-        dispatch(setProfessionalError(error.message)); // Dispatch error if any
+        if (error instanceof Error) {
+          dispatch(setProfessionalError(error.message)); // Dispatch error if any
+        } else {
+          dispatch(setProfessionalError("An unknown error occurred")); // Handle unknown error type
+        }
       }
     };
 

@@ -1,8 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
 const initialState = {
   chatId: null,
-  user: null,
+  user: {},
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
 };

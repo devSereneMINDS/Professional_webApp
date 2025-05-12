@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { getDoc, updateDoc, doc, onSnapshot, arrayUnion } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
@@ -9,21 +10,16 @@ import AvatarWithStatus from './AvatarWithStatus';
 import ChatBubble from './ChatsBubble';
 import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
-import { ChatProps, MessageProps } from '../utils/types';
+import { MessageProps } from '../utils/types';
 
-type MessagesPaneProps = {
-  chat: ChatProps;
-};
-
-export default function MessagesPane(props: MessagesPaneProps) {
-  const { chat } = props;
+export default function MessagesPane() {
   const [chatMessages, setChatMessages] = React.useState<MessageProps[]>([]);
   const [textAreaValue, setTextAreaValue] = React.useState('');
   const endRef = React.useRef<HTMLDivElement>(null);
 
-  const { chatId } = useSelector((state: any) => state.userChat);
+  const { chatId, user } = useSelector((state: any) => state.userChat);
   const professional = useSelector((state: any) => state.professional?.data);
-  const professionalId = professional?.uid;
+  const professionalUID = professional?.uid;
 
   React.useEffect(() => {
     if (!chatId) {
@@ -40,24 +36,30 @@ export default function MessagesPane(props: MessagesPaneProps) {
       const messagesData = docSnapshot.data().messages || [];
       const formattedMessages = messagesData.map((msg: any) => ({
         id: msg.id.toString(),
-        sender: msg.senderId === professionalId 
+        content: msg.text || msg.content,
+        timestamp: new Date(msg.date).toLocaleTimeString(),
+        sender: msg.senderId === professionalUID 
           ? 'You' 
           : {
-              name: chat.sender?.displayName || chat.sender?.name || 'Unknown',
-              avatar: chat.sender?.photoURL || chat.sender?.avatar || '',
+              displayName: user?.displayName || 'Unknown',
+              name: user?.name || '',
+              username: user?.username || '',
+              avatar: user?.photoURL || user?.avatar || '',
               online: true,
-              id: chat.sender?.id
             },
-        content: msg.text,
-        timestamp: formatTimestamp(msg.date),
+        senderId: msg.senderId,
         date: msg.date
       }));
 
-      setChatMessages(formattedMessages.sort((a, b) => a.date - b.date));
+      setChatMessages(
+        formattedMessages.sort(
+          (a: MessageProps, b: MessageProps) => (a.date || 0) - (b.date || 0)
+        )
+      );
     });
 
     return () => unSub();
-  }, [chatId, professionalId, chat.sender]);
+  }, [chatId, professionalUID, user]);
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,28 +67,28 @@ export default function MessagesPane(props: MessagesPaneProps) {
 
   const handleSend = async () => {
     const trimmedValue = textAreaValue.trim();
-    if (!trimmedValue || !chatId || !professionalId) return;
+    if (!trimmedValue || !chatId || !professionalUID) return;
 
     const newMessage = {
-      id: Date.now(),
-      text: trimmedValue,
-      senderId: professionalId,
+      id: Date.now().toString(),
+      content: trimmedValue,
+      senderId: professionalUID,
       date: Date.now(),
+      timestamp: new Date().toLocaleTimeString(),
+      sender: 'You' as const,
     };
 
     try {
-      // Update messages in chats collection
       await updateDoc(doc(db, 'chats', chatId), {
         messages: arrayUnion(newMessage),
       });
 
-      // Update last message in user chats
-      const updatePromises = [professionalId, chat.sender?.id]
-        .filter(Boolean)
-        .map(async (userId) => {
-          if (!userId) return;
-          
-          const userChatsRef = doc(db, "userchats", userId);
+      const userIds = [professionalUID, user?.id].filter(Boolean);
+
+      await Promise.all(
+        userIds.map(async (id) => {
+          if (!id) return;
+          const userChatsRef = doc(db, 'userchats', id);
           const userChatsSnap = await getDoc(userChatsRef);
           
           if (userChatsSnap.exists()) {
@@ -98,38 +100,21 @@ export default function MessagesPane(props: MessagesPaneProps) {
               updatedChats[chatIndex] = {
                 ...updatedChats[chatIndex],
                 lastMessage: trimmedValue,
-                isSeen: userId === professionalId,
+                isSeen: id === professionalUID,
                 updatedAt: Date.now(),
               };
-              
               await updateDoc(userChatsRef, { chats: updatedChats });
             }
           }
-        });
+        })
+      );
 
-      await Promise.all(updatePromises);
       setTextAreaValue('');
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
-  const formatTimestamp = (timestamp: number) => {
-    const now = new Date();
-    const date = new Date(timestamp);
-    const diffInDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (diffInDays === 0) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } else if (diffInDays === 1) {
-      return 'Yesterday';
-    } else if (diffInDays < 7) {
-      return date.toLocaleDateString([], { weekday: 'short' });
-    }
-    return date.toLocaleDateString();
-  };
-
-  // Simplified rendering
   return (
     <Sheet
       sx={{
@@ -139,7 +124,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         backgroundColor: 'background.level1',
       }}
     >
-      {!chatId ? (
+      {!user ? (
         <Box
           sx={{
             display: 'flex',
@@ -154,9 +139,7 @@ export default function MessagesPane(props: MessagesPaneProps) {
         </Box>
       ) : (
         <>
-          <MessagesPaneHeader 
-            sender={chat.sender} 
-          />
+          <MessagesPaneHeader />
 
           <Box
             sx={{
@@ -169,28 +152,33 @@ export default function MessagesPane(props: MessagesPaneProps) {
               flexDirection: 'column-reverse',
             }}
           >
-            <Stack spacing={2} justifyContent="flex-end">
-              {chatMessages.map((message) => (
-                <Stack
-                  key={message.id}
-                  direction="row"
-                  spacing={2}
-                  sx={{ 
-                    flexDirection: message.sender === 'You' ? 'row-reverse' : 'row' 
-                  }}
-                >
-                  {message.sender !== 'You' && (
-                    <AvatarWithStatus
-                      online={message.sender.online}
-                      src={message.sender.avatar}
-                    />
-                  )}
-                  <ChatBubble
-                    variant={message.sender === 'You' ? 'sent' : 'received'}
-                    {...message}
-                  />
-                </Stack>
-              ))}
+            <Stack spacing={2} sx={{ justifyContent: 'flex-end' }}>
+              {chatMessages.map((message) => {
+                const isYou = message.sender === 'You' || message.senderId === professionalUID;
+                return (
+                  <Stack
+                    key={message.id}
+                    direction="row"
+                    spacing={2}
+                    sx={{ flexDirection: isYou ? 'row-reverse' : 'row' }}
+                  >
+                    {!isYou && (
+                      <AvatarWithStatus 
+                        src={typeof message.sender !== 'string' ? message.sender.avatar : ''}
+                        online={typeof message.sender !== 'string' ? message.sender.online : false}
+                      />
+                    )}
+                    <ChatBubble
+                      id={message.id}
+                      senderId={message.senderId}
+                      date={message.date}
+                      variant={isYou ? 'sent' : 'received'}
+                      sender={isYou ? 'You' : message.sender}
+                      content={message.content}
+                      timestamp={message.timestamp} chatId={''} messageId={''}                    />
+                  </Stack>
+                );
+              })}
               <div ref={endRef} />
             </Stack>
           </Box>

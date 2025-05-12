@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
 import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
 import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
@@ -10,7 +10,6 @@ import { useSelector } from 'react-redux';
 
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import DownloadRoundedIcon from '@mui/icons-material/DownloadRounded';
 import SearchIcon from '@mui/icons-material/Search';
 
 import Sidebar from '../../components/Slidebar';
@@ -22,10 +21,21 @@ import Input from '@mui/joy/Input';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export default function JoyOrderDashboardTemplate() {
-  const [clients, setClients] = React.useState([]);
+  interface TransformedClient {
+    id: string;
+    name: string;
+    profileImage: string | null;
+    ageSex: string;
+    phoneNumber: string;
+    email: string;
+    diagnosis: string;
+    status: string;
+  }
+
+  const [clients, setClients] = React.useState<TransformedClient[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
-  const professionalId = useSelector((state) => state.professional?.data?.id);
+  const professionalId = useSelector((state: any) => state.professional?.data?.id);
 
   // Fetch clients from API
   React.useEffect(() => {
@@ -47,7 +57,29 @@ export default function JoyOrderDashboardTemplate() {
     
         const data = await response.json();
         if (Array.isArray(data.data)) {
-          const transformedData = data.data.map((client) => ({
+          interface ClientData {
+            id: string;
+            name: string;
+            photo_url?: string | null;
+            age?: number;
+            sex?: string;
+            phone_number?: string;
+            email?: string;
+            disease?: string;
+          }
+
+          interface TransformedClient {
+            id: string;
+            name: string;
+            profileImage: string | null;
+            ageSex: string;
+            phoneNumber: string;
+            email: string;
+            diagnosis: string;
+            status: string;
+          }
+
+          const transformedData: TransformedClient[] = data.data.map((client: ClientData) => ({
             id: client.id,
             name: client.name,
             profileImage: client.photo_url ? client.photo_url : null,
@@ -105,7 +137,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link

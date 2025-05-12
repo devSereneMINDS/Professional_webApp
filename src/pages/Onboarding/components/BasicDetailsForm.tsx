@@ -11,7 +11,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
-import { supabase } from '../../../../supabaseClient.js';
+import { supabase } from '../../../../supabaseClient.ts';
 import { BasicDetailsFormProps } from './types.ts';
 import { useDispatch } from 'react-redux';
 import { updatePersonalDetails, uploadProfilePic } from '../../../store/slices/userSlice.js'; // Adjust import path
@@ -88,7 +88,7 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       area_of_expertise: domain,
       phone: phone,
       dateOfBirth: dob?.toISOString() || '',
-      profilePic: avatar
+      profilePic: avatar || undefined
     }));
   };
   
@@ -186,9 +186,7 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
             setDob(newValue);
             updateReduxState();
           }}
-          renderInput={(params) => (
-            <TextField {...params} fullWidth required />
-          )}
+          slots={{ textField: (params) => <TextField {...params} fullWidth required /> }}
         />
       </LocalizationProvider>
 

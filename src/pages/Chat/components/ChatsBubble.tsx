@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
@@ -25,11 +26,11 @@ export default function ChatBubble(props: ChatBubbleProps) {
     variant, 
     timestamp, 
     attachment = undefined, 
-    sender, 
-    chatId, 
+    // sender, 
+    // chatId, 
     messageId 
   } = props;
-  
+  const { chatId, user } = useSelector((state: any) => state.userChat);
   const currentUserId = useSelector((state: any) => state.user?.id);
   const isSent = variant === 'sent';
   const [isHovered, setIsHovered] = React.useState<boolean>(false);
@@ -37,6 +38,8 @@ export default function ChatBubble(props: ChatBubbleProps) {
     likes: string[];
     celebrations: string[];
   }>({ likes: [], celebrations: [] });
+
+  console.log("user is is ",user)
 
   // Listen for real-time updates to message reactions
   React.useEffect(() => {
@@ -81,12 +84,12 @@ export default function ChatBubble(props: ChatBubbleProps) {
     }
   };
 
-  const formatTimestamp = (timestamp: any) => {
-    if (!timestamp) return '';
+  // const formatTimestamp = (timestamp: any) => {
+  //   if (!timestamp) return '';
     
-    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
+  //   const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  //   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  // };
 
   return (
     <Box sx={{ maxWidth: '60%', minWidth: 'auto' }}>
@@ -96,9 +99,9 @@ export default function ChatBubble(props: ChatBubbleProps) {
         sx={{ justifyContent: 'space-between', mb: 0.25 }}
       >
         <Typography level="body-xs">
-          {sender === 'You' ? sender : sender?.name || 'Unknown'}
+        {isSent ? "Me" : user?.displayName}
         </Typography>
-        <Typography level="body-xs">{formatTimestamp(timestamp)}</Typography>
+        <Typography level="body-xs">{timestamp}</Typography>
       </Stack>
       {attachment ? (
         <Sheet

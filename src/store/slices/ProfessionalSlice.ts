@@ -1,7 +1,19 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = {
+interface ProfessionalData {
+  photo_url?: string;
+  country?: string;
+  // Add other properties of the data object here if needed
+}
+
+const initialState: {
+  data: ProfessionalData | null;
+  currentProfessionalUID: string | null;
+  professionalEmail: string | null;
+  professionalToken: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+} = {
   data: null,
   currentProfessionalUID: null,
   professionalEmail: null,

@@ -12,6 +12,7 @@ import { Input, Stack } from '@mui/joy';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import ProfileCard from './components/ProfileCard';
+import dayjs from 'dayjs';
 
 export default function JoyOrderDashboardTemplate() {
   return (
@@ -49,7 +50,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link
@@ -76,8 +77,7 @@ export default function JoyOrderDashboardTemplate() {
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"
-                type="date"
-                value={today.format('YYYY-MM-DD')}
+                value={dayjs().format('YYYY-MM-DD')}
                 readOnly
                 sx={{
                   width: 120,

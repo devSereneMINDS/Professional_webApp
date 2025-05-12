@@ -2,11 +2,10 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setAppointments } from "../store/slices/appointmentSlice";
 import axios from "axios";
+import { RootState } from "../store/store"; // Adjust the path to your store file
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-// const PROFESSIONAL_ID = 1; // Hardcoded professional ID
 const CLIENT_API_URL = `${API_BASE_URL}/clients2`;
-
 
 interface EnrichedAppointment {
   id: number;
@@ -17,7 +16,8 @@ interface EnrichedAppointment {
     email: string;
   };
   meet_link?: string | null;
-  status?: string; // Added status property
+  status?: string;
+  [x: string]: string | number | boolean | null | undefined | object;
 }
 
 interface GoogleCalendarEvent {
@@ -48,54 +48,52 @@ const createGoogleCalendarEvent = async (
   userToken: string
 ): Promise<{ hangoutLink?: string } | null> => {
   try {
+    // Validate inputs
     if (!enrichedAppointment || !userToken) {
-      throw new Error("Missing required parameters: appointment details or user token.");
+      throw new Error("Missing required parameters");
     }
 
     if (!enrichedAppointment.appointment_time) {
-      throw new Error("Appointment time is missing.");
-    }
-    if (!enrichedAppointment.client || !enrichedAppointment.client.email) {
-      throw new Error("Client details or email is missing.");
+      throw new Error("Appointment time is missing");
     }
 
-    // ✅ Convert appointment_time to Date object
+    if (!enrichedAppointment.client?.email) {
+      throw new Error("Client email is missing");
+    }
+
+    // Parse and validate appointment time
     const appointmentDateTime = new Date(enrichedAppointment.appointment_time);
     if (isNaN(appointmentDateTime.getTime())) {
-      throw new Error(`Invalid appointment_time format: ${enrichedAppointment.appointment_time}`);
+      throw new Error("Invalid appointment time format");
     }
 
-    // ✅ Extract Date & Time parts in "YYYY-MM-DDTHH:MM:SS" format
-    const formattedDateTime = appointmentDateTime.toISOString(); // Full ISO format
+    // Calculate end time (default to 1 hour if duration not provided)
+    const durationMs = enrichedAppointment.duration
+      ? parseDurationToMs(enrichedAppointment.duration)
+      : 60 * 60 * 1000; // 1 hour in ms
+    const endDateTime = new Date(appointmentDateTime.getTime() + durationMs);
 
-    // ✅ Extract the duration (convert to milliseconds)
-    const durationSeconds = enrichedAppointment.duration
-      ? parseInt(enrichedAppointment.duration.split(":").pop()!, 10) // Get last part (seconds)
-      : 3600; // Default to 1 hour if missing
-
-    // ✅ Compute End Time
-    const endDateTime = new Date(appointmentDateTime.getTime() + durationSeconds * 1000).toISOString();
-
+    // Create the event payload
     const event: GoogleCalendarEvent = {
       summary: `Meeting with ${enrichedAppointment.client.name || "Client"}`,
       start: {
-        dateTime: formattedDateTime,
+        dateTime: appointmentDateTime.toISOString(),
         timeZone: "Asia/Kolkata",
       },
       end: {
-        dateTime: endDateTime,
+        dateTime: endDateTime.toISOString(),
         timeZone: "Asia/Kolkata",
       },
       conferenceData: {
         createRequest: {
-          requestId: `meet-${Date.now()}`,
+          requestId: `meet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           conferenceSolutionKey: { type: "hangoutsMeet" },
         },
       },
       attendees: [{ email: enrichedAppointment.client.email }],
     };
 
-    // ✅ Make API request to Google Calendar
+    // Make API request to Google Calendar
     const response = await axios.post(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events?conferenceDataVersion=1",
       event,
@@ -107,43 +105,72 @@ const createGoogleCalendarEvent = async (
       }
     );
 
-    return response.data as { hangoutLink?: string } | null;
-  } catch (error: unknown) {
-    console.error("Error creating Google Calendar event:", error);
+    // Verify the meet link was generated
+    const hangoutLink = response.data.hangoutLink || 
+      response.data.conferenceData?.entryPoints?.find(
+        (ep: { entryPointType: string; uri?: string }) => ep.entryPointType === "video"
+      )?.uri;
 
-    if (axios.isAxiosError(error) && error.response) {
-      console.error("Google API Response:", error.response.data);
-
-      if (error.response.status === 401) {
-        throw new Error("Unauthorized: Invalid or expired access token.");
-      } else if (error.response.status === 403) {
-        throw new Error("Permission denied: Ensure calendar permissions are granted.");
-      } else if (error.response.status === 400) {
-        throw new Error(`Bad request: ${error.response.data.error.message}`);
-      } else if (error.response.status >= 500) {
-        throw new Error("Google API service is temporarily unavailable. Try again later.");
-      }
-    } else if (axios.isAxiosError(error) && error.request) {
-      console.error("Network Error:", error.request);
-      throw new Error("Network error: Unable to reach Google Calendar API. Check internet connection.");
-    } else {
-      if (error instanceof Error) {
-        console.error(`Unexpected error: ${error.message}`);
-      } else {
-        console.error("Unexpected error occurred.");
-      }
+    if (!hangoutLink) {
+      throw new Error("Google Meet link was not generated");
     }
-    return null; // Ensure a return value in case of an error
+
+    return { hangoutLink };
+  } catch (error: unknown) {
+    handleGoogleCalendarError(error);
+    return null;
   }
 };
 
+// Helper function to parse duration string to milliseconds
+const parseDurationToMs = (duration: string): number => {
+  const parts = duration.split(':');
+  if (parts.length !== 3) return 60 * 60 * 1000; // Default 1 hour
+  
+  const hours = parseInt(parts[0]) || 0;
+  const minutes = parseInt(parts[1]) || 0;
+  const seconds = parseInt(parts[2]) || 0;
+  
+  return (hours * 3600 + minutes * 60 + seconds) * 1000;
+};
 
+// Improved error handling
+const handleGoogleCalendarError = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    if (error.response) {
+      console.error("Google API Error:", {
+        status: error.response.status,
+        data: error.response.data,
+      });
+      
+      if (error.response.status === 401) {
+        throw new Error("Authentication failed. Please re-authenticate.");
+      } else if (error.response.status === 403) {
+        throw new Error("Calendar permissions required.");
+      }
+    } else if (error.request) {
+      console.error("Network Error:", error.request);
+      throw new Error("Network connection failed.");
+    }
+  }
+  
+  console.error("Unexpected error:", error);
+  throw new Error("Failed to create calendar event.");
+};
 
 const useFetchAppointments = () => {
   const dispatch = useDispatch();
-  const professionalId = useSelector((state) => state.professional?.data?.id);
-  const professionalToken = useSelector((state) => state.professional?.professionalToken);
+  interface ProfessionalData {
+  id?: string;
+  full_name?: string;
+  email?: string;
+  photo_url?: string;
+}
 
+ const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
+ const professionalId = professional.data?.id
+  console.log("Professional ID:", professionalId);
+  const professionalToken = localStorage.getItem("googleAccessToken");
   useEffect(() => {
     if (!professionalId) return;
 
@@ -157,81 +184,95 @@ const useFetchAppointments = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const categorizedData: {
-          upcoming: EnrichedAppointment[];
-          completed: EnrichedAppointment[];
-          cancelled: EnrichedAppointment[];
-        } = {
-          upcoming: [],
-          completed: [],
-          cancelled: [],
+        const categorizedData = {
+          upcoming: [] as EnrichedAppointment[],
+          completed: [] as EnrichedAppointment[],
+          cancelled: [] as EnrichedAppointment[],
         };
 
-        // Process appointments sequentially to avoid race conditions
-        for (const appointment of fetchedData) {
-          try {
-            const clientResponse = await axios.get(
-              `${CLIENT_API_URL}/${appointment.client_id}`
-            );
-            const clientDetails = clientResponse.data;
+        // Process appointments in parallel with Promise.all
+        const processedAppointments = await Promise.all(
+          fetchedData.map(async (appointment: EnrichedAppointment) => {
+            try {
+              // Skip if cancelled
+              if (appointment.status?.toLowerCase() === "cancelled") {
+                return { ...appointment, status: "Cancelled", category: "cancelled" };
+              }
 
-            const appointmentDate = new Date(appointment.appointment_time);
-            const enrichedAppointment = {
-              ...appointment,
-              client: clientDetails,
-            };
+              // Get client details
+              const clientResponse = await axios.get(`${CLIENT_API_URL}/${appointment.client_id}`);
+              console.log("Client details fetched:", clientResponse.data);
+              const clientDetails = clientResponse.data;
 
-            // Skip processing if appointment is cancelled
-            if (appointment.status.toLowerCase() === "cancelled") {
-              categorizedData.cancelled.push(enrichedAppointment);
-              continue;
-            }
+              const enrichedAppointment: EnrichedAppointment = {
+                ...appointment,
+                client: clientDetails,
+                status: new Date(appointment.appointment_time) >= today 
+                  ? "Upcoming" 
+                  : "Completed",
+              };
 
-            // Handle upcoming appointments
-            if (appointmentDate >= today) {
-              // Only create meet link if it doesn't exist and we have a token
-              if (!enrichedAppointment.meet_link && professionalToken) {
+              // Only create meet link if:
+              // 1. Appointment is upcoming
+              // 2. No existing meet_link
+              // 3. We have a valid token
+              if (
+                enrichedAppointment.status === "Upcoming" &&
+                !enrichedAppointment.meet_link &&
+                professionalToken
+              ) {
                 try {
-                  console.log("Creating Google Calendar event for:", enrichedAppointment);
+                  console.log("Attempting to create meet link for appointment:", enrichedAppointment.id);
                   const googleEvent = await createGoogleCalendarEvent(enrichedAppointment, professionalToken);
                   
                   if (googleEvent?.hangoutLink) {
-                    // Update the appointment with the meet link
-                    const updateResponse = await axios.put(
+                    console.log("Meet link generated:", googleEvent.hangoutLink);
+                    
+                    // Update the backend with the new meet link
+                    await axios.put(
                       `${API_BASE_URL}/appointment/update/${enrichedAppointment.id}`,
                       { meet_link: googleEvent.hangoutLink }
                     );
-
-                    if (updateResponse.status === 200) {
-                      enrichedAppointment.meet_link = googleEvent.hangoutLink;
-                      console.log("Meet Link Generated Successfully!!");
-                    }
+                    
+                    return {
+                      ...enrichedAppointment,
+                      meet_link: googleEvent.hangoutLink,
+                      category: "upcoming",
+                    };
                   }
                 } catch (error) {
-                  console.error("Failed to create Google Calendar event:", error);
-                  // Continue with the appointment even if meet link creation failed
+                  console.error("Meet link generation failed for appointment:", enrichedAppointment.id, error);
+                  // Continue with the existing appointment data
                 }
               }
 
-              categorizedData.upcoming.push({
+              return {
                 ...enrichedAppointment,
-                status: "Upcoming",
-              });
-            } 
-            // Handle past appointments
-            else {
-              categorizedData.completed.push({
-                ...enrichedAppointment,
-                status: "Completed",
-              });
+                category: enrichedAppointment.status?.toLowerCase() || "unknown",
+              };
+            } catch (error) {
+              console.error("Error processing appointment:", appointment.id, error);
+              return {
+                ...appointment,
+                status: "Error",
+                category: "upcoming", // default category
+              };
             }
-          } catch (error) {
-            console.error("Error processing appointment:", appointment.id, error);
-            // Push the appointment without processing if there's an error
+          })
+        );
+
+        // Categorize the processed appointments
+        processedAppointments.forEach((appointment) => {
+          if (appointment.category === "upcoming") {
             categorizedData.upcoming.push(appointment);
+          } else if (appointment.category === "completed") {
+            categorizedData.completed.push(appointment);
+          } else if (appointment.category === "cancelled") {
+            categorizedData.cancelled.push(appointment);
           }
-        }
-        console.log("Categorized Data:", categorizedData);
+        });
+
+        console.log("Final categorized data:", categorizedData);
         dispatch(setAppointments(categorizedData));
       } catch (error) {
         console.error("Error fetching appointments:", error);

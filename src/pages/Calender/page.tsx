@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import { CssVarsProvider } from '@mui/joy/styles';
 import CssBaseline from '@mui/joy/CssBaseline';
@@ -127,11 +129,9 @@ export default function JoyOrderDashboardTemplate() {
       description: description,
       start: {
         dateTime: eventDateTime,
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       end: {
         dateTime: new Date(new Date(eventDateTime).getTime() + 60 * 60 * 1000).toISOString(), // 1 hour later
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
       conferenceData: {
         createRequest: {
@@ -166,7 +166,7 @@ export default function JoyOrderDashboardTemplate() {
           description: response.data.description,
           attendees: response.data.attendees,
           hangoutLink: response.data.hangoutLink || 
-            response.data.conferenceData?.entryPoints?.find(ep => ep.entryPointType === 'video')?.uri,
+            response.data.conferenceData?.entryPoints?.find((ep: { entryPointType: string; uri: string }) => ep.entryPointType === 'video')?.uri,
         },
       };
 
@@ -235,7 +235,7 @@ export default function JoyOrderDashboardTemplate() {
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="sm" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link
@@ -319,10 +319,22 @@ export default function JoyOrderDashboardTemplate() {
             <Button 
               onClick={handleAddEvent} 
               disabled={!professionalToken || !title || !date || !time}
-              sx={{ flex: '0 1 auto' }}
+              sx={{ flex: '0 1 auto',
+                background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            },
+            '&:active': {
+              background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+            }
+               }}
             >
               Add Event
             </Button>
+            
           </Box>
 
           {/* FullCalendar */}

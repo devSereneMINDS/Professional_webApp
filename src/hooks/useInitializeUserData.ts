@@ -4,10 +4,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { changeChat } from "../store/slices/userChatSlice";
 import { db } from "../../firebaseConfig";
 
+// Define the Chat type
+type Chat = {
+  chatId: string;
+  user: string;
+};
+
 const useInitializeUserChats = () => {
   const dispatch = useDispatch();
   const professionalUID = useSelector(
-    (state) => state.professional?.data?.uid
+    (state: { professional?: { data?: { uid?: string } } }) => state.professional?.data?.uid
   );
 
   useEffect(() => {
@@ -25,14 +31,14 @@ const useInitializeUserChats = () => {
 
           console.log("User chats data 1243", userChats);
 
-          userChats.forEach((chat) => {
+            userChats.forEach((chat: Chat) => {
             dispatch(
               changeChat({
-                chatId: chat.chatId,
-                user: chat.user,
+              chatId: chat.chatId,
+              user: chat.user,
               })
             );
-          });
+            });
         } else {
           // If no chats exist, create an empty chats document
           await setDoc(userChatsRef, { chats: [] });
