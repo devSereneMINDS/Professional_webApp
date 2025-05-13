@@ -10,7 +10,7 @@ export default function JoyOrderDashboardTemplate() {
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100dvh', width: "100vw" }}>
+      <Box sx={{ display: 'flex', minHeight: '100dvh', width: "98vw" }}>
         <Sidebar />
         <Box sx={{ 
           display: 'flex', 
