@@ -10,7 +10,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Button from '@mui/joy/Button';
 import CountrySelector from './ContrySelector';
 import { FormData } from './type';
-import { supabase } from '../../../../supabaseClient';
+// import { supabase } from '../../../../supabaseClient';
 
 interface PersonalInfoProps {
   formData: FormData;
@@ -28,54 +28,54 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
     }));
   };
   
- const [avatarPreview, setAvatarPreview] = React.useState<string>(professional?.data?.photo_url || '');
+//  const [avatarPreview, setAvatarPreview] = React.useState<string>(professional?.data?.photo_url || '');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
  const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    try {
-      // Create temporary preview
-      const previewUrl = URL.createObjectURL(file);
-      setAvatarPreview(previewUrl);
+  //   try {
+  //     // Create temporary preview
+  //     const previewUrl = URL.createObjectURL(file);
+  //     setAvatarPreview(previewUrl);
 
-      // Upload to Supabase
-      const fileName = `${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from('professional_profilepic')
-        .upload(fileName, file);
+  //     // Upload to Supabase
+  //     const fileName = `${Date.now()}-${file.name}`;
+  //     const { error: uploadError } = await supabase.storage
+  //       .from('professional_profilepic')
+  //       .upload(fileName, file);
 
-      if (uploadError) throw uploadError;
+  //     if (uploadError) throw uploadError;
 
-      // Get permanent URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('professional_profilepic')
-        .getPublicUrl(fileName);
+  //     // Get permanent URL
+  //     const { data: { publicUrl } } = supabase.storage
+  //       .from('professional_profilepic')
+  //       .getPublicUrl(fileName);
 
-      // Update preview with permanent URL
-      setAvatarPreview(publicUrl);
+  //     // Update preview with permanent URL
+  //     setAvatarPreview(publicUrl);
       
-      // Update form data with new photo URL
-      setFormData(prev => ({
-        ...prev,
-        photo_url: publicUrl
-      }));
+  //     // Update form data with new photo URL
+  //     setFormData(prev => ({
+  //       ...prev,
+  //       photo_url: publicUrl
+  //     }));
 
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      // Reset to original if error occurs
-      setAvatarPreview(professional?.data?.photo_url || '');
-    } finally {
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Error uploading avatar:', error);
+  //     // Reset to original if error occurs
+  //     setAvatarPreview(professional?.data?.photo_url || '');
+  //   } finally {
+  //     // Reset file input
+  //     if (fileInputRef.current) {
+  //       fileInputRef.current.value = '';
+  //     }
+  //   }
+  // };
 
   const handleLanguageChange = (_event: React.SyntheticEvent | null, newValue: string[]) => {
     setFormData(prev => ({

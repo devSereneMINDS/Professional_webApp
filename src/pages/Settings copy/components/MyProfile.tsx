@@ -48,6 +48,7 @@ export default function MyProfile() {
   const [saveSuccess, setSaveSuccess] = React.useState(false);
   
   const [formData, setFormData] = React.useState<FormData>({
+    photo_url: undefined,
     full_name: '',
     email: '',
     phone: '',
@@ -83,6 +84,7 @@ export default function MyProfile() {
   React.useEffect(() => {
     if (professional?.data) {
       setFormData({
+        photo_url: professional.data.photo_url || undefined,
         full_name: professional.data.full_name || '',
         email: professional.data.email || '',
         phone: professional.data.phone || '',

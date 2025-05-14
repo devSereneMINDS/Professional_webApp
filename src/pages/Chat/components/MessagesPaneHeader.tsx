@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Chip from '@mui/joy/Chip';
@@ -10,7 +9,6 @@ import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRound
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import { Menu, MenuItem } from '@mui/joy';
 import { useSelector } from 'react-redux';
-
 
 interface User {
   photoURL?: string;
@@ -36,7 +34,6 @@ export default function MessagesPaneHeader({ startDecorator }: MessagesPaneHeade
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  
 
   const handleClose = () => {
     setAnchorEl(null);
@@ -59,14 +56,16 @@ export default function MessagesPaneHeader({ startDecorator }: MessagesPaneHeade
         spacing={{ xs: 1, md: 2 }}
         sx={{ alignItems: 'center' }}
       >
-        <IconButton
-          variant="plain"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
-        >
-          <ArrowBackIosNewRoundedIcon />
-        </IconButton>
+        {startDecorator || (
+          <IconButton
+            variant="plain"
+            color="neutral"
+            size="sm"
+            sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
+          >
+            <ArrowBackIosNewRoundedIcon />
+          </IconButton>
+        )}
 
         <Avatar size="lg" src={user?.photoURL || ''} />
 
