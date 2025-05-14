@@ -1,7 +1,7 @@
 {
   "id": "/",
   "name": "The simplest way to manage your online practice",
-  "short_name": "The simplest way to manage your online practice",
+  "short_name": "Serene MINDS",
   "description": "Connecting Psychologists with individuals seeking help",
   "theme_color": "#3788E5",
   "background_color": "#3788E5",
@@ -9,24 +9,24 @@
   "start_url": "/",
   "icons": [
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon2-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icon2-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-192x192.png",
+      "src": "/icon2-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-144x144.png",
+      "src": "/icon2-144x144.png",
       "sizes": "144x144",
       "type": "image/png"
     }
