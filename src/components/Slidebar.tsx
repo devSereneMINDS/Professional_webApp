@@ -16,6 +16,7 @@ import QuestionAnswerRoundedIcon from '@mui/icons-material/QuestionAnswerRounded
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import ColorSchemeToggle from './modules/ColorSchemeToggle';
+import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
 import { closeSidebar } from './utils';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
@@ -23,7 +24,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resetProfessionalData } from '../store/slices/ProfessionalSlice';
-import { Button, useColorScheme } from '@mui/joy';
+import { Button, IconButton, useColorScheme, useTheme } from '@mui/joy';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface ProfessionalData {
   id?: string;
@@ -40,15 +42,17 @@ export default function Sidebar() {
   const dispatch = useDispatch();
 
   const { mode } = useColorScheme();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Detect mobile view
 
   const AddNewClient = () => {
     navigate("/add-new-client");
   };
 
-    const userEmail = localStorage.getItem("userEmail");
-    const googleAccessToken = localStorage.getItem("googleAccessToken");
-    if(!userEmail && !googleAccessToken && !professional?.data?.id) {
-      // Redirect to login page if userEmail or googleAccessToken is not available
+  const userEmail = localStorage.getItem("userEmail");
+  const googleAccessToken = localStorage.getItem("googleAccessToken");
+  if (!userEmail && !googleAccessToken && !professional?.data?.id) {
+    // Redirect to login page
       navigate("/login");
     }
 
@@ -57,6 +61,7 @@ export default function Sidebar() {
     localStorage.removeItem("userEmail");
     localStorage.removeItem("googleAccessToken");
     dispatch(resetProfessionalData());
+
     navigate("/login");
   };
 
@@ -100,6 +105,23 @@ export default function Sidebar() {
         maxHeight: '100vh',
       }}
     >
+
+      {isMobile && (
+        <IconButton
+          size="sm"
+          variant="soft"
+          color="neutral"
+          onClick={closeSidebar}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            zIndex: 9999,
+            display: { xs: 'inline-flex', md: 'none' },
+          }}
+        >
+          <MenuRoundedIcon />
+        </IconButton>
+      )}
       <GlobalStyles
         styles={(theme) => ({
           ':root': {
@@ -191,7 +213,10 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton 
               role="menuitem"
-              onClick={() => navigate("/")}
+              onClick={() => {
+                navigate("/");
+                closeSidebar();
+              }}
               selected={isActive('/')}
               sx={activeStyle('/')}
             >
@@ -205,7 +230,8 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/appointments")}
+              onClick={() => {navigate("/appointments");
+                 closeSidebar()} }
               selected={isActive('/appointments')}
               sx={activeStyle('/appointments')}
             >
@@ -219,7 +245,9 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/clients")}
+              onClick={() => {navigate("/clients");
+                closeSidebar();
+              }}
               selected={isActive('/clients')}
               sx={activeStyle('/clients')}
             >
@@ -233,7 +261,9 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/calendar")}
+              onClick={() => {navigate("/calendar");
+                closeSidebar();
+              }}
               selected={isActive('/calendar')}
               sx={activeStyle('/calendar')}
             >
@@ -247,7 +277,9 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/payment")}
+              onClick={() => {navigate("/payment");
+                closeSidebar();
+              }}
               selected={isActive('/payment')}
               sx={activeStyle('/payment')}
             >
@@ -261,7 +293,9 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/chats")}
+              onClick={() => {navigate("/chats");
+                closeSidebar();
+              }}
               selected={isActive('/chats')}
               sx={activeStyle('/chats')}
             >
@@ -278,7 +312,9 @@ export default function Sidebar() {
           <ListItem>
             <ListItemButton
               role="menuitem"
-              onClick={() => navigate("/settings")}
+              onClick={() => {navigate("/settings");
+                closeSidebar();
+              }}
               selected={isActive('/settings')}
               sx={activeStyle('/settings')}
             >

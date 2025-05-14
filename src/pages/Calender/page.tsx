@@ -31,6 +31,10 @@ import { EventClickArg, DateSelectArg } from '@fullcalendar/core';
 import Sidebar from '../../components/Slidebar';
 import Header from '../../components/Header';
 import axios from 'axios';
+import { Stack } from '@mui/joy';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 
 interface GoogleCalendarEvent {
   id?: string;
@@ -231,7 +235,7 @@ export default function JoyOrderDashboardTemplate() {
           }}
         >
           {/* Breadcrumbs */}
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
@@ -241,7 +245,7 @@ export default function JoyOrderDashboardTemplate() {
               <Link
                 underline="none"
                 color="neutral"
-                href="#"
+                href="#some-link"
                 aria-label="Home"
               >
                 <HomeRoundedIcon />
@@ -249,16 +253,36 @@ export default function JoyOrderDashboardTemplate() {
               <Link
                 underline="hover"
                 color="neutral"
-                href="#"
+                href="#some-link"
                 sx={{ fontSize: 12, fontWeight: 500 }}
               >
                 Dashboard
               </Link>
               <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                Calendar
+                HomePage
               </Typography>
             </Breadcrumbs>
-          </Box>
+
+            
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Input
+                size="sm"
+                value={dayjs().format('YYYY-MM-DD')}
+                readOnly
+                sx={{
+                  width: 120,
+                  '& input': {
+                    padding: '0px',
+                    textAlign: 'center',
+                  },
+                  '& input::placeholder': {
+                    color: 'text.placeholder',
+                  }
+                }}
+              />
+            </LocalizationProvider>
+          </Stack>
 
           {/* Heading */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -320,6 +344,7 @@ export default function JoyOrderDashboardTemplate() {
               onClick={handleAddEvent} 
               disabled={!professionalToken || !title || !date || !time}
               sx={{ flex: '0 1 auto',
+                color: 'white',
                 background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
             boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
             transition: 'all 0.2s ease',

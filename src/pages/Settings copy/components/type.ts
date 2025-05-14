@@ -26,6 +26,7 @@ export interface EducationEntry {
 }
 
 export interface FormData {
+  photo_url: string | undefined;
   full_name: string;
   email: string;
   phone: string;
@@ -35,6 +36,7 @@ export interface FormData {
   education: EducationEntry[];
   instagram: string;
   facebook: string;
+  languages?: string[];
 }
 
 // Add this to your existing types in types.ts

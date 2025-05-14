@@ -11,6 +11,10 @@ import Sidebar from '../../components/Slidebar';
 import Header from '../../components/Header';
 import AppointmentList from './components/AppointmentList';
 import { useSelector } from 'react-redux';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Input, Stack } from '@mui/joy';
+import dayjs from 'dayjs';
 
 export default function JoyOrderDashboardTemplate() {
 
@@ -45,11 +49,11 @@ export default function JoyOrderDashboardTemplate() {
             gap: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
-              separator={<ChevronRightRoundedIcon fontSize="small" />}
+              separator={<ChevronRightRoundedIcon />}
               sx={{ pl: 0 }}
             >
               <Link
@@ -69,10 +73,30 @@ export default function JoyOrderDashboardTemplate() {
                 Dashboard
               </Link>
               <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                Appointments
+                HomePage
               </Typography>
             </Breadcrumbs>
-          </Box>
+
+            
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Input
+                size="sm"
+                value={dayjs().format('YYYY-MM-DD')}
+                readOnly
+                sx={{
+                  width: 120,
+                  '& input': {
+                    padding: '0px',
+                    textAlign: 'center',
+                  },
+                  '& input::placeholder': {
+                    color: 'text.placeholder',
+                  }
+                }}
+              />
+            </LocalizationProvider>
+          </Stack>
           <Box
             sx={{
               display: 'flex',

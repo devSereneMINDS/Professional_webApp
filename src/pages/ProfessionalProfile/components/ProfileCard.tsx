@@ -48,7 +48,7 @@ export default function ClientProfile() {
   };
 
   return (
-    <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'column', md: 'row' } }}>
+    <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'row', md: 'row' } }}>
       {/* Left Section - Client Info */}
       <Card sx={{ flex: 1, minWidth: 300 }}>
         <CardContent>

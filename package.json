@@ -27,6 +27,7 @@
     "@mui/x-tree-view": "^8.0.0-beta.3",
     "@reduxjs/toolkit": "^2.6.1",
     "@supabase/supabase-js": "^2.49.4",
+    "antd": "^5.25.1",
     "axios": "^1.8.4",
     "date-fns": "^2.30.0",
     "dayjs": "^1.11.13",
@@ -40,13 +41,15 @@
     "quill": "^2.0.3",
     "react": "^18.2.0",
     "react-calendar": "^5.1.0",
+    "react-day-picker": "^9.6.7",
     "react-dom": "^18.2.0",
     "react-icons": "^5.5.0",
     "react-otp-input": "^3.1.1",
     "react-qr-code": "^2.0.15",
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.0",
-    "react-spring": "^9.7.5"
+    "react-spring": "^9.7.5",
+    "vite-plugin-pwa": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

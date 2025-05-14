@@ -17,6 +17,10 @@ import OrderTable from './components/OrderTable';
 import OrderList from './components/OrderList';
 import Header from '../../components/Header';
 import Input from '@mui/joy/Input';
+import { Stack } from '@mui/joy';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -133,7 +137,7 @@ export default function JoyOrderDashboardTemplate() {
             gap: 1,
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
@@ -157,10 +161,30 @@ export default function JoyOrderDashboardTemplate() {
                 Dashboard
               </Link>
               <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                Clients
+                HomePage
               </Typography>
             </Breadcrumbs>
-          </Box>
+
+            
+
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <Input
+                size="sm"
+                value={dayjs().format('YYYY-MM-DD')}
+                readOnly
+                sx={{
+                  width: 120,
+                  '& input': {
+                    padding: '0px',
+                    textAlign: 'center',
+                  },
+                  '& input::placeholder': {
+                    color: 'text.placeholder',
+                  }
+                }}
+              />
+            </LocalizationProvider>
+          </Stack>
           <Box
             sx={{
               display: 'flex',
@@ -182,7 +206,7 @@ export default function JoyOrderDashboardTemplate() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 startDecorator={<SearchIcon />}
-                sx={{ width: 250 }}
+                sx={{ width: 300 }}
               />
             </Box>
           </Box>

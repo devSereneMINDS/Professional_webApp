@@ -3,31 +3,40 @@ import Sheet from '@mui/joy/Sheet';
 import MessagesPane from './MessagePane';
 import ChatsPane from './ChatsPane';
 import { useSelector } from 'react-redux';
-// import { ChatProps } from '../utils/types';
+import { useMediaQuery, useTheme } from '@mui/material';
+import { useState } from 'react';
 
 export default function MyProfile() {
-  // Get the entire chat state from Redux
-  // const currentChat = useSelector((state: any) => state.userChat);
+  const selectedChatId = useSelector((state: any) => state.userChat?.selectedChatId);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [showChats, setShowChats] = useState(true);
 
-  // // Construct selectedChat from Redux state
-  // const selectedChat: ChatProps | null = currentChat.chatId ? {
-  //   id: currentChat.chatId,
-  //   user: currentChat.user,
-  //   isCurrentUserBlocked: currentChat.isCurrentUserBlocked,
-  //   isReceiverBlocked: currentChat.isReceiverBlocked,
-  // } : null;
+  // Automatically show messages pane when a chat is selected on mobile
+  // and show chats pane when no chat is selected
+  const shouldShowChats = isMobile ? (showChats && !selectedChatId) : true;
+  const shouldShowMessages = isMobile ? (!showChats || !!selectedChatId) : true;
 
-  // console.log('Current chat from Redux:', currentChat);
-  // console.log('Selected chat:', selectedChat);
+  const handleSelectChat = () => {
+    if (isMobile) {
+      setShowChats(false);
+    }
+  };
 
-  const selectedChatId = useSelector((state : any) => state.userChat?.selectedChatId);
+  const handleBackToChats = () => {
+    setShowChats(true);
+    console.log("hua toh h")
+    // You might want to clear the selectedChatId here if needed
+    // dispatch(clearSelectedChat());
+  };
+
 
 
   return (
     <Sheet
       sx={{
         position: 'fixed',
-        width: '80%',
+        width: isMobile ? '100%' : '80%',
         height: '100vh',
         display: 'grid',
         gridTemplateColumns: {
@@ -35,27 +44,54 @@ export default function MyProfile() {
           sm: 'minmax(min-content, min(30%, 400px)) 1fr',
         },
         zIndex: 100,
+        left: isMobile ? 0 : 'auto',
       }}
     >
+      {/* Chats Pane */}
       <Sheet
         sx={{
           position: { xs: 'fixed', sm: 'sticky' },
           top: 0,
           transform: {
-            xs: 'translateX(calc(100% * (var(--MessagesPane-slideIn, 0) - 1)))',
+            xs: shouldShowChats ? 'translateX(0)' : 'translateX(-100%)',
             sm: 'none',
           },
-          transition: 'transform 0.4s, width 0.4s',
+          transition: 'transform 0.4s ease',
           width: '100%',
           height: '100%',
+          zIndex: { xs: 110, sm: 'auto' },
+          display: { xs: shouldShowChats ? 'block' : 'none', sm: 'block' },
         }}
       >
-        <ChatsPane
+        <ChatsPane 
           selectedChatId={selectedChatId}
-          // Removed setSelectedChat as it's managed via Redux
+          onSelectChat={handleSelectChat}
         />
       </Sheet>
-      <MessagesPane  />
+
+      {/* Messages Pane */}
+      <Sheet
+        sx={{
+          position: { xs: 'fixed', sm: 'relative' },
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: { xs: 120, sm: 'auto' },
+          
+          display: { xs: shouldShowMessages ? 'block' : 'none', sm: 'block' },
+          transform: {
+            xs: shouldShowMessages ? 'translateX(0)' : 'translateX(100%)',
+            sm: 'none',
+          },
+          transition: 'transform 0.4s ease',
+        }}
+      >
+        <MessagesPane 
+          onBackClick={handleBackToChats}
+          showBackButton={isMobile && !showChats}
+        />
+      </Sheet>
     </Sheet>
   );
 }

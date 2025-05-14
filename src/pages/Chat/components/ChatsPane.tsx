@@ -17,12 +17,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeChat } from '../../../store/slices/userChatSlice';
 
 type ChatsPaneProps = {
-  // setSelectedChat: (chat: ChatProps) => void;
   selectedChatId?: string;
+  onSelectChat?: () => void;
 };
 
 export default function ChatsPane(props: ChatsPaneProps) {
-  const { selectedChatId } = props;
+  const { selectedChatId, onSelectChat } = props;
   const [chats, setChats] = React.useState<ChatProps[]>([]);
   const [searchQuery, setSearchQuery] = React.useState("");
   const professionalId = useSelector((state: any) => state.professional?.data?.uid);
@@ -40,7 +40,6 @@ export default function ChatsPane(props: ChatsPaneProps) {
       }
 
       const items = chatData.chats;
-      console.log("Chat itemspane:", items);
       const promises = items.map(async (item: any) => {
         const userDocSnap = await getDoc(doc(db, "users", item?.recieverId));
         return {
@@ -70,8 +69,12 @@ export default function ChatsPane(props: ChatsPaneProps) {
       } : item
     );
     setChats(updatedChats);
-    // setSelectedChat(chat);
     dispatch(changeChat({ chatId: chat.id, user: chat.sender }));
+    
+    // Call the onSelectChat prop to notify parent component
+    if (onSelectChat) {
+      onSelectChat();
+    }
   };
 
   const filteredChats = chats.filter(
@@ -79,7 +82,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
       chat.sender?.displayName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       chat.sender?.username?.toLowerCase().includes(searchQuery.toLowerCase())
   );
-  console.log("Filtered chats:", filteredChats);
+
   return (
     <Sheet
       sx={{

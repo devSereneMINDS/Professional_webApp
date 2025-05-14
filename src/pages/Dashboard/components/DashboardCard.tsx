@@ -4,20 +4,17 @@ import { Card, Typography, Box, Button } from '@mui/joy';
 interface StatCardProps {
   title: string;
   value: string | number;
-  change?: string | number;
-  changeColor?: string;
   timePeriod: string;
   gradientColors: [string, string];
   barColor: string;
 }
 
-export const StatCard = ({ title, value, change, changeColor, timePeriod, gradientColors, barColor }: StatCardProps) => {
+export const StatCard = ({ title, value, timePeriod, gradientColors, barColor }: StatCardProps) => {
   return (
     <Card variant="outlined" sx={{ gap: 0, p: 2 }}>
       <Typography level="title-md" variant="plain" sx={{ pb: 0.5 }}>{title}</Typography>
       <Box sx={{ mt: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography level="h3">{value}</Typography>
-        {change && <Typography level="body-xs" sx={{ color: changeColor, px: 1 }}>{change}</Typography>}
       </Box>
       <Typography level="body-xs" color="neutral">{timePeriod}</Typography>
       <Box sx={{ 

@@ -4,6 +4,7 @@ import {
   FormLabel, Input, Stack, Typography, Box, Button 
 } from '@mui/joy';
 import { AccountLinks, FormData } from './type';
+import { DangerZone } from './DangerZone';
 
 
 interface AccountsSectionProps {
@@ -12,6 +13,8 @@ interface AccountsSectionProps {
   isLoading: boolean;
   onSave: () => void;
 }
+
+
 
 export default function AccountsSection({ formData, setFormData, isLoading, onSave }: AccountsSectionProps) {
   const handleAccountChange = (field: keyof AccountLinks, value: string) => {
@@ -42,12 +45,12 @@ export default function AccountsSection({ formData, setFormData, isLoading, onSa
           />
         </FormControl>
         <FormControl>
-          <FormLabel>Facebook Profile</FormLabel>
+          <FormLabel>LinkedIn Profile</FormLabel>
           <Input
             size="sm"
             value={formData.facebook}
             onChange={(e) => handleAccountChange('facebook', e.target.value)}
-            placeholder="https://facebook.com/yourusername"
+            placeholder="https://LinkedIn.com/yourusername"
             type="url"
           />
         </FormControl>
@@ -79,6 +82,7 @@ export default function AccountsSection({ formData, setFormData, isLoading, onSa
           </Button>
         </CardActions>
       </CardOverflow>
+      <DangerZone isLoading={false} />
     </Card>
   );
 }

@@ -8,13 +8,15 @@ import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { tabClasses } from '@mui/joy/Tab';
 import PersonalInfo from './PersonalInfo';
 import AboutMe from './AboutMe';
-import EducationSection from './EducationSection.tsx';
-import ServicesSection from './ServicesSection.tsx';
+import EducationSection from './EducationSection';
+import ServicesSection from './ServicesSection';
 import AvailabilitySection from './AvailabilitySection';
-import AccountsSection from './AccountHandle.tsx';
-import { FormData, Service, AvailabilityDay } from './type.ts';
+import AccountsSection from './AccountHandle';
+import { FormData, Service, AvailabilityDay } from './type';
 
 export default function MyProfile() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   interface ProfessionalState {
     data: {
       id: string;
@@ -34,6 +36,8 @@ export default function MyProfile() {
       }[];
       availability: Record<string, string>;
       photo_url: string;
+      instagram?: string;
+      facebook?: string;
     };
   }
 
@@ -41,6 +45,7 @@ export default function MyProfile() {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [saveSuccess, setSaveSuccess] = React.useState(false);
   
   const [formData, setFormData] = React.useState<FormData>({
     full_name: '',
@@ -50,7 +55,7 @@ export default function MyProfile() {
     country: null,
     about_me: '',
     education: [{ institute: '', degree: '', description: '' }],
-     instagram: '',
+    instagram: '',
     facebook: ''
   });
 
@@ -65,7 +70,7 @@ export default function MyProfile() {
 
   const [services, setServices] = React.useState<Service[]>(
     professional?.data?.services 
-      ? professional.data.services.map((service: { serviceTitle: string; serviceDescription: string; duration: number; price: number; currency: string }) => ({
+      ? professional.data.services.map((service) => ({
           name: service.serviceTitle || '',
           description: service.serviceDescription || '',
           duration: String(service.duration) || '',
@@ -82,80 +87,106 @@ export default function MyProfile() {
         email: professional.data.email || '',
         phone: professional.data.phone || '',
         area_of_expertise: professional.data.area_of_expertise || '',
-        country: professional.data.country ? String(professional.data.country) : null,
+        country: professional.data.country || null,
         about_me: professional.data.about_me || '',
         education: professional.data.education || [{ institute: '', degree: '', description: '' }],
-         instagram: '',
-        facebook: ''
+        instagram: professional.data.instagram || '',
+        facebook: professional.data.facebook || ''
       });
     }
   }, [professional]);
 
-  const handleSaveProfile = async () => {
+  const handleSaveProfile = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setIsLoading(true);
+    setSaveSuccess(false);
+    
     try {
-      const updatedProfessional = {
-        ...professional.data,
-        ...formData,
-        services: services.map(service => ({
-          serviceTitle: service.name,
-          serviceDescription: service.description,
-          duration: Number(service.duration),
-          price: Number(service.price),
-        })),
-        availability: availability.reduce((acc: Record<string, string>, day) => {
-          if (day.day && day.times[0]) {
-            acc[day.day] = day.times[0];
-          }
-          return acc;
-        }, {} as Record<string, string>)
+      const payload = {
+        full_name: formData.full_name,
+        email: formData.email,
+        phone: formData.phone,
+        area_of_expertise: formData.area_of_expertise,
+        country: formData.country,
+        about_me: formData.about_me,
+        education: formData.education,
+        instagram: formData.instagram,
+        facebook: formData.facebook
       };
 
-      console.log('Updated Professional:', updatedProfessional);
-
       const response = await axios.put(
-        `https://api.sereneminds.life/api/professionals/update/${professional?.data?.id}`,
-        updatedProfessional
+        `${API_BASE_URL}/professionals/update/${professional?.data?.id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
-      dispatch(setProfessionalData(response.data));
+      if (response.data?.data) {
+        dispatch(setProfessionalData(response.data.data[0]));
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Profile update failed:', error);
+      if (axios.isAxiosError(error)) {
+        console.error('Error details:', {
+          status: error.response?.status,
+          data: error.response?.data
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSaveServices = async () => {
+  const handleSaveServices = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setIsLoading(true);
+    setSaveSuccess(false);
+    
     try {
-      const updatedProfessional = {
-        ...professional.data,
+      const payload = {
         services: services.map(service => ({
           serviceTitle: service.name,
           serviceDescription: service.description,
           duration: Number(service.duration),
           price: Number(service.price),
+          currency: service.currency
         }))
       };
+
       const response = await axios.put(
-        `https://api.sereneminds.life/api/professionals/${professional.data.id}`,
-        updatedProfessional
+        `${API_BASE_URL}/professionals/update/${professional?.data?.id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
-      dispatch(setProfessionalData(response.data));
+      if (response.data?.data) {
+        dispatch(setProfessionalData(response.data.data[0]));
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
     } catch (error) {
-      console.error('Error updating services:', error);
+      console.error('Services update failed:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSaveAvailability = async () => {
+  const handleSaveAvailability = async (e?: React.FormEvent) => {
+    e?.preventDefault();
     setIsLoading(true);
+    setSaveSuccess(false);
+    
     try {
-      const updatedProfessional = {
-        ...professional.data,
+      const payload = {
         availability: availability.reduce((acc: Record<string, string>, day) => {
           if (day.day && day.times[0]) {
             acc[day.day] = day.times[0];
@@ -164,15 +195,23 @@ export default function MyProfile() {
         }, {} as Record<string, string>)
       };
 
-
       const response = await axios.put(
-        `https://api.sereneminds.life/api/professionals/${professional.data.id}`,
-        updatedProfessional
+        `${API_BASE_URL}/professionals/update/${professional?.data?.id}`,
+        payload,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
       );
 
-      dispatch(setProfessionalData(response.data));
+      if (response.data?.data) {
+        dispatch(setProfessionalData(response.data.data[0]));
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
     } catch (error) {
-      console.error('Error updating availability:', error);
+      console.error('Availability update failed:', error);
     } finally {
       setIsLoading(false);
     }
@@ -226,7 +265,11 @@ export default function MyProfile() {
             My profile
           </Typography>
         </Box>
-        <Tabs defaultValue={0} onChange={(_, value) => typeof value === 'number' && setActiveTab(value)} sx={{ bgcolor: 'transparent' }}>
+        <Tabs 
+          defaultValue={0} 
+          onChange={(_, value) => typeof value === 'number' && setActiveTab(value)} 
+          sx={{ bgcolor: 'transparent' }}
+        >
           <TabList
             tabFlex={1}
             size="sm"
@@ -254,9 +297,9 @@ export default function MyProfile() {
             <Tab sx={{ borderRadius: '6px 6px 0 0' }} indicatorInset value={1}>
               Services
             </Tab>
-             <Tab sx={{ borderRadius: '6px 6px 0 0' }} indicatorInset value={2}>
-    Accounts
-  </Tab>
+            <Tab sx={{ borderRadius: '6px 6px 0 0' }} indicatorInset value={2}>
+              Accounts
+            </Tab>
           </TabList>
         </Tabs>
       </Box>
@@ -275,53 +318,57 @@ export default function MyProfile() {
             maxWidth: '800px',
           }}
         >
+          {saveSuccess && (
+            <Typography color="success" sx={{ textAlign: 'center' }}>
+              Changes saved successfully!
+            </Typography>
+          )}
           
           {activeTab === 0 ? (
-  <>
-    <PersonalInfo 
-      formData={formData} 
-      setFormData={setFormData} 
-      professional={professional} 
-      isLoading={isLoading} 
-      onSave={handleSaveProfile}
-    />
-    <AboutMe 
-      formData={formData} 
-      setFormData={setFormData} 
-      isLoading={isLoading} 
-      onSave={handleSaveProfile}
-    />
-    <EducationSection 
-      formData={formData} 
-      setFormData={setFormData} 
-      isLoading={isLoading} 
-      onSave={handleSaveProfile}
-    />
-  </>
-) : activeTab === 1 ? (
-  <>
-    <ServicesSection 
-      services={services} 
-      setServices={setServices} 
-      isLoading={isLoading} 
-      onSave={handleSaveServices}
-    />
-    <AvailabilitySection 
-      availability={availability} 
-      setAvailability={setAvailability} 
-      isLoading={isLoading} 
-      onSave={handleSaveAvailability}
-    />
-  </>
-) : (
-  <AccountsSection 
-    formData={formData} 
-    setFormData={setFormData} 
-    isLoading={isLoading} 
-    onSave={handleSaveProfile}
-  />
-)}
-
+            <>
+              <PersonalInfo 
+                formData={formData} 
+                setFormData={setFormData} 
+                professional={professional} 
+                isLoading={isLoading} 
+                onSave={handleSaveProfile}
+              />
+              <AboutMe 
+                formData={formData} 
+                setFormData={setFormData} 
+                isLoading={isLoading} 
+                onSave={handleSaveProfile}
+              />
+              <EducationSection 
+                formData={formData} 
+                setFormData={setFormData} 
+                isLoading={isLoading} 
+                onSave={handleSaveProfile}
+              />
+            </>
+          ) : activeTab === 1 ? (
+            <>
+              <ServicesSection 
+                services={services} 
+                setServices={setServices} 
+                isLoading={isLoading} 
+                onSave={handleSaveServices}
+              />
+              <AvailabilitySection 
+                availability={availability} 
+                setAvailability={setAvailability} 
+                isLoading={isLoading} 
+                onSave={handleSaveAvailability}
+              />
+            </>
+          ) : (
+            <AccountsSection 
+              formData={formData} 
+              setFormData={setFormData} 
+              isLoading={isLoading} 
+              onSave={handleSaveProfile}
+            />
+          )}
         </Stack>
       </Box>
     </Box>

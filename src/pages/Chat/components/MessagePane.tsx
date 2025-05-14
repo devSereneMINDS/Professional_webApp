@@ -11,11 +11,22 @@ import ChatBubble from './ChatsBubble';
 import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
 import { MessageProps } from '../utils/types';
+import IconButton from '@mui/joy/IconButton';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import { useTheme } from '@mui/joy/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
-export default function MessagesPane() {
+interface MessagesPaneProps {
+  onBackClick?: () => void;
+  showBackButton?: boolean;
+}
+
+export default function MessagesPane({ onBackClick, showBackButton }: MessagesPaneProps) {
   const [chatMessages, setChatMessages] = React.useState<MessageProps[]>([]);
   const [textAreaValue, setTextAreaValue] = React.useState('');
   const endRef = React.useRef<HTMLDivElement>(null);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const { chatId, user } = useSelector((state: any) => state.userChat);
   const professional = useSelector((state: any) => state.professional?.data);
@@ -37,7 +48,7 @@ export default function MessagesPane() {
       const formattedMessages = messagesData.map((msg: any) => ({
         id: msg.id.toString(),
         content: msg.text || msg.content,
-        timestamp: new Date(msg.date).toLocaleTimeString(),
+        timestamp: new Date(msg.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         sender: msg.senderId === professionalUID 
           ? 'You' 
           : {
@@ -54,8 +65,7 @@ export default function MessagesPane() {
       setChatMessages(
         formattedMessages.sort(
           (a: MessageProps, b: MessageProps) => (a.date || 0) - (b.date || 0)
-        )
-      );
+      ));
     });
 
     return () => unSub();
@@ -74,7 +84,7 @@ export default function MessagesPane() {
       content: trimmedValue,
       senderId: professionalUID,
       date: Date.now(),
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       sender: 'You' as const,
     };
 
@@ -118,10 +128,13 @@ export default function MessagesPane() {
   return (
     <Sheet
       sx={{
-        height: { xs: 'calc(100dvh - var(--Header-height))', md: '100dvh' },
+        height: { xs: 'calc(100dvh - 64px)', md: 'calc(100dvh - 64px)' }, // Adjusted for header height
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.level1',
+        position: 'relative',
+        width: '100%',
+        mt: { xs: '60px', sm: 0 },
       }}
     >
       {!user ? (
@@ -131,41 +144,68 @@ export default function MessagesPane() {
             alignItems: 'center',
             justifyContent: 'center',
             height: '100%',
-            fontSize: '1.2rem',
+            fontSize: isMobile ? '1rem' : '1.2rem',
             color: 'text.secondary',
+            px: isMobile ? 1 : 2,
+            textAlign: 'center',
           }}
         >
           Select a chat to start messaging
         </Box>
       ) : (
         <>
-          <MessagesPaneHeader />
+          <MessagesPaneHeader 
+            startDecorator={
+              showBackButton && (
+                <IconButton
+                  variant="plain"
+                  color="neutral"
+                  size="sm"
+                  onClick={() => {
+          console.log('Back button clicked');
+          onBackClick?.();
+        }}
+                  sx={{ mr: 1 }}
+                >
+                  <ArrowBack />
+                </IconButton>
+              )
+            }
+          />
 
           <Box
             sx={{
               display: 'flex',
               flex: 1,
               minHeight: 0,
-              px: 2,
-              py: 3,
+              px: isMobile ? 0.5 : 2,
+              py: isMobile ? 0.5 : 3,
               overflowY: 'auto',
               flexDirection: 'column-reverse',
             }}
           >
-            <Stack spacing={2} sx={{ justifyContent: 'flex-end' }}>
+            <Stack spacing={isMobile ? 1 : 1.5} sx={{ justifyContent: 'flex-end' }}>
               {chatMessages.map((message) => {
                 const isYou = message.sender === 'You' || message.senderId === professionalUID;
                 return (
                   <Stack
                     key={message.id}
                     direction="row"
-                    spacing={2}
-                    sx={{ flexDirection: isYou ? 'row-reverse' : 'row' }}
+                    spacing={isMobile ? 1 : 1.5}
+                    sx={{ 
+                      flexDirection: isYou ? 'row-reverse' : 'row',
+                      px: isMobile ? 0.5 : 0,
+                    }}
                   >
                     {!isYou && (
                       <AvatarWithStatus 
                         src={typeof message.sender !== 'string' ? message.sender.avatar : ''}
                         online={typeof message.sender !== 'string' ? message.sender.online : false}
+                        sx={{
+                          width: isMobile ? 32 : 40,
+                          height: isMobile ? 32 : 40,
+                          display: isMobile && isYou ? 'none' : 'flex',
+                        }}
                       />
                     )}
                     <ChatBubble
@@ -175,7 +215,10 @@ export default function MessagesPane() {
                       variant={isYou ? 'sent' : 'received'}
                       sender={isYou ? 'You' : message.sender}
                       content={message.content}
-                      timestamp={message.timestamp} chatId={''} messageId={''}                    />
+                      timestamp={message.timestamp}
+                      chatId={''}
+                      messageId={''}
+                    />
                   </Stack>
                 );
               })}
@@ -183,11 +226,17 @@ export default function MessagesPane() {
             </Stack>
           </Box>
 
-          <MessageInput
-            textAreaValue={textAreaValue}
-            setTextAreaValue={setTextAreaValue}
-            onSubmit={handleSend}
-          />
+          <Box sx={{ 
+            px: isMobile ? 1 : 2, 
+            pb: isMobile ? 1 : 2,
+            pt: isMobile ? 1 : 0,
+          }}>
+            <MessageInput
+              textAreaValue={textAreaValue}
+              setTextAreaValue={setTextAreaValue}
+              onSubmit={handleSend}
+            />
+          </Box>
         </>
       )}
     </Sheet>

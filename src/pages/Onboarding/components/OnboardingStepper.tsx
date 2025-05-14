@@ -11,18 +11,21 @@ import { OtpVerificationForm } from './OtpVerificationForm';
 import { DocumentUploadForm } from './DocumentUploadForm';
 import { CompletionStep } from './CompletionStep';
 import { useSelector } from 'react-redux';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   alignSelf: 'center',
   width: '100%',
-  padding: theme.spacing(4),
+  padding: theme.spacing(2), // Reduced from 4 for mobile
   gap: theme.spacing(2),
   boxShadow:
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
   [theme.breakpoints.up('sm')]: {
     width: '450px',
+    padding: theme.spacing(4), // Original padding for larger screens
   },
   ...theme.applyStyles('dark', {
     boxShadow:
@@ -31,6 +34,9 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export const OnboardingStepper: React.FC = () => {
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isVerySmallScreen = useMediaQuery('(max-height: 600px)');
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
@@ -46,7 +52,6 @@ export const OnboardingStepper: React.FC = () => {
 
   const handleNext = () => {
     if (activeStep === steps.length - 2) {
-      // If we're on the step before completion, submit the data
       handleSubmit();
     } else {
       setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -59,7 +64,7 @@ export const OnboardingStepper: React.FC = () => {
 
   const handleSubmit = async () => {
     const fullName = `${firstName} ${lastName}`;
-    const dateOfBirth = dob?.toISOString().split('T')[0] || ''; // Format as YYYY-MM-DD
+    const dateOfBirth = dob?.toISOString().split('T')[0] || '';
     
     const data = {
       full_name: fullName,
@@ -86,15 +91,13 @@ export const OnboardingStepper: React.FC = () => {
       if (response.ok) {
         const result = await response.json();
         console.log("Professional created successfully", result);
-        setActiveStep((prevActiveStep) => prevActiveStep + 1); // Move to completion step
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
       } else {
         const error = await response.json();
         console.error("Error creating professional:", error);
-        // Handle error (maybe show to user)
       }
     } catch (error) {
       console.error("Error in API call:", error);
-      // Handle error (maybe show to user)
     }
   };
 
@@ -140,6 +143,7 @@ export const OnboardingStepper: React.FC = () => {
             handleBack={handleBack}
             phone={phone}
             email={email}
+            
           />
         );
       case 2:
@@ -162,8 +166,24 @@ export const OnboardingStepper: React.FC = () => {
 
   return (
     <Card variant="outlined">
-      <Box sx={{ width: '100%', my: 2 }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
+      <Box sx={{ 
+        width: '100%', 
+        my: isVerySmallScreen ? 1 : 2, // Adjust margin for very small screens
+        overflow: isSmallScreen ? 'auto' : 'visible' // Enable scrolling for stepper on small screens
+      }}>
+        <Stepper 
+          activeStep={activeStep} 
+          alternativeLabel
+          orientation={isSmallScreen ? 'horizontal' : 'horizontal'} // Vertical on small screens
+          sx={{
+            '& .MuiStepLabel-label': {
+              fontSize: isSmallScreen ? '0.75rem' : '0.875rem', // Smaller text on mobile
+            },
+            '& .MuiStepConnector-root': {
+              marginLeft: isSmallScreen ? '12px' : '0', // Adjust for vertical stepper
+            }
+          }}
+        >
           {steps.map((label) => (
             <Step key={label}>
               <StepLabel>{label}</StepLabel>

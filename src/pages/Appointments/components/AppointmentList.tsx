@@ -14,6 +14,7 @@ const AppointmentList = () => {
   const navigate = useNavigate();
 
   const appointments = useSelector((state: RootState) => state.appointments);
+  console.log("Appointment", appointments)
   
   // Sort appointments
   const upcomingAppointments = appointments.upcoming
@@ -71,7 +72,7 @@ const AppointmentList = () => {
       }}>
         {Array.from({ length: 3 }).map((_, index) => (
           <AppointmentCard 
-            key={index} 
+            id={index} 
             photoUrl={undefined} 
             meetLink={undefined} 
             isLoading 
@@ -133,89 +134,103 @@ const AppointmentList = () => {
             }}
           >
             {/* Upcoming Appointments */}
-            <TabPanel value={0} sx={{ width: '100%', p: 0 }}>
-              {upcomingAppointments.length > 0 ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                    maxHeight: 'calc(100vh - 200px)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    overflowY: 'auto',
-                    pr: 1,
-                    '&::-webkit-scrollbar': {
-                      width: '4px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'neutral.400',
-                      borderRadius: '2px',
-                    },
-                  }}
-                >
-{upcomingAppointments.map((appointment) => (
-  <AppointmentCard
-    key={appointment.id}
-    name={
-      typeof appointment.client?.name === 'string' ? appointment.client.name :
-      typeof appointment.clientname === 'string' ? appointment.clientname :
-      'Unknown'
-    }
-    photoUrl={
-      typeof appointment.client?.photo_url === 'string' ? 
-      appointment.client.photo_url : 
-      undefined
-    }
-    date={new Date(appointment.appointment_time).toLocaleDateString()}
-    time={new Date(appointment.appointment_time).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}
-    duration={appointment.duration || '45:00'}
-    contact={
-      typeof appointment.client?.phone_no === 'string' ? appointment.client.phone_no :
-      typeof appointment.clientphone === 'string' ? appointment.clientphone :
-      'N/A'
-    }
-    meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
-    message={typeof appointment.message === 'string' ? appointment.message : undefined}
-    isUpcoming={true}
-  />
-))}
+            {/* Upcoming Appointments */}
+<TabPanel value={0} sx={{ width: '100%', p: 0 }}>
+  {upcomingAppointments.length > 0 ? (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 2,
+        maxHeight: 'calc(100vh - 200px)',
+        justifyContent: 'flex-start',
+        overflowY: 'auto',
+        pr: 1,
+        '&::-webkit-scrollbar': {
+          width: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'neutral.400',
+          borderRadius: '2px',
+        },
+      }}
+    >
+      {upcomingAppointments.map((appointment) => (
+        <AppointmentCard
+          id={appointment.id}
+          name={
+            typeof appointment.client?.name === 'string' ? appointment.client.name :
+            typeof appointment.clientname === 'string' ? appointment.clientname :
+            'Unknown'
+          }
+          photoUrl={
+            typeof appointment.client?.photo_url === 'string' ? 
+            appointment.client.photo_url : 
+            undefined
+          }
+          date={new Date(appointment.appointment_time).toLocaleDateString()}
+          time={new Date(appointment.appointment_time).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+          duration={appointment.duration || '45:00'}
+          contact={
+            typeof appointment.client?.phone_no === 'string' ? appointment.client.phone_no :
+            typeof appointment.clientphone === 'string' ? appointment.clientphone :
+            'N/A'
+          }
+          meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
+          message={typeof appointment.message === 'string' ? appointment.message : undefined}
+          isUpcoming={true}
+        />
+      ))}
+    </Box>
+  ) : renderEmptyState()}
+</TabPanel>
 
-{completedAppointments.map((appointment) => (
-  <AppointmentCard
-    key={appointment.id}
-    name={
-      typeof appointment.client?.name === 'string' ? appointment.client.name :
-      typeof appointment.clientname === 'string' ? appointment.clientname :
-      'Unknown'
-    }
-    photoUrl={
-      typeof appointment.client?.photo_url === 'string' ? 
-      appointment.client.photo_url : 
-      undefined
-    }
-    date={new Date(appointment.appointment_time).toLocaleDateString()}
-    time={new Date(appointment.appointment_time).toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}
-    duration={appointment.duration || '45:00'}
-    contact={
-      typeof appointment.client?.phone_no === 'string' ? appointment.client.phone_no :
-      typeof appointment.clientphone === 'string' ? appointment.clientphone :
-      'N/A'
-    }
-    meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
-    message={typeof appointment.message === 'string' ? appointment.message : undefined}
-    isUpcoming={false}
-  />
-))}
-                </Box>
-              ) : renderEmptyState()}
-            </TabPanel>
+{/* Completed Appointments
+<TabPanel value={1} sx={{ width: '100%', p: 0 }}>
+  {completedAppointments.length > 0 ? (
+    <Box
+      sx={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 2,
+        maxHeight: 'calc(100vh - 200px)',
+        justifyContent: 'flex-start',
+        overflowY: 'auto',
+        pr: 1,
+        '&::-webkit-scrollbar': {
+          width: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'neutral.400',
+          borderRadius: '2px',
+        },
+      }}
+    >
+      {completedAppointments.map((appointment) => (
+        <AppointmentCard
+          id={appointment.id}
+          name={typeof appointment.client?.name === 'string' ? appointment.client.name : 
+                typeof appointment.clientname === 'string' ? appointment.clientname : 
+                'Unknown'}
+          photoUrl={appointment.client?.photo_url}
+          date={new Date(appointment.appointment_time).toLocaleDateString()}
+          time={new Date(appointment.appointment_time).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+          duration={appointment.duration || '45:00'}
+          contact={String(appointment.client?.phone_no || appointment.clientphone || 'N/A')}
+          meetLink={appointment.meet_link ?? undefined}
+          message={appointment.message}
+          isUpcoming={false}
+        />
+      ))}
+    </Box>
+  ) : renderEmptyState()}
+</TabPanel> */}
 
             {/* Completed Appointments */}
             <TabPanel value={1} sx={{ width: '100%', p: 0 }}>
@@ -240,7 +255,7 @@ const AppointmentList = () => {
                 >
                   {completedAppointments.map((appointment) => (
                     <AppointmentCard
-                      key={appointment.id}
+                      id={appointment.id}
                       name={typeof appointment.client?.name === 'string' ? appointment.client.name : 
                             typeof appointment.clientname === 'string' ? appointment.clientname : 
                             'Unknown'}

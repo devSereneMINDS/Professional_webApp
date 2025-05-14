@@ -4,9 +4,12 @@ import CardContent from '@mui/joy/CardContent';
 import Chip from '@mui/joy/Chip';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
+import Box from '@mui/joy/Box';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/store';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/joy/styles';
 
 function AreaGradient({ color, id }: { color: string; id: string }) {
   return (
@@ -23,7 +26,9 @@ export default function AppointmentsLineChart() {
   const { upcoming, completed } = useSelector((state: RootState) => state.appointments);
   const paymentStats = useSelector((state: RootState) => state.paymentStats.stats ?? { totalAppointments: 0, upcomingAppointmentsThisWeek: 0 });
   const { systemMode } = useColorScheme();
+  const theme = useTheme();
   const isDark = systemMode === 'dark';
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   const colorPalette = [
     isDark ? 'var(--joy-palette-primary-500)' : 'var(--joy-palette-primary-700)', // Upcoming
@@ -65,8 +70,13 @@ export default function AppointmentsLineChart() {
   const upcomingData = countAppointmentsByMonth(upcoming, monthLabels);
   const completedData = countAppointmentsByMonth(completed, monthLabels);
 
+  // Responsive margins
+  const chartMargins = isMobile 
+    ? { left: 10, right: 10, top: 20, bottom: 40 }  // Mobile margins
+    : { left: 50, right: 20, top: 20, bottom: 40 }; // Desktop margins
+
   return (
-    <Card variant="outlined" sx={{ width: '100%' }}>
+    <Card variant="outlined" sx={{ width: '100%', p: { xs: 1, sm: 2 } }}>
       <CardContent>
         <Typography level="h2" fontSize="sm" gutterBottom>
           Appointments Overview
@@ -91,45 +101,52 @@ export default function AppointmentsLineChart() {
             Appointments for the last 6 months
           </Typography>
         </Stack>
-        <LineChart
-          colors={colorPalette}
-          xAxis={[
-            {
-              scaleType: 'point',
-              data: monthLabels,
-            },
-          ]}
-          series={[
-            {
-              id: 'upcoming',
-              label: 'Upcoming',
-              showMark: false,
-              curve: 'linear',
-              data: upcomingData,
-            },
-            {
-              id: 'completed',
-              label: 'Completed',
-              showMark: false,
-              curve: 'linear',
-              data: completedData,
-            },
-          ]}
-          height={350}
-          margin={{ left: 50, right: 20, top: 20, bottom: 20 }}
-          grid={{ horizontal: true }}
-          sx={{
-            '& .MuiAreaElement-series-upcoming': {
-              fill: "url('#upcoming')",
-            },
-            '& .MuiAreaElement-series-completed': {
-              fill: "url('#completed')",
-            },
-          }}
-        >
-          <AreaGradient color={colorPalette[0]} id="upcoming" />
-          <AreaGradient color={colorPalette[1]} id="completed" />
-        </LineChart>
+        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+          <LineChart
+            colors={colorPalette}
+            xAxis={[
+              {
+                scaleType: 'point',
+                data: monthLabels,
+                tickLabelStyle: isMobile 
+                  ? { angle: 45, textAnchor: 'start', fontSize: 10 }
+                  : { fontSize: 12 },
+              },
+            ]}
+            series={[
+              {
+                id: 'upcoming',
+                label: 'Upcoming',
+                showMark: false,
+                curve: 'linear',
+                data: upcomingData,
+              },
+              {
+                id: 'completed',
+                label: 'Completed',
+                showMark: false,
+                curve: 'linear',
+                data: completedData,
+              },
+            ]}
+            height={isMobile ? 300 : 350}
+            margin={chartMargins}
+            grid={{ horizontal: true }}
+            sx={{
+              width: '100%',
+              minWidth: isMobile ? '280px' : '400px',
+              '& .MuiAreaElement-series-upcoming': {
+                fill: "url('#upcoming')",
+              },
+              '& .MuiAreaElement-series-completed': {
+                fill: "url('#completed')",
+              },
+            }}
+          >
+            <AreaGradient color={colorPalette[0]} id="upcoming" />
+            <AreaGradient color={colorPalette[1]} id="completed" />
+          </LineChart>
+        </Box>
       </CardContent>
     </Card>
   );

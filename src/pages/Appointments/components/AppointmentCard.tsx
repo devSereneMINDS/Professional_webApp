@@ -18,14 +18,13 @@ import Stack from '@mui/joy/Stack';
 import Skeleton from '@mui/joy/Skeleton';
 import { useTheme } from '@mui/joy/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { Textarea } from '@mui/joy';
+import { DatePicker, TimePicker } from 'antd';
+import type { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 interface AppointmentCardProps {
-  id?: string;
+  id: number;
   name?: string;
   photoUrl?: string;
   date?: string;
@@ -42,7 +41,7 @@ interface AppointmentCardProps {
 }
 
 export default function AppointmentCard({
-  id = '',
+  id = 0,
   name = 'N/A',
   photoUrl,
   date = 'MM/DD/YYYY',
@@ -59,12 +58,13 @@ export default function AppointmentCard({
   const [openMessage, setOpenMessage] = React.useState(false);
   const [openReschedule, setOpenReschedule] = React.useState(false);
   const [selectedDate, setSelectedDate] = React.useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = React.useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = React.useState<Dayjs | null>(null);
   const [isRescheduling, setIsRescheduling] = React.useState(false);
   const [clientMessage, setClientMessage] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const formattedDuration = duration
@@ -131,10 +131,8 @@ export default function AppointmentCard({
       setIsRescheduling(true);
       
       const formattedDate = selectedDate.toISOString().split('T')[0];
-      const hours = selectedTime.getHours().toString().padStart(2, '0');
-      const minutes = selectedTime.getMinutes().toString().padStart(2, '0');
-      const formattedTime = `${hours}:${minutes}`;
-
+      const formattedTime = selectedTime.format('HH:mm');
+      
       await onReschedule(id, formattedDate, formattedTime);
       
       setOpenReschedule(false);
@@ -239,7 +237,7 @@ export default function AppointmentCard({
           }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
               <Avatar src={photoUrl} alt={name} />
-              <Typography level="title-md" fontWeight="bold">{name}</Typography>
+              <Typography level="title-md" >{name}</Typography>
             </Box>
             <DetailRow label="Date" value={date} />
             <DetailRow label="Time" value={time} />
@@ -262,7 +260,7 @@ export default function AppointmentCard({
                       if (ampm === 'AM' && hoursNum === 12) hoursNum = 0;
                       
                       setSelectedDate(new Date(parseInt(year), parseInt(month) - 1, parseInt(day)));
-                      setSelectedTime(new Date(0, 0, 0, hoursNum, parseInt(minutes)));
+                      setSelectedTime(dayjs().hour(hoursNum).minute(parseInt(minutes.substring(0, 2))));
                     } catch (e) {
                       console.error('Error parsing date/time:', e);
                     }
@@ -278,7 +276,7 @@ export default function AppointmentCard({
 
           {/* Right Side */}
           <Box sx={{ flex: 1 }}>
-            <Typography level="title-md" fontWeight="bold" mb={1}>
+            <Typography level="title-md" mb={1}>
               Message from {name}
             </Typography>
             <Typography level="body-md" sx={{ whiteSpace: 'pre-line' }}>
@@ -289,59 +287,64 @@ export default function AppointmentCard({
       </Modal>
 
       {/* Reschedule Modal */}
-      <Modal open={openReschedule} onClose={() => setOpenReschedule(false)}>
-        <ModalDialog
-          variant="outlined"
-          sx={{
-            borderRadius: '16px',
-            p: 3,
-            width: isMobile ? '90%' : '400px',
-            maxWidth: '100%',
-          }}
-        >
-          <ModalClose />
-          <Typography level="h4" mb={2}>Reschedule Appointment</Typography>
-          
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <DatePicker
-                label="Select Date"
-                value={selectedDate}
-                onChange={(newValue) => setSelectedDate(newValue)}
-                minDate={new Date()}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                  },
-                }}
-              />
-              
-              <TimePicker
-                label="Select Time"
-                value={selectedTime}
-                onChange={(newValue) => setSelectedTime(newValue)}
-                minutesStep={15}
-                slotProps={{
-                  textField: {
-                    fullWidth: true,
-                  },
-                }}
-              />
-              
-              <Button
-                variant="solid"
-                color="primary"
-                onClick={handleReschedule}
-                loading={isRescheduling}
-                sx={{ mt: 2 }}
-                fullWidth
-              >
-                Confirm New Time
-              </Button>
-            </Box>
-          </LocalizationProvider>
-        </ModalDialog>
-      </Modal>
+      {/* Reschedule Modal */}
+<Modal open={openReschedule} onClose={() => setOpenReschedule(false)}>
+  <ModalDialog
+    variant="outlined"
+    sx={{
+      borderRadius: 'md',
+      p: 3,
+      width: isMobile ? '90%' : '400px',
+      maxWidth: '100%',
+      // Add these styles to ensure picker dropdowns appear above
+      '& .ant-picker-panel-container': {
+        zIndex: theme.zIndex.modal + 1,
+      },
+      '& .ant-picker-dropdown': {
+        zIndex: theme.zIndex.modal + 1,
+      }
+    }}
+  >
+    <ModalClose />
+    <Typography level="h4" mb={2}>Reschedule Appointment</Typography>
+    
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box>
+        <Typography level="body-sm" mb={1}>Select Date</Typography>
+        <DatePicker
+          onChange={(date) => setSelectedDate(date ? date.toDate() : null)}
+          disabledDate={(date) => date ? date.isBefore(dayjs(), 'day') : false}
+          value={selectedDate ? dayjs(selectedDate) : dayjs()}
+          getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+        />
+      </Box>
+
+      <Box>
+        <Typography level="body-sm" mb={1}>Select Time</Typography>
+        <TimePicker
+          value={selectedTime}
+          onChange={(time) => setSelectedTime(time)}
+          format="HH:mm"
+          minuteStep={15}
+          showNow={false}
+          style={{ width: '100%' }}
+          getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+        />
+      </Box>
+
+      <Button
+        variant="solid"
+        color="primary"
+        onClick={handleReschedule}
+        loading={isRescheduling}
+        sx={{ mt: 2 }}
+        fullWidth
+      >
+        Confirm New Time
+      </Button>
+    </Box>
+  </ModalDialog>
+</Modal>
 
       {/* Message Modal */}
       <Modal open={openMessage} onClose={() => setOpenMessage(false)}>
@@ -399,16 +402,15 @@ function DetailRow({ label, value }: DetailRowProps) {
   );
 }
 
-const onReschedule = async (appointmentID: string, newDate: string, newTime: string) => {
+const onReschedule = async (appointmentID: number, newDate: string, newTime: string) => {
   try {
     if (!newDate || !newTime) {
       throw new Error("Date and time are required for rescheduling.");
     }
-
     const appointmentTime = `${newDate}T${newTime}:00`;
     console.log("Reschedule data:", { appointmentID, appointmentTime });
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+    const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     const response = await fetch(
       `${API_BASE_URL}/appointment/update/${appointmentID}`,
       {

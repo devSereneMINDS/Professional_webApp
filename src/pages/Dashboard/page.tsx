@@ -52,8 +52,6 @@ export default function JoyOrderDashboardTemplate() {
     {
       title: 'Appointments',
       value: `${stats?.totalAppointments || 0}`,
-      change: '+25%',
-      changeColor: 'success.plainColor',
       timePeriod: 'Last 30 days',
       gradientColors: ['#C8FAD9', '#D4FDE1'] as [string, string],
       barColor: '#00A36C'
@@ -61,8 +59,6 @@ export default function JoyOrderDashboardTemplate() {
     {
       title: 'Distinct Clients',
       value: `${stats?.distinctClientsThisMonth || 0}`,
-      change: '-25%',
-      changeColor: 'danger.plainColor',
       timePeriod: 'Last 30 days',
       gradientColors: ['#FAD4D4', '#FDE1E1'] as [string, string],
       barColor: '#D32F2F'
@@ -70,8 +66,6 @@ export default function JoyOrderDashboardTemplate() {
     {
       title: 'Earnings',
       value: `${stats?.totalFeesThisMonth || 0}`,
-      change: '+5%',
-      changeColor: 'primary.plainColor',
       timePeriod: 'Last 30 days',
       gradientColors: ['#E8EAF6', '#F0F2FA'] as [string, string],
       barColor: '#3F51B5'
@@ -79,9 +73,9 @@ export default function JoyOrderDashboardTemplate() {
   ];
 
   const actionCardData = {
-    title: 'Explore Your Impact ✨',
-    description: 'Showcase your expertise and journey through insightful data and achievements.',
-    buttonText: 'Get insights',
+    title: 'Explore Your Page ✨',
+    description: 'Share this link to your linkedIn, Instagram, or any other social media platform to build your brand and showcase your services.',
+    buttonText: 'Go to your page',
     onClick: NavigatePersonalWebsite
   };
 
@@ -116,7 +110,7 @@ export default function JoyOrderDashboardTemplate() {
             height: '100vh',
           }}
         >
-          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
+          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
@@ -193,8 +187,6 @@ export default function JoyOrderDashboardTemplate() {
                   key={index}
                   title={card.title}
                   value={card.value}
-                  change={card.change}
-                  changeColor={card.changeColor}
                   timePeriod={card.timePeriod}
                   gradientColors={card.gradientColors}
                   barColor={card.barColor}

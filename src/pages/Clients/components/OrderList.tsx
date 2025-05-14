@@ -21,6 +21,7 @@ import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import Skeleton from '@mui/joy/Skeleton';
 import React from 'react';
+import { Stack } from '@mui/joy';
 
 interface Client {
   id: string;
@@ -63,7 +64,7 @@ export default function OrderList({ clients, isLoading }: OrderListProps) {
   // Skeleton loading state
   if (isLoading) {
     return (
-      <Box sx={{ 
+      <Stack sx={{ 
         display: { xs: 'block', sm: 'none' },
         height: 'calc(100vh - 200px)',
         overflow: 'auto',
@@ -83,12 +84,12 @@ export default function OrderList({ clients, isLoading }: OrderListProps) {
             <ListDivider sx={{ my: 1 }} />
           </Box>
         ))}
-      </Box>
+      </Stack>
     );
   }
 
   return (
-    <Box sx={{ 
+    <Stack sx={{ 
       display: { xs: 'block', sm: 'none' },
       height: 'calc(100vh - 200px)',
       overflow: 'auto',
@@ -241,6 +242,6 @@ export default function OrderList({ clients, isLoading }: OrderListProps) {
           </IconButton>
         </Box>
       )}
-    </Box>
+    </Stack>
   );
 }

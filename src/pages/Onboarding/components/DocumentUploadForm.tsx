@@ -58,10 +58,10 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
       <Typography variant="h6" textAlign="center">
-        Document Verification
+        Upload Your Resume
       </Typography>
       <Typography variant="body1">
-        Please upload a government-issued ID (Passport, Driver's License, etc.)
+        Upload Carefully!! You may not able to change this in future.
       </Typography>
       <Button 
         variant="outlined" 
@@ -69,12 +69,12 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
         fullWidth
         disabled={isUploading}
       >
-        {isUploading ? 'Uploading...' : (document ? document.name : 'Upload Document')}
+        {isUploading ? 'Uploading...' : (document ? document.name : 'Click to upload your resume here')}
         <input 
           type="file" 
           hidden 
           onChange={handleDocumentUpload} 
-          accept=".pdf,.jpg,.jpeg,.png" // Specify accepted file types
+          accept=".pdf" // Specify accepted file types
         />
       </Button>
       <Box sx={{ display: 'flex', gap: 2 }}>
@@ -82,9 +82,26 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
           Back
         </Button>
         <Button 
-          variant="contained" 
           onClick={handleSubmit} 
           fullWidth
+          sx = {{
+            background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
+            color: '#fff',
+            borderRadius: '6px',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: 500,
+            fontSize: '0.875rem',
+          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+            },
+            '&:active': {
+              background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+            }
+          }}
         >
           {isUploading ? 'Uploading...' : 'Submit'}
         </Button>

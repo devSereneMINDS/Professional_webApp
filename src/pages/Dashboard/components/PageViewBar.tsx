@@ -3,22 +3,24 @@ import CardContent from '@mui/joy/CardContent';
 import Chip from '@mui/joy/Chip';
 import Typography from '@mui/joy/Typography';
 import Stack from '@mui/joy/Stack';
+import Box from '@mui/joy/Box';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useColorScheme } from '@mui/joy/styles';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../store/store'; // Adjust the path to your store file
-import { getCurrencySymbol } from './CurrencySymbol'
+import { RootState } from '../../../store/store';
+import { getCurrencySymbol } from './CurrencySymbol';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/joy/styles';
+
 export default function MaxEarningsBarChart() {
   const { systemMode } = useColorScheme();
+  const theme = useTheme();
   const isDark = systemMode === 'dark';
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const professional = useSelector((state: RootState) => state.professional.data);
-  console.log('Professional Data:', professional?.country);
-
-  
   const currencySymbol = getCurrencySymbol(professional?.country || null);
-  console.log('Currency Symbol:', currencySymbol);
+
   // Get data from Redux store
   const paymentStats = useSelector((state: RootState) => state.paymentStats.stats ?? { 
     totalFeesThisMonth: 0, 
@@ -32,7 +34,7 @@ export default function MaxEarningsBarChart() {
   const monthName = currentDate.toLocaleString('default', { month: 'short' });
   const year = currentDate.getFullYear();
 
-  // Calculate maximum earnings (using totalFeesThisMonth from paymentStats)
+  // Calculate maximum earnings
   const maxEarning = {
     day: `${monthName} ${year}`,
     value: paymentStats.totalFeesThisMonth || 0
@@ -42,11 +44,19 @@ export default function MaxEarningsBarChart() {
   const earnings = [maxEarning.value];
 
   const colorPalette = [
-    isDark ? 'var(--joy-palette-success-500)' : 'var(--joy-palette-success-700)'
+    isDark ? 'var(--joy-palette-primary-200)' : 'var(--joy-palette-primary-400)'
   ];
 
+  // Responsive settings
+  const chartMargins = isMobile 
+    ? { left: 10, right: 10, top: 20, bottom: 40 }  // Mobile margins
+    : { left: 50, right: 20, top: 20, bottom: 40 }; // Desktop margins
+
+  const barWidth = isMobile ? 40 : 60;
+  const chartHeight = isMobile ? 220 : 250;
+
   return (
-    <Card variant="outlined" sx={{ width: '100%' }}>
+    <Card variant="outlined" sx={{ width: '100%', p: { xs: 1, sm: 2 } }}>
       <CardContent>
         <Typography level="h2" fontSize="sm" gutterBottom>
           Monthly Earnings
@@ -60,7 +70,7 @@ export default function MaxEarningsBarChart() {
               gap: 1,
             }}
           >
-            <Typography level="h1" fontSize="xl4" component="p">
+            <Typography level="h1" fontSize={isMobile ? 'xl2' : 'xl4'} component="p">
               {currencySymbol}{maxEarning.value.toLocaleString()}
             </Typography>
             <Chip size="sm" color="success" variant="soft">
@@ -71,36 +81,43 @@ export default function MaxEarningsBarChart() {
             Total earnings for {monthName} {year}
           </Typography>
         </Stack>
-        <BarChart
-          borderRadius={8}
-          colors={colorPalette}
-          xAxis={[
-            {
-              scaleType: 'band',
-              data: data,
-            },
-          ]}
-          series={[
-            {
-              data: earnings,
-              label: 'Earnings',
-            },
-          ]}
-          height={250}
-          margin={{ left: 50, right: 0, top: 20, bottom: 20 }}
-          grid={{ horizontal: true }}
-          sx={{
-            '& .MuiBarElement-root': {
-              rx: 4,
-              width: 60,
-            },
-          }}
-          slotProps={{
-            legend: {
-              position: { vertical: 'top', horizontal: 'end' },
-            },
-          }}
-        />
+        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+          <BarChart
+            borderRadius={8}
+            colors={colorPalette}
+            xAxis={[
+              {
+                scaleType: 'band',
+                data: data,
+                tickLabelStyle: isMobile 
+                  ? { fontSize: 10 } 
+                  : { fontSize: 12 },
+              },
+            ]}
+            series={[
+              {
+                data: earnings,
+                label: 'Earnings',
+              },
+            ]}
+            height={chartHeight}
+            margin={chartMargins}
+            grid={{ horizontal: true }}
+            sx={{
+              '& .MuiBarElement-root': {
+                rx: 4,
+                width: barWidth,
+              },
+              width: '100%',
+              minWidth: isMobile ? '250px' : '300px',
+            }}
+            slotProps={{
+              legend: {
+                position: { vertical: 'top', horizontal: 'end' },
+              },
+            }}
+          />
+        </Box>
       </CardContent>
     </Card>
   );

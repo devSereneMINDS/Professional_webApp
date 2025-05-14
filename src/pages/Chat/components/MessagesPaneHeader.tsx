@@ -12,14 +12,31 @@ import { Menu, MenuItem } from '@mui/joy';
 import { useSelector } from 'react-redux';
 
 
+interface User {
+  photoURL?: string;
+  isOnline?: boolean;
+  displayName?: string;
+  email?: string;
+}
 
-export default function MessagesPaneHeader() {
-  const { user } = useSelector((state: any) => state.userChat);
+interface RootState {
+  userChat: {
+    user: User;
+  };
+}
+
+interface MessagesPaneHeaderProps {
+  startDecorator?: React.ReactNode;
+}
+
+export default function MessagesPaneHeader({ startDecorator }: MessagesPaneHeaderProps) {
+  const { user } = useSelector((state: RootState) => state.userChat);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+  
 
   const handleClose = () => {
     setAnchorEl(null);

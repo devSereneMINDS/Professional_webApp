@@ -25,8 +25,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
   const userEmail = localStorage.getItem("userEmail");
   const googleAccessToken = localStorage.getItem("googleAccessToken");
+  console.log("Professional ID",professional?.data?.id);
 
   if (!userEmail || !googleAccessToken || !professional?.data?.id) { // Ensure id exists in ProfessionalData
+    console.log("User is not authenticated", { userEmail, googleAccessToken, professionalId: professional?.data?.id });
+    
     return <Navigate to="/login" replace />;
   }
 

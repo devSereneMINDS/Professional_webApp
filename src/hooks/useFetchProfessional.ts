@@ -25,7 +25,7 @@ const useFetchProfessional = () => {
         }
 
         const data = await response.json();
-
+        console.log("Professional Data", data)
         dispatch(setProfessionalData(data)); // Dispatch fetched data to Redux store
       } catch (error) {
         if (error instanceof Error) {

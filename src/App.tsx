@@ -84,7 +84,7 @@ function App() {
         try {
           const response = await fetch(`${API_BASE_URL}/professionals/email/${userEmail}`);
           const data = await response.json();
-
+          console.log("Professional data:", data);
           if (data.id) {
             dispatch(setProfessionalData(data));
             dispatch(setProfessionalId(data.id));
