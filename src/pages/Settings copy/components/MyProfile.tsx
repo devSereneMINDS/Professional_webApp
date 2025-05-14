@@ -47,6 +47,7 @@ export default function MyProfile() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [saveSuccess, setSaveSuccess] = React.useState(false);
   
+  console.log(saveSuccess)
   const [formData, setFormData] = React.useState<FormData>({
     photo_url: undefined,
     full_name: '',
@@ -320,12 +321,7 @@ export default function MyProfile() {
             maxWidth: '800px',
           }}
         >
-          {saveSuccess && (
-            <Typography color="success" sx={{ textAlign: 'center' }}>
-              Changes saved successfully!
-            </Typography>
-          )}
-          
+
           {activeTab === 0 ? (
             <>
               <PersonalInfo 
@@ -350,12 +346,14 @@ export default function MyProfile() {
             </>
           ) : activeTab === 1 ? (
             <>
-              <ServicesSection 
-                services={services} 
-                setServices={setServices} 
-                isLoading={isLoading} 
-                onSave={handleSaveServices}
-              />
+              {professional?.data?.area_of_expertise !== "Wellness Buddy" && (
+      <ServicesSection 
+        services={services} 
+        setServices={setServices} 
+        isLoading={isLoading} 
+        onSave={handleSaveServices}
+      />
+    )}
               <AvailabilitySection 
                 availability={availability} 
                 setAvailability={setAvailability} 

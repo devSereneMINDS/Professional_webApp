@@ -184,14 +184,26 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
           </Stack>
           <Stack direction="row" spacing={2}>
             <Stack spacing={1} sx={{ flex: 1 }}>
-              <FormLabel>Area of Expertise</FormLabel>
-              <Input 
-                size="sm" 
-                value={formData.area_of_expertise}
-                onChange={(e) => handleInputChange('area_of_expertise', e.target.value)}
-                placeholder="Enter your area of expertise"
-              />
-            </Stack>
+  <FormLabel>Area of Expertise</FormLabel>
+  <Select
+    size="sm"
+    value={formData.area_of_expertise}
+    sx={{
+      // Selected value (displayed in the input)
+      '--Select-defaultTypography-fontWeight': '400',
+      // Dropdown options
+      '& [role="option"]': {
+        fontWeight: 400,
+      },
+    }}
+    onChange={(_e, newValue) => handleInputChange('area_of_expertise', newValue || '')}
+    placeholder="Select your area of expertise"
+  >
+    <Option value="Counseling Psychologist">Counseling Psychologist</Option>
+    <Option value="Clinical Psychologist">Clinical Psychologist</Option>
+    <Option value="Wellness Buddy">Wellness Buddy</Option>
+  </Select>
+</Stack>
             <Stack spacing={1} sx={{ flex: 1 }}>
               <FormLabel>Email</FormLabel>
               <Input

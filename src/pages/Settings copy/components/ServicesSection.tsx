@@ -60,28 +60,33 @@ export default function ServicesSection({ services, setServices, isLoading, onSa
                   placeholder="Describe the service"
                 />
               </FormControl>
-              <Stack direction="row" spacing={2}>
-                <FormControl sx={{ flex: 1 }}>
-                  <FormLabel>Duration (minutes)</FormLabel>
-                  <Input
-                    size="sm"
-                    type="number"
-                    value={service.duration}
-                    onChange={(e) => handleServiceChange(index, 'duration', e.target.value)}
-                    placeholder="e.g., 60"
-                  />
-                </FormControl>
-                <FormControl sx={{ flex: 1 }}>
-                  <FormLabel>Price</FormLabel>
-                  <Input
-                    size="sm"
-                    type="number"
-                    value={service.price}
-                    onChange={(e) => handleServiceChange(index, 'price', e.target.value)}
-                    placeholder="e.g., 100"
-                  />
-                </FormControl>
-              </Stack>
+              <Stack 
+  direction={{ xs: 'column', sm: 'row' }} 
+  spacing={{ xs: 1, sm: 2 }}
+  sx={{ width: '100%' }}
+>
+  <FormControl sx={{ flex: 1 }}>
+    <FormLabel>Duration (minutes)</FormLabel>
+    <Input
+      size="sm"
+      type="number"
+      value={service.duration}
+      onChange={(e) => handleServiceChange(index, 'duration', e.target.value)}
+      placeholder="e.g., 60"
+    />
+  </FormControl>
+  <FormControl sx={{ flex: 1 }}>
+    <FormLabel>Price</FormLabel>
+    <Input
+      size="sm"
+      sx={{ width: "auto" }}
+      type="number"
+      value={service.price}
+      onChange={(e) => handleServiceChange(index, 'price', e.target.value)}
+      placeholder="e.g., 100"
+    />
+  </FormControl>
+</Stack>
               {services.length > 1 && (
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                   <Button
