@@ -3,9 +3,9 @@ import * as React from 'react';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import { Box, Chip, IconButton, Input } from '@mui/joy';
+import { Box, IconButton, Input } from '@mui/joy';
 import List from '@mui/joy/List';
-import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+//import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ChatListItem from './ChatListItem';
@@ -99,7 +99,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
       >
         <Typography
           component="h1"
-          endDecorator={
+{/*           endDecorator={
             <Chip
               variant="soft"
               color="primary"
@@ -108,12 +108,12 @@ export default function ChatsPane(props: ChatsPaneProps) {
             >
               {filteredChats.length}
             </Chip>
-          }
+          } */}
           sx={{ fontSize: { xs: 'md', md: 'lg' }, fontWeight: 'lg', mr: 'auto' }}
         >
           Messages
         </Typography>
-        <IconButton
+{/*         <IconButton
           variant="plain"
           aria-label="edit"
           color="neutral"
@@ -121,7 +121,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
           sx={{ display: { xs: 'none', sm: 'unset' } }}
         >
           <EditNoteRoundedIcon />
-        </IconButton>
+        </IconButton> */}
         <IconButton
           variant="plain"
           aria-label="edit"
