@@ -76,7 +76,8 @@ export default function JoyOrderDashboardTemplate() {
     title: 'Explore Your Page ✨',
     description: 'Share this link to your linkedIn, Instagram, or any other social media platform to build your brand and showcase your services.',
     buttonText: 'Go to your page',
-    onClick: NavigatePersonalWebsite
+    onClick: NavigatePersonalWebsite,
+    link: `https://site.sereneminds.life/${professional?.data?.id}`
   };
 
   return (
