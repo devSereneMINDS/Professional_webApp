@@ -38,8 +38,8 @@ export default function AccountsSection({ formData, setFormData, isLoading, onSa
           <FormLabel>Instagram Profile</FormLabel>
           <Input
             size="sm"
-            value={formData.instagram}
-            onChange={(e) => handleAccountChange('instagram', e.target.value)}
+            value={formData.instagram_account}
+            onChange={(e) => handleAccountChange('instagram_account', e.target.value)}
             placeholder="https://instagram.com/yourusername"
             type="url"
           />
@@ -48,8 +48,8 @@ export default function AccountsSection({ formData, setFormData, isLoading, onSa
           <FormLabel>LinkedIn Profile</FormLabel>
           <Input
             size="sm"
-            value={formData.facebook}
-            onChange={(e) => handleAccountChange('facebook', e.target.value)}
+            value={formData.linkedin_account}
+            onChange={(e) => handleAccountChange('linkedin_account', e.target.value)}
             placeholder="https://LinkedIn.com/yourusername"
             type="url"
           />
