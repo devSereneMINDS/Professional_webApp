@@ -99,16 +99,6 @@ export default function ChatsPane(props: ChatsPaneProps) {
       >
         <Typography
           component="h1"
-{/*           endDecorator={
-            <Chip
-              variant="soft"
-              color="primary"
-              size="md"
-              slotProps={{ root: { component: 'span' } }}
-            >
-              {filteredChats.length}
-            </Chip>
-          } */}
           sx={{ fontSize: { xs: 'md', md: 'lg' }, fontWeight: 'lg', mr: 'auto' }}
         >
           Messages
