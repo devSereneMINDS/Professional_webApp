@@ -1,5 +1,7 @@
 // components/DashboardCards.jsx
-import { Card, Typography, Box, Button } from '@mui/joy';
+import { Card, Typography, Box, Button, useSnackbar } from '@mui/joy';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import React from 'react';
 
 interface StatCardProps {
   title: string;
@@ -7,6 +9,7 @@ interface StatCardProps {
   timePeriod: string;
   gradientColors: [string, string];
   barColor: string;
+  link?: string;
 }
 
 export const StatCard = ({ title, value, timePeriod, gradientColors, barColor }: StatCardProps) => {
@@ -45,7 +48,19 @@ interface ActionCardProps {
   onClick: () => void;
 }
 
-export const ActionCard = ({ title, description, buttonText, onClick }: ActionCardProps) => {
+export const ActionCard = ({ title, description, buttonText, onClick, link }: ActionCardProps) => {
+  const snackbar = useSnackbar();
+
+  const handleCopy = async () => {
+    if (link) {
+      try {
+        await navigator.clipboard.writeText(link);
+        snackbar.open('Link copied to clipboard!');
+      } catch (err) {
+        snackbar.open('Failed to copy link.');
+      }
+    }
+  };
   return (
     <Card variant="outlined" sx={{ gap: 0, p: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <Typography level="title-md" variant="plain" sx={{ pb: 0.5 }}>{title}</Typography>
@@ -88,6 +103,17 @@ export const ActionCard = ({ title, description, buttonText, onClick }: ActionCa
         >
           {buttonText}
         </Button>
+        {link && (
+          <Tooltip title="Copy link">
+            <Button 
+              variant="soft" 
+              onClick={handleCopy} 
+              sx={{ minWidth: '40px', padding: '8px', borderRadius: '6px' }}
+            >
+              <ContentCopyIcon fontSize="small" />
+            </Button>
+          </Tooltip>
+        )}
       </Box>
     </Card>
   );
