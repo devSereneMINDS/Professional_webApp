@@ -303,9 +303,9 @@ export default function Sidebar() {
               <ListItemContent>
                 <Typography level="title-sm">Chats</Typography>
               </ListItemContent>
-              <Chip size="sm" color="primary" variant="solid">
+            {/* <Chip size="sm" color="primary" variant="solid">
                 4
-              </Chip>
+              </Chip> */}
             </ListItemButton>
           </ListItem>
 
@@ -349,7 +349,7 @@ export default function Sidebar() {
         />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Typography level="title-sm">{professional?.data?.full_name}</Typography>
-          <Typography level="body-xs">{professional?.data?.email}</Typography>
+{/*           <Typography level="body-xs">{professional?.data?.email}</Typography> */}
         </Box>
       </Box>
     </Sheet>
