@@ -14,7 +14,7 @@ const userChatSlice = createSlice({
   initialState,
   reducers: {
     changeChat: (state, action) => {
-      const { chatId, user } = action.payload;
+      const { chatId, user, isGroupChat = false } = action.payload;
       state.chatId = chatId;
       state.user = user;
       state.isCurrentUserBlocked = user?.isBlockedByCurrentUser || false;
