@@ -6,6 +6,7 @@ const initialState = {
   user: {},
   isCurrentUserBlocked: false,
   isReceiverBlocked: false,
+  isGroupChat: false
 };
 
 const userChatSlice = createSlice({
@@ -18,6 +19,7 @@ const userChatSlice = createSlice({
       state.user = user;
       state.isCurrentUserBlocked = user?.isBlockedByCurrentUser || false;
       state.isReceiverBlocked = user?.hasBlockedCurrentUser || false;
+      state.isGroupChat = isGroupChat;
     },
 
     checkBlockStatus: (state, action) => {
