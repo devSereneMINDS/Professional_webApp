@@ -88,7 +88,7 @@ export default function ChatsPane(props: ChatsPaneProps) {
         chatId: 'group_chat',
         user: {
           displayName: 'Professional',
-          email: 'community@example.com',
+          email: 'contact@sereneminds.life',
           isGroup: true,
         },
         isGroupChat: true,
