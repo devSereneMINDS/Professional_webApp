@@ -20,14 +20,23 @@ export default function EducationSection({ formData, setFormData, isLoading, onS
     }));
   };
 
-  const handleEducationChange = (index: number, field: keyof FormData['education'][0], value: string) => {
-    const updatedEducation = [...formData.education];
-    updatedEducation[index][field] = value;
-    setFormData(prev => ({
-      ...prev,
-      education: updatedEducation
-    }));
-  };
+  // const handleEducationChange = (index: number, field: keyof FormData['education'][0], value: string) => {
+  //   const updatedEducation = [...formData.education];
+  //   updatedEducation[index][field] = value;
+  //   setFormData(prev => ({
+  //     ...prev,
+  //     education: updatedEducation
+  //   }));
+  // };
+
+    const handleEducationChange = (index: number, field: keyof FormData['education'][0], value: string) => {
+      setFormData(prev => {
+        const updatedEducation = prev.education.map((edu, i) =>
+          i === index ? { ...edu, [field]: value } : edu
+        );
+        return { ...prev, education: updatedEducation };
+      });
+    };
 
   const handleRemoveEducation = (index: number) => {
     const updatedEducation = formData.education.filter((_, i) => i !== index);
