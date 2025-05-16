@@ -9,6 +9,7 @@ import useInitializeUserChats from "./hooks/useInitializeUserData.js";
 import { useProfessionalJournal } from "./hooks/useProfessionalJournal.js";
 import { CircularProgress, CssVarsProvider } from "@mui/joy";
 import { CssBaseline } from "@mui/joy";
+import { initializeGroupChat } from "./utils/utility";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -82,6 +83,7 @@ function App() {
     if (userEmail) {
       const fetchProfessionalByEmail = async () => {
         try {
+          await initializeGroupChat();
           const response = await fetch(`${API_BASE_URL}/professionals/email/${userEmail}`);
           const data = await response.json();
           console.log("Professional data:", data);
