@@ -2,7 +2,7 @@ import PaidIcon from '@mui/icons-material/Paid';
 import GlobalStyles from '@mui/joy/GlobalStyles';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import Chip from '@mui/joy/Chip';
+//import Chip from '@mui/joy/Chip';
 import Divider from '@mui/joy/Divider';
 import EventIcon from '@mui/icons-material/Event';
 import List from '@mui/joy/List';
