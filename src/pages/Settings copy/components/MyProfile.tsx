@@ -36,8 +36,8 @@ export default function MyProfile() {
       }[];
       availability: Record<string, string>;
       photo_url: string;
-      instagram?: string;
-      facebook?: string;
+      instagram_account?: string;
+      linkedin_account?: string;
     };
   }
 
@@ -57,8 +57,8 @@ export default function MyProfile() {
     country: null,
     about_me: '',
     education: [{ institute: '', degree: '', description: '' }],
-    instagram: '',
-    facebook: ''
+    instagram_account: '',
+    linkedin_account: ''
   });
 
   const [availability, setAvailability] = React.useState<AvailabilityDay[]>(
@@ -93,8 +93,8 @@ export default function MyProfile() {
         country: professional.data.country || null,
         about_me: professional.data.about_me || '',
         education: professional.data.education || [{ institute: '', degree: '', description: '' }],
-        instagram: professional.data.instagram || '',
-        facebook: professional.data.facebook || ''
+        instagram_account: professional.data.instagram_account || '',
+        linkedin_account: professional.data.linkedin_account || ''
       });
     }
   }, [professional]);
@@ -113,8 +113,8 @@ export default function MyProfile() {
         country: formData.country,
         about_me: formData.about_me,
         education: formData.education,
-        instagram: formData.instagram,
-        facebook: formData.facebook
+        instagram_account: formData.instagram_account,
+        linkedin_account: formData.linkedin_account
       };
 
       const response = await axios.put(
