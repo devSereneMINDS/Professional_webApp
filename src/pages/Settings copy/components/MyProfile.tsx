@@ -38,6 +38,7 @@ export default function MyProfile() {
       photo_url: string;
       instagram_account?: string;
       linkedin_account?: string;
+      languages?: string[];
     };
   }
 
@@ -58,7 +59,8 @@ export default function MyProfile() {
     about_me: '',
     education: [{ institute: '', degree: '', description: '' }],
     instagram_account: '',
-    linkedin_account: ''
+    linkedin_account: '',
+    languages: [],
   });
 
   const [availability, setAvailability] = React.useState<AvailabilityDay[]>(
@@ -94,7 +96,8 @@ export default function MyProfile() {
         about_me: professional.data.about_me || '',
         education: professional.data.education || [{ institute: '', degree: '', description: '' }],
         instagram_account: professional.data.instagram_account || '',
-        linkedin_account: professional.data.linkedin_account || ''
+        linkedin_account: professional.data.linkedin_account || '',
+        languages: professional.data.languages || [],
       });
     }
   }, [professional]);
@@ -114,7 +117,8 @@ export default function MyProfile() {
         about_me: formData.about_me,
         education: formData.education,
         instagram_account: formData.instagram_account,
-        linkedin_account: formData.linkedin_account
+        linkedin_account: formData.linkedin_account,
+        languages: formData.languages,
       };
 
       const response = await axios.put(
