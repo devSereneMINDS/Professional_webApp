@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from 'react';
-import { getDoc, updateDoc, doc, onSnapshot, arrayUnion } from 'firebase/firestore';
+import {
+  getDoc,
+  setDoc,
+  updateDoc,
+  doc,
+  onSnapshot,
+  arrayUnion,
+} from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 import { db } from '../../../../firebaseConfig';
 import Box from '@mui/joy/Box';
@@ -10,11 +17,11 @@ import AvatarWithStatus from './AvatarWithStatus';
 import ChatBubble from './ChatsBubble';
 import MessageInput from './MessageInput';
 import MessagesPaneHeader from './MessagesPaneHeader';
-import { MessageProps } from '../utils/types';
 import IconButton from '@mui/joy/IconButton';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import { useTheme } from '@mui/joy/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { MessageProps } from '../utils/types';
 
 interface MessagesPaneProps {
   onBackClick?: () => void;
@@ -28,9 +35,11 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const { chatId, user } = useSelector((state: any) => state.userChat);
+  const { chatId, user, isGroupChat } = useSelector((state: any) => state.userChat);
   const professional = useSelector((state: any) => state.professional?.data);
   const professionalUID = professional?.uid;
+
+  const chatCollection = isGroupChat ? 'groupMessages' : 'chats';
 
   React.useEffect(() => {
     if (!chatId) {
@@ -38,7 +47,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
       return;
     }
 
-    const unSub = onSnapshot(doc(db, 'chats', chatId), (docSnapshot) => {
+    const unSub = onSnapshot(doc(db, chatCollection, chatId), (docSnapshot) => {
       if (!docSnapshot.exists()) {
         setChatMessages([]);
         return;
@@ -46,30 +55,33 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
 
       const messagesData = docSnapshot.data().messages || [];
       const formattedMessages = messagesData.map((msg: any) => ({
-        id: msg.id.toString(),
+        id: msg.id?.toString(),
         content: msg.text || msg.content,
-        timestamp: new Date(msg.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        sender: msg.senderId === professionalUID 
-          ? 'You' 
-          : {
-              displayName: user?.displayName || 'Unknown',
-              name: user?.name || '',
-              username: user?.username || '',
-              avatar: user?.photoURL || user?.avatar || '',
-              online: true,
-            },
+        timestamp: new Date(msg.date).toLocaleTimeString([], {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
+        sender:
+          msg.senderId === professionalUID
+            ? 'You'
+            : {
+                displayName: msg.senderName || user?.displayName || 'Unknown',
+                name: msg.senderName || user?.name || '',
+                username: msg.username || '',
+                avatar: msg.avatar || user?.photoURL || '',
+                online: true,
+              },
         senderId: msg.senderId,
-        date: msg.date
+        date: msg.date,
       }));
 
       setChatMessages(
-        formattedMessages.sort(
-          (a: MessageProps, b: MessageProps) => (a.date || 0) - (b.date || 0)
-      ));
+        formattedMessages.sort((a, b) => (a.date || 0) - (b.date || 0))
+      );
     });
 
     return () => unSub();
-  }, [chatId, professionalUID, user]);
+  }, [chatId, professionalUID, user, isGroupChat]);
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -81,43 +93,54 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
 
     const newMessage = {
       id: Date.now().toString(),
-      content: trimmedValue,
+      text: trimmedValue,
       senderId: professionalUID,
+      senderName: professional?.displayName || 'Professional',
       date: Date.now(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      sender: 'You' as const,
     };
 
     try {
-      await updateDoc(doc(db, 'chats', chatId), {
+      if (isGroupChat) {
+        const groupChatRef = doc(db, 'groupMessages', chatId);
+        const docSnap = await getDoc(groupChatRef);
+        if (!docSnap.exists()) {
+          await setDoc(groupChatRef, {
+            messages: [],
+            participants: [],
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+
+      await updateDoc(doc(db, chatCollection, chatId), {
         messages: arrayUnion(newMessage),
       });
 
-      const userIds = [professionalUID, user?.id].filter(Boolean);
-
-      await Promise.all(
-        userIds.map(async (id) => {
-          if (!id) return;
-          const userChatsRef = doc(db, 'userchats', id);
-          const userChatsSnap = await getDoc(userChatsRef);
-          
-          if (userChatsSnap.exists()) {
-            const chats = userChatsSnap.data().chats || [];
-            const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
-            
-            if (chatIndex !== -1) {
-              const updatedChats = [...chats];
-              updatedChats[chatIndex] = {
-                ...updatedChats[chatIndex],
-                lastMessage: trimmedValue,
-                isSeen: id === professionalUID,
-                updatedAt: Date.now(),
-              };
-              await updateDoc(userChatsRef, { chats: updatedChats });
+      // For individual chat, update userchats metadata
+      if (!isGroupChat) {
+        const userIds = [professionalUID, user?.id].filter(Boolean);
+        await Promise.all(
+          userIds.map(async (id) => {
+            if (!id) return;
+            const userChatsRef = doc(db, 'userchats', id);
+            const userChatsSnap = await getDoc(userChatsRef);
+            if (userChatsSnap.exists()) {
+              const chats = userChatsSnap.data().chats || [];
+              const chatIndex = chats.findIndex((c: any) => c.chatId === chatId);
+              if (chatIndex !== -1) {
+                const updatedChats = [...chats];
+                updatedChats[chatIndex] = {
+                  ...updatedChats[chatIndex],
+                  lastMessage: trimmedValue,
+                  isSeen: id === professionalUID,
+                  updatedAt: Date.now(),
+                };
+                await updateDoc(userChatsRef, { chats: updatedChats });
+              }
             }
-          }
-        })
-      );
+          })
+        );
+      }
 
       setTextAreaValue('');
     } catch (error) {
@@ -128,7 +151,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
   return (
     <Sheet
       sx={{
-        height: { xs: 'calc(100dvh - 64px)', md: 'calc(100dvh - 64px)' }, // Adjusted for header height
+        height: { xs: 'calc(100dvh - 64px)', md: 'calc(100dvh - 64px)' },
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.level1',
@@ -154,17 +177,14 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
         </Box>
       ) : (
         <>
-          <MessagesPaneHeader 
+          <MessagesPaneHeader
             startDecorator={
               showBackButton && (
                 <IconButton
                   variant="plain"
                   color="neutral"
                   size="sm"
-                  onClick={() => {
-          console.log('Back button clicked');
-          onBackClick?.();
-        }}
+                  onClick={() => onBackClick?.()}
                   sx={{ mr: 1 }}
                 >
                   <ArrowBack />
@@ -192,19 +212,18 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
                     key={message.id}
                     direction="row"
                     spacing={isMobile ? 1 : 1.5}
-                    sx={{ 
+                    sx={{
                       flexDirection: isYou ? 'row-reverse' : 'row',
                       px: isMobile ? 0.5 : 0,
                     }}
                   >
                     {!isYou && (
-                      <AvatarWithStatus 
+                      <AvatarWithStatus
                         src={typeof message.sender !== 'string' ? message.sender.avatar : ''}
                         online={typeof message.sender !== 'string' ? message.sender.online : false}
                         sx={{
                           width: isMobile ? 32 : 40,
                           height: isMobile ? 32 : 40,
-                          display: isMobile && isYou ? 'none' : 'flex',
                         }}
                       />
                     )}
@@ -216,8 +235,8 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
                       sender={isYou ? 'You' : message.sender}
                       content={message.content}
                       timestamp={message.timestamp}
-                      chatId={''}
-                      messageId={''}
+                      chatId={chatId}
+                      messageId={message.id}
                     />
                   </Stack>
                 );
@@ -226,11 +245,13 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
             </Stack>
           </Box>
 
-          <Box sx={{ 
-            px: isMobile ? 1 : 2, 
-            pb: isMobile ? 1 : 2,
-            pt: isMobile ? 1 : 0,
-          }}>
+          <Box
+            sx={{
+              px: isMobile ? 1 : 2,
+              pb: isMobile ? 1 : 2,
+              pt: isMobile ? 1 : 0,
+            }}
+          >
             <MessageInput
               textAreaValue={textAreaValue}
               setTextAreaValue={setTextAreaValue}
