@@ -39,6 +39,8 @@ export default function MessagesPaneHeader({ startDecorator }: MessagesPaneHeade
     setAnchorEl(null);
   };
 
+  console.log("Usser from chat header is",user);
+
   return (
     <Stack
       direction="row"
