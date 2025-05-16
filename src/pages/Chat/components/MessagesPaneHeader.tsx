@@ -15,6 +15,7 @@ interface User {
   isOnline?: boolean;
   displayName?: string;
   email?: string;
+  isGroup?:boolean;
 }
 
 interface RootState {
@@ -93,9 +94,9 @@ export default function MessagesPaneHeader({ startDecorator }: MessagesPaneHeade
             }
             sx={{ fontWeight: 'lg', fontSize: 'lg' }}
           >
-            {user?.displayName || 'Unknown User'}
+            {user?.isGroup ? 'Serene MINDS Community' : user?.displayName || 'Unknown User'}
           </Typography>
-          <Typography level="body-sm">{user?.email || 'No email available'}</Typography>
+          <Typography level="body-sm">{user?.isGroup ? '' : user?.email || 'No email available'}</Typography>
         </div>
       </Stack>
 
