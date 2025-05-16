@@ -81,17 +81,18 @@ export default function ChatsPane(props: ChatsPaneProps) {
   };
 
   const handleGroupChatSelect = () => {
-  dispatch(
-    changeChat({
-      chatId: 'group_chat',
-      user: {
-        displayName: 'Group Chat',
-        email: 'community@example.com',
-        isGroup: true,
-      },
-      isGroupChat: true,
-    })
-  );
+    dispatch(
+      changeChat({
+        chatId: 'group_chat',
+        user: {
+          displayName: 'Group Chat',
+          email: 'community@example.com',
+          isGroup: true,
+        },
+        isGroupChat: true,
+      })
+    );
+  };
 
   const filteredChats = chats.filter(
     (chat) =>
