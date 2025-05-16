@@ -52,7 +52,7 @@ const AppointmentList = () => {
         Start taking appointments by adding clients
       </Typography>
       <Button 
-        onClick={() => navigate('/clients/new')} 
+        onClick={() => navigate('/add-new-client')} 
         size="md" 
         color="primary"
       >
