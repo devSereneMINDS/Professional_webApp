@@ -18,6 +18,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeChat } from '../../../store/slices/userChatSlice';
 import Avatar from '@mui/joy/Avatar';
 import ListItemButton from '@mui/joy/ListItemButton';
+import ListDivider from '@mui/joy/ListDivider';
+
 
 type ChatsPaneProps = {
   selectedChatId?: string;
@@ -171,6 +173,8 @@ export default function ChatsPane(props: ChatsPaneProps) {
             <Typography level="body-sm">Community discussion</Typography>
           </Box>
         </ListItemButton>
+
+        <ListDivider sx={{ margin: 0 }} />
         
         {filteredChats.map((chat) => (
           <ChatListItem
