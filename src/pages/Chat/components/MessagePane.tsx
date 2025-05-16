@@ -151,7 +151,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
   return (
     <Sheet
       sx={{
-        height: { xs: 'calc(100dvh - 64px)', md: 'calc(100dvh)' },
+        height: { xs: 'calc(100dvh)', md: 'calc(100dvh)' },
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'background.level1',
