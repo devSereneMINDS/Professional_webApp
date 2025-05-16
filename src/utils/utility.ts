@@ -9,7 +9,7 @@ import {
   DocumentReference, 
   DocumentSnapshot 
 } from "firebase/firestore";
-import { db } from "../firebaseConfig";
+import { db } from "../../firebaseConfig";
 
 // interface UnsplashPhoto {
 //   urls: {
