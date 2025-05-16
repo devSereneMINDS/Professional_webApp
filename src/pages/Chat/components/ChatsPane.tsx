@@ -6,6 +6,7 @@ import Typography from '@mui/joy/Typography';
 import { Box, IconButton, Input } from '@mui/joy';
 import List from '@mui/joy/List';
 //import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
+import GroupsIcon from '@mui/icons-material/Groups';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ChatListItem from './ChatListItem';
@@ -76,6 +77,19 @@ export default function ChatsPane(props: ChatsPaneProps) {
       onSelectChat();
     }
   };
+
+  const handleGroupChatSelect = () => {
+  dispatch(
+    changeChat({
+      chatId: 'group_chat',
+      user: {
+        displayName: 'Group Chat',
+        email: 'community@example.com',
+        isGroup: true,
+      },
+      isGroupChat: true,
+    })
+  );
 
   const filteredChats = chats.filter(
     (chat) =>
