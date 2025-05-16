@@ -76,7 +76,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
       }));
 
       setChatMessages(
-        formattedMessages.sort((a, b) => (a.date || 0) - (b.date || 0))
+        formattedMessages.sort((a: MessageProps, b: MessageProps) => (a.date || 0) - (b.date || 0))
       );
     });
 
