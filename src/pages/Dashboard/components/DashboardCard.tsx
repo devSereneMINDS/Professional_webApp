@@ -1,5 +1,5 @@
 // components/DashboardCards.jsx
-import { Card, Typography, Box, Button, Tooltip } from '@mui/joy';
+import { Card, Typography, Box, Button } from '@mui/joy';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 interface StatCardProps {
@@ -101,15 +101,24 @@ export const ActionCard = ({ title, description, buttonText, onClick, link }: Ac
           {buttonText}
         </Button>
         {link && (
-          <Tooltip title="Copy link">
-            <Button 
-              variant="soft" 
-              onClick={handleCopy} 
-              sx={{ minWidth: '40px', padding: '8px', borderRadius: '6px' }}
-            >
-              <ContentCopyIcon fontSize="small" />
-            </Button>
-          </Tooltip>
+          <Button 
+            variant="plain"  // no background, no box shadow
+            onClick={handleCopy} 
+            sx={{ 
+              minWidth: '40px', 
+              padding: '8px', 
+              borderRadius: '6px', 
+              backgroundColor: 'transparent', 
+              boxShadow: 'none',
+              color: 'inherit',
+              '&:hover': {
+                backgroundColor: 'transparent',
+                boxShadow: 'none'
+              }
+            }}
+          >
+            <ContentCopyIcon fontSize="small" />
+          </Button>
         )}
       </Box>
     </Card>
