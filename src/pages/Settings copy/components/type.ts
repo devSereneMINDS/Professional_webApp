@@ -34,15 +34,15 @@ export interface FormData {
   country: string | null;
   about_me: string;
   education: EducationEntry[];
-  instagram: string;
-  facebook: string;
+  instagram_account: string;
+  linkedin_account: string;
   languages?: string[];
 }
 
 // Add this to your existing types in types.ts
 export interface AccountLinks {
-  instagram: string;
-  facebook: string;
+  instagram_account: string;
+  linkedin_account: string;
 }
 // interface AccountsSectionProps {
 //   formData: FormData;
@@ -52,6 +52,6 @@ export interface AccountLinks {
 // }
 export interface FormData {
   // Add existing fields here
-  instagram: string;
-  facebook: string;
+  instagram_account: string;
+  linkedin_account: string;
 }
