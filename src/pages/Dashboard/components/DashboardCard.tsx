@@ -1,7 +1,6 @@
 // components/DashboardCards.jsx
-import { Card, Typography, Box, Button, useSnackbar } from '@mui/joy';
+import { Card, Typography, Box, Button, Tooltip } from '@mui/joy';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import React from 'react';
 
 interface StatCardProps {
   title: string;
@@ -9,7 +8,6 @@ interface StatCardProps {
   timePeriod: string;
   gradientColors: [string, string];
   barColor: string;
-  link?: string;
 }
 
 export const StatCard = ({ title, value, timePeriod, gradientColors, barColor }: StatCardProps) => {
@@ -46,18 +44,17 @@ interface ActionCardProps {
   description: string;
   buttonText: string;
   onClick: () => void;
+  link?: string;
 }
 
 export const ActionCard = ({ title, description, buttonText, onClick, link }: ActionCardProps) => {
-  const snackbar = useSnackbar();
-
   const handleCopy = async () => {
     if (link) {
       try {
         await navigator.clipboard.writeText(link);
-        snackbar.open('Link copied to clipboard!');
+        alert('Link copied to clipboard!');
       } catch (err) {
-        snackbar.open('Failed to copy link.');
+        alert('Failed to copy!');
       }
     }
   };
