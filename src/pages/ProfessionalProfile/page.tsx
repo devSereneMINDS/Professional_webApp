@@ -110,14 +110,13 @@ export default function JoyOrderDashboardTemplate() {
             </Box>
             <Box
               sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
-                gap: 2,
                 mt: 1,
+                width: '100%',
               }}
             >
-                <ProfileCard />
+              <ProfileCard />
             </Box>
+
           </Box>
         </Box>
       </Box>
