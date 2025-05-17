@@ -21,6 +21,7 @@ export default function JoyOrderDashboardTemplate() {
       <Box sx={{ 
         display: 'flex', 
         minHeight: '100dvh',
+        width:'100%',
         overflow: 'hidden',
         position: 'relative',
       }}>
@@ -111,7 +112,7 @@ export default function JoyOrderDashboardTemplate() {
             <Box
               sx={{
                 display: 'grid',
-                gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' },
+                width:"100%",
                 gap: 2,
                 mt: 1,
               }}

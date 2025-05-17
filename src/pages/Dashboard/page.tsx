@@ -8,7 +8,8 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import Sidebar from '../../components/Slidebar';
 import Header from '../../components/Header';
-import { Input, Stack } from '@mui/joy';
+import { Input, Stack, CircularProgress } from '@mui/joy';
+import SearchIcon from '@mui/icons-material/Search';
 import SessionsChart from './components/SessionChart';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -17,6 +18,9 @@ import PageViewsBarChart from './components/PageViewBar';
 import { useSelector } from 'react-redux';
 import { StatCard, ActionCard } from './components/DashboardCard';
 import { RootState } from '../../store/store';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 interface ProfessionalData {
   id?: string;
@@ -25,28 +29,204 @@ interface ProfessionalData {
   photo_url?: string;
 }
 
-// types/paymentStatsTypes.ts
 interface PaymentStats {
   totalAppointments: number;
   distinctClientsThisMonth: number;
   totalFeesThisMonth: number;
-  // ... other stats properties
+}
+
+interface SearchResult {
+  id: string;
+  name: string;
+  type: 'client' | 'professional';
+}
+
+interface SearchResponse {
+  clients?: SearchResult[];
+  professionals?: SearchResult[];
+}
+
+function SearchInput({ professionalId }: { professionalId?: string }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const searchRef = useRef<HTMLDivElement>(null);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+const fetchSearchResults = async (query: string) => {
+  if (!query || !professionalId) {
+    setSearchResults([]);
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    const response = await axios.get<SearchResponse>(
+      `${import.meta.env.VITE_API_BASE_URL}/professionals/search/${query}/${professionalId}`
+    );
+    
+    // Handle both possible response structures:
+    // 1. Direct response with clients/professionals
+    // 2. Response with data property containing clients/professionals
+    const responseData: SearchResponse =
+      typeof response.data === 'object' &&
+      response.data !== null &&
+      'data' in response.data &&
+      typeof (response.data as { data?: unknown }).data === 'object'
+        ? (response.data as { data: SearchResponse }).data
+        : response.data;
+
+    const results: SearchResult[] = [
+      ...(responseData.clients?.map(c => ({ ...c, type: 'client' as const })) || []),
+      ...(responseData.professionals?.map(p => ({ ...p, type: 'professional' as const })) || [])
+    ];
+
+    setSearchResults(results);
+    setShowSuggestions(true);
+  } catch (error) {
+    // Check if this is a 404 with actual data in the response
+    if (axios.isAxiosError(error) && error.response?.data?.data) {
+      const responseData = error.response.data.data;
+      const results: SearchResult[] = [
+        ...(responseData.clients?.map((c: SearchResult) => ({ ...c, type: 'client' as const })) || []),
+        ...(responseData.professionals?.map((p: SearchResult) => ({ ...p, type: 'professional' as const })) || [])
+      ];
+      setSearchResults(results);
+      setShowSuggestions(true);
+    } else {
+      console.error('Error fetching search results:', error);
+      setSearchResults([]);
+    }
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      fetchSearchResults(value);
+    }, 500);
+  };
+
+  const handleResultClick = (result: SearchResult) => {
+    navigate(`/${result.type}s/${result.id}`);
+    setShowSuggestions(false);
+    setSearchTerm('');
+  };
+
+  return (
+    <div ref={searchRef} style={{ position: 'relative' }}>
+      <Input
+        size="sm"
+        placeholder="Search clients or professionals"
+        value={searchTerm}
+        onChange={handleSearchChange}
+        onFocus={() => searchTerm && setShowSuggestions(true)}
+        startDecorator={<SearchIcon />}
+        endDecorator={isLoading ? <CircularProgress size="sm" /> : null}
+        sx={{
+          width: { xs: 150, sm: 200, md: 250 },
+          minWidth: 150,
+          '& input': {
+            padding: '0.5rem',
+          },
+        }}
+      />
+
+      {showSuggestions && searchResults.length > 0 && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            backgroundColor: 'background.popup',
+            border: '1px solid',
+            borderColor: 'neutral.outlinedBorder',
+            borderRadius: 'sm',
+            boxShadow: 'md',
+            marginTop: 1,
+            maxHeight: 300,
+            overflowY: 'auto'
+          }}
+        >
+          {searchResults.map((result) => (
+            <Box
+              key={`${result.type}-${result.id}`}
+              sx={{
+                padding: '8px 12px',
+                cursor: 'pointer',
+                '&:hover': {
+                  backgroundColor: 'background.level1'
+                }
+              }}
+              onClick={() => handleResultClick(result)}
+            >
+              {result.name} ({result.type})
+            </Box>
+          ))}
+        </Box>
+      )}
+
+      {showSuggestions && searchResults.length === 0 && searchTerm && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 9999,
+            backgroundColor: 'background.popup',
+            border: '1px solid',
+            borderColor: 'neutral.outlinedBorder',
+            borderRadius: 'sm',
+            boxShadow: 'md',
+            marginTop: 1,
+            padding: '8px 12px',
+            color: 'text.tertiary'
+          }}
+        >
+          No results found
+        </Box>
+      )}
+    </div>
+  );
 }
 
 export default function JoyOrderDashboardTemplate() {
-
-    const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
-
-  const NavigatePersonalWebsite = () => {
-    window.location.href = `https://site.sereneminds.life/${professional?.data?.id}`;
-  };
-
-  const { stats, status, error } = useSelector((state: RootState) => state.paymentStats) as {
+  const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
+  const { stats } = useSelector((state: RootState) => state.paymentStats) as {
     stats: PaymentStats | null;
     status: string;
     error: string | null;
   };
-  console.log('Payment Stats:', stats, status, error);
+
+  const NavigatePersonalWebsite = () => {
+    window.location.href = `https://site.sereneminds.life/${professional?.data?.id}`;
+  };
 
   const statCardsData = [
     {
@@ -111,7 +291,17 @@ export default function JoyOrderDashboardTemplate() {
             height: '100vh',
           }}
         >
-          <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
+          <Stack 
+            sx={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              width: '100%',
+              flexDirection: { xs: 'column', sm: 'row' }, 
+              gap: 2,
+              mb: 2
+            }}
+          >
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
@@ -139,26 +329,36 @@ export default function JoyOrderDashboardTemplate() {
               </Typography>
             </Breadcrumbs>
 
-            
-
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <Input
-                size="sm"
-                value={dayjs().format('YYYY-MM-DD')}
-                readOnly
-                sx={{
-                  width: 120,
-                  '& input': {
-                    padding: '0px',
-                    textAlign: 'center',
-                  },
-                  '& input::placeholder': {
-                    color: 'text.placeholder',
-                  }
-                }}
-              />
-            </LocalizationProvider>
+            <Stack 
+              direction="row" 
+              spacing={1} 
+              sx={{ 
+                width: { xs: '100%', sm: 'auto' },
+                justifyContent: { xs: 'space-evenly', sm: 'flex-end' }
+              }}
+            >
+              <SearchInput professionalId={professional?.data?.id} />
+              
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <Input
+                  size="sm"
+                  value={dayjs().format('YYYY-MM-DD')}
+                  readOnly
+                  sx={{
+                    width: 120,
+                    '& input': {
+                      padding: '0px',
+                      textAlign: 'center',
+                    },
+                    '& input::placeholder': {
+                      color: 'text.placeholder',
+                    }
+                  }}
+                />
+              </LocalizationProvider>
+            </Stack>
           </Stack>
+
           <Box component="main" sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
             <Box
               sx={{

@@ -1,11 +1,17 @@
+'use client';
+
 import * as React from 'react';
 import { 
   Card, CardActions, CardOverflow, Divider, FormControl, FormLabel, 
-  Input, Stack, Typography, Box, Button, IconButton, Select, Option 
+  Stack, Typography, Box, Button, IconButton, Select, Option, 
+  useTheme, useColorScheme
 } from '@mui/joy';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AccessTimeFilledRoundedIcon from '@mui/icons-material/AccessTimeFilledRounded';
+import { TimePicker, ConfigProvider } from 'antd';
+import type { TimePickerProps } from 'antd';
+import dayjs, { Dayjs } from 'dayjs';
 import { AvailabilityDay } from './type';
+import { theme as antdTheme } from 'antd';
 
 interface AvailabilitySectionProps {
   availability: AvailabilityDay[];
@@ -20,8 +26,11 @@ export default function AvailabilitySection({
   isLoading, 
   onSave 
 }: AvailabilitySectionProps) {
+  const { mode } = useColorScheme();
+  const muiTheme = useTheme();
+
   const handleAddDay = () => {
-    setAvailability([...availability, { day: '', times: [''] }]);
+    setAvailability([...availability, { day: '', times: ['09:00-17:00'] }]);
   };
 
   const handleDayChange = (index: number, value: string | null) => {
@@ -30,9 +39,27 @@ export default function AvailabilitySection({
     setAvailability(updatedAvailability);
   };
 
-  const handleAvailabilityTimeChange = (dayIndex: number, timeIndex: number, value: string) => {
+  const handleStartTimeChange = (dayIndex: number, time: Dayjs | null) => {
     const updatedAvailability = [...availability];
-    updatedAvailability[dayIndex].times[timeIndex] = value;
+    const currentTimeRange = (updatedAvailability[dayIndex].times && updatedAvailability[dayIndex].times[0]) || '09:00-17:00';
+    const [, endTime] = currentTimeRange.split('-');
+    const newStartTime = time?.format('HH:mm') || '09:00';
+    if (!updatedAvailability[dayIndex].times) {
+      updatedAvailability[dayIndex].times = [];
+    }
+    updatedAvailability[dayIndex].times[0] = `${newStartTime}-${endTime}`;
+    setAvailability(updatedAvailability);
+  };
+
+  const handleEndTimeChange = (dayIndex: number, time: Dayjs | null) => {
+    const updatedAvailability = [...availability];
+    const currentTimeRange = updatedAvailability[dayIndex].times?.[0] || '09:00-17:00';
+    const [startTime] = currentTimeRange.split('-');
+    const newEndTime = time?.format('HH:mm') || '17:00';
+    if (!updatedAvailability[dayIndex].times) {
+      updatedAvailability[dayIndex].times = [];
+    }
+    updatedAvailability[dayIndex].times[0] = `${startTime}-${newEndTime}`;
     setAvailability(updatedAvailability);
   };
 
@@ -41,12 +68,58 @@ export default function AvailabilitySection({
     setAvailability(updatedAvailability);
   };
 
+  const parseTimeString = (timeString: string | undefined): Dayjs | null => {
+    if (!timeString) return null;
+    return dayjs(timeString, 'HH:mm');
+  };
+
+  const getTimeFromRange = (timeRange: string, isStart: boolean): Dayjs | null => {
+    if (!timeRange) return parseTimeString('09:00');
+    const [start, end] = timeRange.split('-');
+    const timeString = isStart ? start : end;
+    return parseTimeString(timeString);
+  };
+
+  // Custom TimePicker component with Joy UI styling
+  const JoyTimePicker = (props: TimePickerProps) => (
+    <ConfigProvider
+      theme={{
+        algorithm: mode === 'dark' ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+        token: {
+          colorPrimary: muiTheme.palette.primary[500],
+          colorBgContainer: muiTheme.palette.background.surface,
+          colorText: muiTheme.palette.text.primary,
+          colorBorder: muiTheme.palette.neutral.outlinedBorder,
+          colorBgElevated: muiTheme.palette.background.level1,
+          colorTextPlaceholder: muiTheme.palette.text.tertiary,
+          controlHeight: 40,
+          borderRadius: Number(muiTheme.radius.sm) || 6,
+          fontFamily: muiTheme.fontFamily.body,
+        },
+        // No 'TimePicker' key here, as it's not supported by ComponentsConfig
+      }}
+    >
+      <TimePicker
+        {...props}
+        style={{
+          width: '100%',
+          backgroundColor: muiTheme.palette.background.surface,
+          ...props.style
+        }}
+        popupStyle={{
+          zIndex: muiTheme.zIndex.modal,
+          backgroundColor: muiTheme.palette.background.level1,
+        }}
+      />
+    </ConfigProvider>
+  );
+
   return (
     <Card>
       <Box sx={{ mb: 1 }}>
         <Typography level="title-md">Availability</Typography>
         <Typography level="body-sm">
-          Set your weekly availability for appointments (one time slot per day)
+          Set your weekly availability for appointments
         </Typography>
       </Box>
       <Divider />
@@ -82,15 +155,25 @@ export default function AvailabilitySection({
                 </IconButton>
               )}
             </Stack>
-            <Stack spacing={1}>
+            <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
               <FormControl sx={{ flex: 1 }}>
-                <FormLabel>Time Slot</FormLabel>
-                <Input
-                  size="sm"
-                  value={day.times[0] || ''}
-                  onChange={(e) => handleAvailabilityTimeChange(dayIndex, 0, e.target.value)}
-                  placeholder="HH:MM-HH:MM"
-                  startDecorator={<AccessTimeFilledRoundedIcon />}
+                <FormLabel>Start Time</FormLabel>
+                <JoyTimePicker
+                  value={getTimeFromRange(day.times?.[0] ?? '09:00-17:00', true)}
+                  onChange={(time) => handleStartTimeChange(dayIndex, time)}
+                  format="HH:mm"
+                  minuteStep={15}
+                  showNow={false}
+                />
+              </FormControl>
+              <FormControl sx={{ flex: 1 }}>
+                <FormLabel>End Time</FormLabel>
+                <JoyTimePicker
+                  value={getTimeFromRange(day.times?.[0] ?? '09:00-17:00', false)}
+                  onChange={(time) => handleEndTimeChange(dayIndex, time)}
+                  format="HH:mm"
+                  minuteStep={15}
+                  showNow={false}
                 />
               </FormControl>
             </Stack>

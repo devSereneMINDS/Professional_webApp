@@ -20,16 +20,48 @@ interface ProfessionalData {
   photo_url?: string;
 }
 
+// Error Page Component
+const ErrorPage = () => {
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      height: '100vh',
+      textAlign: 'center',
+      padding: '20px'
+    }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>404 - Page Not Found</h1>
+      <p style={{ fontSize: '1.2rem', marginBottom: '30px' }}>
+        The page you're looking for doesn't exist or has been moved.
+      </p>
+      <button 
+        onClick={() => window.location.href = '/'}
+        style={{
+          padding: '10px 20px',
+          fontSize: '1rem',
+          backgroundColor: '#3f51b5',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer'
+        }}
+      >
+        Go to Home Page
+      </button>
+    </div>
+  );
+};
+
 // Protected Route Wrapper Component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const professional = useSelector((state: RootState) => state.professional as { data?: ProfessionalData });
   const userEmail = localStorage.getItem("userEmail");
   const googleAccessToken = localStorage.getItem("googleAccessToken");
-  console.log("Professional ID",professional?.data?.id);
 
-  if (!userEmail || !googleAccessToken || !professional?.data?.id) { // Ensure id exists in ProfessionalData
+  if (!userEmail || !googleAccessToken || !professional?.data?.id) {
     console.log("User is not authenticated", { userEmail, googleAccessToken, professionalId: professional?.data?.id });
-    
     return <Navigate to="/login" replace />;
   }
 
@@ -41,14 +73,12 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Signin />,
+    errorElement: <ErrorPage />
   },
   {
     path: "/register",
     element: <Onboading />,
-  },
-  {
-    path: "/profile/:id",
-    element: <ProfessionalProfile />,
+    errorElement: <ErrorPage />
   },
   // Protected Routes
   {
@@ -58,6 +88,7 @@ const router = createBrowserRouter([
         <HomePage />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/appointments",
@@ -66,6 +97,7 @@ const router = createBrowserRouter([
         <Appointments />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/clients",
@@ -74,6 +106,7 @@ const router = createBrowserRouter([
         <MyClients />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/chats",
@@ -82,6 +115,7 @@ const router = createBrowserRouter([
         <Chats />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/calendar",
@@ -90,6 +124,7 @@ const router = createBrowserRouter([
         <Calendar />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/settings",
@@ -98,6 +133,7 @@ const router = createBrowserRouter([
         <Settings />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
   {
     path: "/payment",
@@ -106,15 +142,8 @@ const router = createBrowserRouter([
         <Payment />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
-  // {
-  //   path: "/demo",
-  //   element: (
-  //     <ProtectedRoute>
-  //       <Demo />
-  //     </ProtectedRoute>
-  //   ),
-  // },
   {
     path: "/add-new-client",
     element: (
@@ -122,11 +151,30 @@ const router = createBrowserRouter([
         <AddNewClient />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorPage />
   },
-  // Catch-all route for unauthenticated users
+  {
+    path: "/professionals/:id",
+    element: (
+      <ProtectedRoute>
+        <ProfessionalProfile />
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+   {
+    path: "/clients/:id",
+    element: (
+      <ProtectedRoute>
+       <h1>Yesss</h1>
+      </ProtectedRoute>
+    ),
+    errorElement: <ErrorPage />,
+  },
+  // Catch-all route for non-existent paths
   {
     path: "*",
-    element: <Navigate to="/login" replace />,
+    element: <ErrorPage />,
   },
 ]);
 
