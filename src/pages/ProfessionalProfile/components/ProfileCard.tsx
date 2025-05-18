@@ -46,7 +46,7 @@ interface ClientProfileProps {
   clientData: ClientData;
 }
 
-export default functionClientProfile({ clientData }: ClientProfileProps) {
+export default function ClientProfile({ clientData }: ClientProfileProps) {
   // Mock data - in a real app, this would come from props or state
   const client = {
     name: "Noya Thera",
