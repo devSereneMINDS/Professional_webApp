@@ -17,6 +17,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 interface ClientQnA {
+  gender: string;
   'age-group': string;
   occupation: string;
   'marital-status': string;
@@ -48,8 +49,8 @@ export default function JoyOrderDashboardTemplate() {
   const { clientId } = useParams<{ clientId?: string }>(); 
   //const navigate = useNavigate();
   const [clientData, setClientData] = useState<ClientData | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  //const [loading, setLoading] = useState<boolean>(false);
+  //const [error, setError] = useState<string | null>(null);
 
   // Fetch client data when clientId changes
   useEffect(() => {
