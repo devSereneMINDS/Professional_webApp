@@ -43,7 +43,7 @@ interface ClientData {
 }
 
 interface ClientProfileProps {
-  clientData: ClientData;
+  clientData: ClientData | null;
 }
 
 export default function ClientProfile({ clientData }: ClientProfileProps) {
