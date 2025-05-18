@@ -14,21 +14,21 @@ import EditNoteIcon from '@mui/icons-material/EditNote';
 import SaveIcon from '@mui/icons-material/Save';
 
 interface ClientQnA {
-  gender: string;
-  'age-group': string;
-  occupation: string;
-  'marital-status': string;
+  gender: string | null;
+  'age-group': string | null;
+  occupation: string | null;
+  'marital-status': string | null;
 }
 
 interface ClientData {
   id: number;
   name: string;
   age: number | null;
-  email: string;
+  email: string | null;
   sex: string | null;
   phone_no: string;
   diagnosis: string | null;
-  photo_url: string;
+  photo_url: string | null;
   zipcode: string | null;
   city: string | null;
   appointment_id: number | null;
@@ -90,6 +90,8 @@ export default function ClientProfile({ clientData }: ClientProfileProps) {
     );
   }
 
+  const defaultImage = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286';
+
   return (
     <Box
       sx={{
@@ -106,13 +108,13 @@ export default function ClientProfile({ clientData }: ClientProfileProps) {
           <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
             <AspectRatio ratio="1" sx={{ width: 100, borderRadius: 'sm' }}>
               <img
-                src={clientData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"}
+                src={clientData.photo_url ?? defaultImage}
                 alt={`${clientData.name}'s profile`}
               />
             </AspectRatio>
             <Box>
               <Typography level="h4">{clientData.name}</Typography>
-              <Typography level="body-sm">{clientData.email}</Typography>
+              <Typography level="body-sm">{clientData.email ?? 'Not Available'}</Typography>
               <Button 
                 variant="outlined" 
                 size="sm" 
@@ -128,22 +130,22 @@ export default function ClientProfile({ clientData }: ClientProfileProps) {
           <Stack spacing={2}>
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-              <Typography>{clientData.q_and_a.gender || 'Not Available'}</Typography>
+              <Typography>{clientData.q_and_a?.gender ?? 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
-              <Typography>{clientData.q_and_a['age-group'] || 'Not Available'}</Typography>
+              <Typography>{clientData.q_and_a?.['age-group'] ?? 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-              <Typography>{clientData.q_and_a['marital-status'] || 'Not Available'}</Typography>
+              <Typography>{clientData.q_and_a?.['marital-status'] ?? 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-              <Typography>{clientData.q_and_a.occupation || 'Not Available'}</Typography>
+              <Typography>{clientData.q_and_a?.occupation ?? 'Not Available'}</Typography>
             </Box>
           </Stack>
         </CardContent>
