@@ -96,7 +96,7 @@ export default functionClientProfile({ clientData }: ClientProfileProps) {
           <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
             <AspectRatio ratio="1" sx={{ width: 100, borderRadius: 'sm' }}>
               <img
-                src={clientData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286}
+                src={clientData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"}
                 alt={`${clientData.name}'s profile`}
               />
             </AspectRatio>
