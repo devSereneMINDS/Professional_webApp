@@ -13,7 +13,39 @@ import Textarea from '@mui/joy/Textarea';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import SaveIcon from '@mui/icons-material/Save';
 
-export default function ClientProfile() {
+interface ClientQnA {
+  'age-group': string;
+  occupation: string;
+  'marital-status': string;
+}
+
+interface ClientData {
+  id: number;
+  name: string;
+  age: number | null;
+  email: string;
+  sex: string | null;
+  phone_no: string;
+  diagnosis: string | null;
+  photo_url: string;
+  zipcode: string | null;
+  city: string | null;
+  appointment_id: number | null;
+  assessment_id: number | null;
+  invoice_id: number | null;
+  medical_record_id: number | null;
+  created_at: string;
+  updated_at: string;
+  q_and_a: ClientQnA;
+  uid: string;
+  no_of_sessions: number;
+}
+
+interface ClientProfileProps {
+  clientData: ClientData;
+}
+
+export default functionClientProfile({ clientData }: ClientProfileProps) {
   // Mock data - in a real app, this would come from props or state
   const client = {
     name: "Noya Thera",
@@ -63,13 +95,13 @@ export default function ClientProfile() {
           <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
             <AspectRatio ratio="1" sx={{ width: 100, borderRadius: 'sm' }}>
               <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
-                alt=""
+                src={clientData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286}
+                alt={`${clientData.name}'s profile`}
               />
             </AspectRatio>
             <Box>
-              <Typography level="h4">{client.name}</Typography>
-              <Typography level="body-sm">{client.email}</Typography>
+              <Typography level="h4">{clientData.name}</Typography>
+              <Typography level="body-sm">{clientData.email}</Typography>
               <Button 
                 variant="outlined" 
                 size="sm" 
@@ -85,22 +117,22 @@ export default function ClientProfile() {
           <Stack spacing={2}>
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-              <Typography>{client.gender}</Typography>
+              <Typography>{clientData.q_and_a.gender || 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
-              <Typography>{client.ageGroup}</Typography>
+              <Typography>{clientData.q_and_a['age-group'] || 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-              <Typography>{client.maritalStatus}</Typography>
+              <Typography>{clientData.q_and_a['marital-status'] || 'Not Available'}</Typography>
             </Box>
 
             <Box>
               <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-              <Typography>{client.occupation}</Typography>
+              <Typography>{clientData.q_and_a.occupation || 'Not Available'}</Typography>
             </Box>
           </Stack>
         </CardContent>
