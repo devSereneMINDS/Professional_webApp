@@ -46,21 +46,21 @@ interface ClientData {
 }
 
 export default function JoyOrderDashboardTemplate() {
-  const { clientId } = useParams<{ clientId?: string }>(); 
+  const { id } = useParams<{ id?: string }>(); 
   //const navigate = useNavigate();
   const [clientData, setClientData] = useState<ClientData | null>(null);
   const [, setLoading] = useState<boolean>(false);
   const [, setError] = useState<string | null>(null);
 
-  console.log("Client ID",clientId)
+  console.log("Client ID",id)
 
   // Fetch client data when clientId changes
   useEffect(() => {
-    if (clientId) {
+    if (id) {
       const fetchClientData = async () => {
         try {
           setLoading(true);
-          const response = await fetch(`https://api.sereneminds.life/api/clients2/${clientId}`);
+          const response = await fetch(`https://api.sereneminds.life/api/clients2/${id}`);
           if (!response.ok) {
             throw new Error('Failed to fetch client data');
           }
@@ -79,7 +79,7 @@ export default function JoyOrderDashboardTemplate() {
       setError(null);
       setLoading(false);
     }
-  }, [clientId]);
+  }, [id]);
   
   return (
     <CssVarsProvider disableTransitionOnChange>
