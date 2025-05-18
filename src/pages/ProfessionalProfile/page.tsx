@@ -16,6 +16,12 @@ import dayjs from 'dayjs';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
+interface ClientQnA {
+  'age-group': string;
+  occupation: string;
+  'marital-status': string;
+}
+
 interface ClientData {
   id: number;
   name: string;
@@ -33,6 +39,7 @@ interface ClientData {
   medical_record_id: number | null;
   created_at: string;
   updated_at: string;
+  q_and_a: ClientQnA;
   uid: string;
   no_of_sessions: number;
 }
