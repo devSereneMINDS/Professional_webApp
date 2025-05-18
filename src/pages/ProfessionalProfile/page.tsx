@@ -49,8 +49,8 @@ export default function JoyOrderDashboardTemplate() {
   const { clientId } = useParams<{ clientId?: string }>(); 
   //const navigate = useNavigate();
   const [clientData, setClientData] = useState<ClientData | null>(null);
-  //const [loading, setLoading] = useState<boolean>(false);
-  //const [error, setError] = useState<string | null>(null);
+  const [, setLoading] = useState<boolean>(false);
+  const [, setError] = useState<string | null>(null);
 
   // Fetch client data when clientId changes
   useEffect(() => {
