@@ -12,9 +12,9 @@ import { useState } from 'react';
 import Textarea from '@mui/joy/Textarea';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import SaveIcon from '@mui/icons-material/Save';
-import { useState } from 'react';
 
 interface ClientQnA {
+  gender: string;
   'age-group': string;
   occupation: string;
   'marital-status': string;
@@ -48,14 +48,14 @@ interface ClientProfileProps {
 
 export default function ClientProfile({ clientData }: ClientProfileProps) {
   // Mock data - in a real app, this would come from props or state
-  const client = {
-    name: "Noya Thera",
-    email: "yatolightyagami@gmail.com",
-    gender: "Not Available",
-    ageGroup: "Not Available",
-    maritalStatus: "Not Available",
-    occupation: "Not Available",
-  };
+  // const client = {
+  //   name: "Noya Thera",
+  //   email: "yatolightyagami@gmail.com",
+  //   gender: "Not Available",
+  //   ageGroup: "Not Available",
+  //   maritalStatus: "Not Available",
+  //   occupation: "Not Available",
+  // };
 
   const [notes, setNotes] = useState("");
   const [isNotesEditable, setIsNotesEditable] = useState(false);
