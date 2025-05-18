@@ -80,6 +80,16 @@ export default function ClientProfile({ clientData }: ClientProfileProps) {
     setIsNotesEditable(false);
   };
 
+  if (!clientData) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography level="body-md" color="neutral">
+          No client data available. Please select a client.
+        </Typography>
+      </Box>
+    );
+  }
+
   return (
     <Box
       sx={{
