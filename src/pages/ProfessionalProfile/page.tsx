@@ -52,6 +52,8 @@ export default function JoyOrderDashboardTemplate() {
   const [, setLoading] = useState<boolean>(false);
   const [, setError] = useState<string | null>(null);
 
+  console.log("Client ID",clientId)
+
   // Fetch client data when clientId changes
   useEffect(() => {
     if (clientId) {
