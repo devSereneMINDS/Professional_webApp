@@ -81,7 +81,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
     });
 
     return () => unSub();
-  }, [chatId, professionalUID, user, isGroupChat]);
+  }, [chatId, professionalUID, user, isGroupChat, chatCollection]);
 
   React.useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -157,7 +157,7 @@ export default function MessagesPane({ onBackClick, showBackButton }: MessagesPa
         backgroundColor: 'background.level1',
         position: 'relative',
         width: '100%',
-        mt: { xs: '60px', sm: 0 },
+        mt: { xs: '42px', sm: 0 },
       }}
     >
       {!user ? (

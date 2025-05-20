@@ -8,7 +8,8 @@ export interface Service {
 
 export interface AvailabilityDay {
   day: string;
-  times: string[];
+  times?: string[];
+  timeRange?: TimeRange;
 }
 
 export interface CountryType {
@@ -55,3 +56,7 @@ export interface FormData {
   instagram_account: string;
   linkedin_account: string;
 }
+interface TimeRange {
+  start: string;
+  end: string;
+} 

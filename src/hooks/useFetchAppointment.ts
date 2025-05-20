@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setAppointments } from "../store/slices/appointmentSlice";
 import axios from "axios";
 import { RootState } from "../store/store"; // Adjust the path to your store file
+import dayjs from "dayjs";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const CLIENT_API_URL = `${API_BASE_URL}/clients2`;
@@ -216,6 +217,7 @@ const useFetchAppointments = () => {
               // 1. Appointment is upcoming
               // 2. No existing meet_link
               // 3. We have a valid token
+              console.log("encriched appointment", enrichedAppointment)
               if (
                 enrichedAppointment.status === "Upcoming" &&
                 !enrichedAppointment.meet_link &&
@@ -224,7 +226,7 @@ const useFetchAppointments = () => {
                 try {
                   console.log("Attempting to create meet link for appointment:", enrichedAppointment.id);
                   const googleEvent = await createGoogleCalendarEvent(enrichedAppointment, professionalToken);
-                  
+
                   if (googleEvent?.hangoutLink) {
                     console.log("Meet link generated:", googleEvent.hangoutLink);
                     
@@ -233,7 +235,24 @@ const useFetchAppointments = () => {
                       `${API_BASE_URL}/appointment/update/${enrichedAppointment.id}`,
                       { meet_link: googleEvent.hangoutLink }
                     );
-                    
+
+                    const payload = {
+                          campaignName: "client_appointment_meetlink",
+                          destination: String(enrichedAppointment.clientphone ?? "").replace("+", ""),
+                          userName: "Serene MINDS",
+                          templateParams: [
+                          professional.data?.full_name,
+                          enrichedAppointment.client.name,
+                          dayjs(enrichedAppointment.appointment_time).format("DD MMM YYYY"),
+                          dayjs(enrichedAppointment.appointment_time).format("h:mm A"),
+                          enrichedAppointment.service?.toString().trim() || "",
+                          enrichedAppointment.message,
+                          googleEvent.hangoutLink
+                          ]
+                        };
+                    axios.post(`${API_BASE_URL}/whatsapp/send`, payload)
+  .then(response => console.log('Success:', response.data))
+  .catch(error => console.error('Error:', error));
                     return {
                       ...enrichedAppointment,
                       meet_link: googleEvent.hangoutLink,
@@ -280,7 +299,7 @@ const useFetchAppointments = () => {
     };
 
     fetchAppointments();
-  }, [dispatch, professionalId, professionalToken]);
+  }, [dispatch, professional.data?.full_name, professionalId, professionalToken]);
 };
 
 export default useFetchAppointments;

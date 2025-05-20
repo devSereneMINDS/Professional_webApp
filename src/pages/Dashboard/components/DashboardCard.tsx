@@ -53,7 +53,7 @@ export const ActionCard = ({ title, description, buttonText, onClick, link }: Ac
       try {
         await navigator.clipboard.writeText(link);
         alert('Link copied to clipboard!');
-      } catch (err) {
+      } catch {
         alert('Failed to copy!');
       }
     }
