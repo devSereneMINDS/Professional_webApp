@@ -21,6 +21,9 @@ import { RootState } from '../../store/store';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { closeSidebar } from '../../components/utils';
+import ConfirmationSnackbar  from '../../components/Snackbar'
+import React from 'react';
 
 interface ProfessionalData {
   id?: string;
@@ -67,6 +70,9 @@ function SearchInput({ professionalId }: { professionalId?: string }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+
+
 
 const fetchSearchResults = async (query: string) => {
   if (!query || !professionalId) {
@@ -224,6 +230,32 @@ export default function JoyOrderDashboardTemplate() {
     error: string | null;
   };
 
+  const navigate = useNavigate();
+  // Snackbar state and handlers
+  
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSnackbarOpen(true);
+    }, 15000); // 30 seconds
+
+    console.log("i did")
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  };
+
+  const handleConfirm = () => {
+    setSnackbarOpen(false);
+    navigate('/settings')
+    // Add any confirmation logic here
+    
+  };
+ 
   const NavigatePersonalWebsite = () => {
     window.location.href = `https://site.sereneminds.life/${professional?.data?.id}`;
   };
@@ -274,6 +306,7 @@ export default function JoyOrderDashboardTemplate() {
         <Box
           component="main"
           className="MainContent"
+          onClick = {() => closeSidebar()}
           sx={{
             px: { xs: 2, md: 6 },
             pt: {
@@ -383,6 +416,12 @@ export default function JoyOrderDashboardTemplate() {
                 mt: 1,
               }}
             >
+                <ConfirmationSnackbar 
+        open={snackbarOpen}
+        onClose={handleCloseSnackbar}
+        onConfirm={handleConfirm}
+      />
+
               {statCardsData.map((card, index) => (
                 <StatCard
                   key={index}

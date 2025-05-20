@@ -195,7 +195,7 @@ export default function MyProfile() {
     try {
       const payload = {
         availability: availability.reduce((acc: Record<string, string>, day) => {
-          if (day.day && day.times[0]) {
+          if (day.day && Array.isArray(day.times) && day.times[0]) {
             acc[day.day] = day.times[0];
           }
           return acc;

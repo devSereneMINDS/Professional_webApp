@@ -11,6 +11,7 @@ import Payment from "../pages/Payment/page";
 import ProfessionalProfile from "../pages/ProfessionalProfile/page";
 import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
+import ClientProfile from "../pages/ClientProfile/page"
 import AddNewClient from "../pages/AddNewClient/page";
 
 interface ProfessionalData {
@@ -166,7 +167,7 @@ const router = createBrowserRouter([
     path: "/clients/:id",
     element: (
       <ProtectedRoute>
-       <h1>Yesss</h1>
+       <ClientProfile />
       </ProtectedRoute>
     ),
     errorElement: <ErrorPage />,

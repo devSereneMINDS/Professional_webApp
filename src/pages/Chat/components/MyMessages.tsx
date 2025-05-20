@@ -36,7 +36,7 @@ export default function MyProfile() {
     <Sheet
       sx={{
         position: 'fixed',
-        width: isMobile ? '100%' : '80%',
+        width: isMobile ? '100%' : '85vw',
         height: '100vh',
         display: 'grid',
         gridTemplateColumns: {
@@ -75,10 +75,9 @@ export default function MyProfile() {
           position: { xs: 'fixed', sm: 'relative' },
           top: 0,
           left: 0,
-          width: '100%',
           height: '100%',
           zIndex: { xs: 120, sm: 'auto' },
-          
+          width:"100%",
           display: { xs: shouldShowMessages ? 'block' : 'none', sm: 'block' },
           transform: {
             xs: shouldShowMessages ? 'translateX(0)' : 'translateX(100%)',

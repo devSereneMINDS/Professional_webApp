@@ -22,6 +22,10 @@ import { Textarea } from '@mui/joy';
 import { DatePicker, TimePicker } from 'antd';
 import type { Dayjs } from 'dayjs';
 import dayjs from 'dayjs';
+import PlaylistAddCheckCircleRoundedIcon from '@mui/icons-material/PlaylistAddCheckCircleRounded';
+import ErrorOutlineRoundedIcon from '@mui/icons-material/ErrorOutlineRounded';
+import Snackbar from '@mui/joy/Snackbar';
+import { keyframes } from '@mui/system';
 
 interface AppointmentCardProps {
   id: number;
@@ -39,6 +43,87 @@ interface AppointmentCardProps {
     full_name: string;
   };
 }
+
+// Toastbar component
+const inAnimation = keyframes`
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`;
+
+const outAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+`;
+
+interface ToastbarProps {
+  open: boolean;
+  onClose: () => void;
+  prompt: string;
+  success?: boolean;
+  duration?: number;
+}
+
+const Toastbar: React.FC<ToastbarProps> = ({
+  open,
+  onClose,
+  prompt,
+  success = false,
+  duration = 5000,
+}) => {
+  const animationDuration = 300;
+
+  return (
+    <Snackbar
+      variant={success ? 'solid' : 'soft'}
+      color={success ? 'success' : 'danger'}
+      open={open}
+      onClose={onClose}
+      autoHideDuration={duration}
+      anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      animationDuration={animationDuration}
+      sx={[
+        {
+          position: 'fixed',
+          top: 20,
+          right: 20,
+          zIndex: 9999,
+        },
+        open && {
+          animation: `${inAnimation} ${animationDuration}ms forwards`,
+        },
+        !open && {
+          animation: `${outAnimation} ${animationDuration}ms forwards`,
+        },
+      ]}
+      startDecorator={success ? <PlaylistAddCheckCircleRoundedIcon /> : <ErrorOutlineRoundedIcon />}
+      endDecorator={
+        <Button
+          onClick={onClose}
+          size="sm"
+          variant="soft"
+          color={success ? 'success' : 'danger'}
+          sx={{ mr: -1, mt: -1 }}
+        >
+          Dismiss
+        </Button>
+      }
+    >
+      {prompt}
+    </Snackbar>
+  );
+};
 
 export default function AppointmentCard({
   id = 0,
@@ -62,6 +147,10 @@ export default function AppointmentCard({
   const [isRescheduling, setIsRescheduling] = React.useState(false);
   const [clientMessage, setClientMessage] = React.useState('');
   const [isSending, setIsSending] = React.useState(false);
+  const [toastOpen, setToastOpen] = React.useState(false);
+  const [toastMessage, setToastMessage] = React.useState('');
+  const [toastSuccess, setToastSuccess] = React.useState(false);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -71,6 +160,12 @@ export default function AppointmentCard({
     ? `${parseInt(duration.split(':')[1])} minutes`
     : '0 minutes';
 
+  const showToast = (message: string, success: boolean) => {
+    setToastMessage(message);
+    setToastSuccess(success);
+    setToastOpen(true);
+  };
+
   const openClientMessage = () => {
     setClientMessage('');
     setOpenMessage(true);
@@ -78,12 +173,12 @@ export default function AppointmentCard({
 
   const handleSendMessage = async () => {
     if (!clientMessage.trim()) {
-      alert("Message cannot be empty");
+      showToast("Message cannot be empty", false);
       return;
     }
 
     if (!API_BASE_URL) {
-      alert("API configuration error. Please try again later.");
+      showToast("API configuration error. Please try again later.", false);
       console.error("API_BASE_URL is missing");
       return;
     }
@@ -110,12 +205,12 @@ export default function AppointmentCard({
         throw new Error(result.message || "Failed to send message");
       }
 
-      alert("Message sent successfully!");
+      showToast("Message sent successfully!", true);
       setOpenMessage(false);
     } catch (error) {
       console.error("Error sending message:", error);
       const errorMessage = error instanceof Error ? error.message : "Failed to send message";
-      alert(`Error: ${errorMessage}`);
+      showToast(`Error: ${errorMessage}`, false);
     } finally {
       setIsSending(false);
     }
@@ -123,7 +218,7 @@ export default function AppointmentCard({
 
   const handleReschedule = async () => {
     if (!selectedDate || !selectedTime) {
-      alert('Please select both date and time');
+      showToast('Please select both date and time', false);
       return;
     }
 
@@ -138,10 +233,10 @@ export default function AppointmentCard({
       setOpenReschedule(false);
       setOpen(false);
       
-      alert('Appointment rescheduled successfully!');
+      showToast('Appointment rescheduled successfully!', true);
     } catch (error) {
       console.error('Reschedule error:', error);
-      alert('Failed to reschedule appointment. Please try again.');
+      showToast('Failed to reschedule appointment. Please try again.', false);
     } finally {
       setIsRescheduling(false);
     }
@@ -165,6 +260,13 @@ export default function AppointmentCard({
 
   return (
     <>
+      <Toastbar 
+        open={toastOpen} 
+        onClose={() => setToastOpen(false)} 
+        prompt={toastMessage} 
+        success={toastSuccess} 
+      />
+
       <Card variant="outlined" sx={{ 
         minWidth: 350, 
         maxWidth: 300,
@@ -269,7 +371,7 @@ export default function AppointmentCard({
                 sx={{ mt: 3 }}
                 fullWidth={isMobile}
               >
-                Confirm Reschedule
+                Reschedule Appointment
               </Button>
             )}
           </Box>
@@ -287,64 +389,62 @@ export default function AppointmentCard({
       </Modal>
 
       {/* Reschedule Modal */}
-      {/* Reschedule Modal */}
-<Modal open={openReschedule} onClose={() => setOpenReschedule(false)}>
-  <ModalDialog
-    variant="outlined"
-    sx={{
-      borderRadius: 'md',
-      p: 3,
-      width: isMobile ? '90%' : '400px',
-      maxWidth: '100%',
-      // Add these styles to ensure picker dropdowns appear above
-      '& .ant-picker-panel-container': {
-        zIndex: theme.zIndex.modal + 1,
-      },
-      '& .ant-picker-dropdown': {
-        zIndex: theme.zIndex.modal + 1,
-      }
-    }}
-  >
-    <ModalClose />
-    <Typography level="h4" mb={2}>Reschedule Appointment</Typography>
-    
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Box>
-        <Typography level="body-sm" mb={1}>Select Date</Typography>
-        <DatePicker
-          onChange={(date) => setSelectedDate(date ? date.toDate() : null)}
-          disabledDate={(date) => date ? date.isBefore(dayjs(), 'day') : false}
-          value={selectedDate ? dayjs(selectedDate) : dayjs()}
-          getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
-        />
-      </Box>
+      <Modal open={openReschedule} onClose={() => setOpenReschedule(false)}>
+        <ModalDialog
+          variant="outlined"
+          sx={{
+            borderRadius: 'md',
+            p: 3,
+            width: isMobile ? '90%' : '400px',
+            maxWidth: '100%',
+            '& .ant-picker-panel-container': {
+              zIndex: theme.zIndex.modal + 1,
+            },
+            '& .ant-picker-dropdown': {
+              zIndex: theme.zIndex.modal + 1,
+            }
+          }}
+        >
+          <ModalClose />
+          <Typography level="h4" mb={2}>Reschedule Appointment</Typography>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <Box>
+              <Typography level="body-sm" mb={1}>Select Date</Typography>
+              <DatePicker
+                onChange={(date) => setSelectedDate(date ? date.toDate() : null)}
+                disabledDate={(date) => date ? date.isBefore(dayjs(), 'day') : false}
+                value={selectedDate ? dayjs(selectedDate) : dayjs()}
+                getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+              />
+            </Box>
 
-      <Box>
-        <Typography level="body-sm" mb={1}>Select Time</Typography>
-        <TimePicker
-          value={selectedTime}
-          onChange={(time) => setSelectedTime(time)}
-          format="HH:mm"
-          minuteStep={15}
-          showNow={false}
-          style={{ width: '100%' }}
-          getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
-        />
-      </Box>
+            <Box>
+              <Typography level="body-sm" mb={1}>Select Time</Typography>
+              <TimePicker
+                value={selectedTime}
+                onChange={(time) => setSelectedTime(time)}
+                format="HH:mm"
+                minuteStep={15}
+                showNow={false}
+                style={{ width: '100%' }}
+                getPopupContainer={(trigger) => trigger.parentNode as HTMLElement}
+              />
+            </Box>
 
-      <Button
-        variant="solid"
-        color="primary"
-        onClick={handleReschedule}
-        loading={isRescheduling}
-        sx={{ mt: 2 }}
-        fullWidth
-      >
-        Confirm New Time
-      </Button>
-    </Box>
-  </ModalDialog>
-</Modal>
+            <Button
+              variant="solid"
+              color="primary"
+              onClick={handleReschedule}
+              loading={isRescheduling}
+              sx={{ mt: 2 }}
+              fullWidth
+            >
+              Confirm New Time
+            </Button>
+          </Box>
+        </ModalDialog>
+      </Modal>
 
       {/* Message Modal */}
       <Modal open={openMessage} onClose={() => setOpenMessage(false)}>
