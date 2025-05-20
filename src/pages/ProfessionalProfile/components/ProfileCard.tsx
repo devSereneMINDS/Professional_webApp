@@ -1,15 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import AspectRatio from '@mui/joy/AspectRatio';
-import Box from '@mui/joy/Box';
-import Button from '@mui/joy/Button';
-import Card from '@mui/joy/Card';
-import CardContent from '@mui/joy/CardContent';
 import Typography from '@mui/joy/Typography';
 import Sheet from '@mui/joy/Sheet';
 import Divider from '@mui/joy/Divider';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircularProgress } from '@mui/joy';
+import { AspectRatio, Box, Button, Card, CardContent, CircularProgress } from '@mui/joy';
 import Tabs from '@mui/joy/Tabs';
 import TabList from '@mui/joy/TabList';
 import Tab from '@mui/joy/Tab';
@@ -147,7 +142,7 @@ console.log("afaf",professional)
         });
 
         setChatExists(true);
-        navigate("/chat");
+        navigate("/chats");
       }
     } catch (error) {
       console.error("Error adding user to chat:", error);
@@ -155,27 +150,100 @@ console.log("afaf",professional)
     setLoading(false);
   };
 
-  const saveNotes = () => {
-    // In a real app, you would save to an API here
-    console.log("Notes saved:", notes);
-    setIsNotesEditable(false);
+  const truncateText = (text: string, maxWords: number) => {
+    if (!text) return "No information available";
+    const words = text.split(' ');
+    if (words.length <= maxWords) return text;
+    return words.slice(0, maxWords).join(' ') + '...';
   };
 
+  const aboutMeText = professionalData?.about_me || "No information available";
+  const truncatedAboutMe = truncateText(aboutMeText, 65);
+  const isTruncated = aboutMeText.split(' ').length > 65;
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <CircularProgress size="lg" />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography color="danger">Error: {error}</Typography>
+      </Box>
+    );
+  }
+
+  if (!professionalData) {
+    return (
+      <Box sx={{ p: 2 }}>
+        <Typography>Professional data not found</Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box sx={{ display: 'flex', gap: 2, flexDirection: { xs: 'row', md: 'row' } }}>
-      {/* Left Section - Client Info */}
-      <Card sx={{ flex: 1, minWidth: 300 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-            <AspectRatio ratio="1" sx={{ width: 100, borderRadius: 'sm' }}>
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column',
+      gap: 2,
+      width: '100%',
+      p: { xs: 1, sm: 2 },
+      maxWidth: '1400px',
+      mx: 'auto'
+    }}>
+      {/* Top Section - Profile and About Me */}
+      <Box sx={{
+        display: 'flex',
+        gap: 2,
+        flexDirection: { xs: 'column', md: 'row' },
+        width: '100%'
+      }}>
+        {/* Profile Card */}
+        <Card sx={{ 
+          flex: { xs: '1 1 auto', md: 3 },
+          minWidth: 0 // prevents overflow
+        }}>
+          <CardContent sx={{
+            flexDirection: { xs: 'column', sm: 'row' },
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            textAlign: { xs: 'center', sm: 'left' }
+          }}>
+            <AspectRatio 
+              ratio="1" 
+              sx={{ 
+                width: { xs: 120, sm: 200 }, 
+                borderRadius: 'sm',
+                alignSelf: 'center'
+              }}
+            >
               <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
-                alt=""
+                src={professionalData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"}
+                alt={professionalData.full_name}
               />
             </AspectRatio>
-            <Box>
-              <Typography level="h4">{client.name}</Typography>
-              <Typography level="body-sm">{client.email}</Typography>
+            
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: "center",
+              alignItems: { xs: 'center', sm: 'flex-start' },
+              gap: 1
+            }}>
+              <Typography level="title-lg">{professionalData.full_name}</Typography>
+              <Typography level="body-sm">{professionalData.email}</Typography>
+              <Typography level="body-sm">{professionalData.phone}</Typography>
               <Button 
                 variant="outlined" 
                 size="sm" 
@@ -205,29 +273,53 @@ console.log("afaf",professional)
                 {loading ? 'Loading...' : chatExists ? 'Chat with Professional' : 'Add to Chat'}
               </Button>
             </Box>
-          </Box>
+          </CardContent>
+        </Card>
 
-          <Divider sx={{ my: 2 }} />
-
-          <Stack spacing={2}>
-            <Box>
-              <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-              <Typography>{client.gender}</Typography>
+        {/* Personal Details Card */}
+        <Card sx={{ 
+          flex: { xs: '1 1 auto', md: 2 },
+          p: { xs: 1, sm: 2, md: 3 }
+        }}>
+          <Typography level="title-lg" mb={2}>Personal Details</Typography>
+          
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: { xs: 2, sm: 4 },
+              flexWrap: 'wrap',
+              alignItems: 'flex-start',
+            }}
+          >
+            {/* First Column */}
+            <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
+              <Box mb={2}>
+                <Typography level="body-xs" textColor="text.tertiary">Area of Expertise</Typography>
+                <Typography level="body-md">{professionalData.area_of_expertise || "Not Available"}</Typography>
+              </Box>
+              
+              <Box>
+                <Typography level="body-xs" textColor="text.tertiary">Languages</Typography>
+                <Typography level="body-md">
+                  {professionalData.languages?.join(', ') || "Not Available"}
+                </Typography>
+              </Box>
             </Box>
 
-            <Box>
-              <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
-              <Typography>{client.ageGroup}</Typography>
-            </Box>
-
-            <Box>
-              <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-              <Typography>{client.maritalStatus}</Typography>
-            </Box>
-
-            <Box>
-              <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-              <Typography>{client.occupation}</Typography>
+            {/* Second Column */}
+            <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
+              <Box mb={2}>
+                <Typography level="body-xs" textColor="text.tertiary">Country</Typography>
+                <Typography level="body-md">{professionalData.country || "Not Available"}</Typography>
+              </Box>
+              
+              <Box>
+                <Typography level="body-xs" textColor="text.tertiary">Date of Birth</Typography>
+                <Typography level="body-md">
+                  {professionalData.date_of_birth ? new Date(professionalData.date_of_birth).toLocaleDateString() : "Not Available"}
+                </Typography>
+              </Box>
             </Box>
 
             {/* Third Column */}
