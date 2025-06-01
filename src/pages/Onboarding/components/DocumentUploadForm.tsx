@@ -9,10 +9,11 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
   handleNext, 
   handleBack,
   document,
+  uploadedFileUrl,  // Add this prop
+  setUploadedFileUrl,  // Add this prop
   setDocument
 }) => {
   const [isUploading, setIsUploading] = React.useState(false);
-  const [uploadedFileUrl, setUploadedFileUrl] = React.useState('');
 
   const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -41,7 +42,9 @@ export const DocumentUploadForm: React.FC<DocumentUploadFormProps> = ({
         .getPublicUrl(fileName);
 
       console.log("File uploaded successfully:", publicUrl);
-      setUploadedFileUrl(publicUrl);
+      if (setUploadedFileUrl) {
+        setUploadedFileUrl(publicUrl);
+      }
     } catch (err) {
       console.error("Error during upload:", err);
     } finally {

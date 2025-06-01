@@ -32,6 +32,8 @@ export interface DocumentUploadFormProps extends OnboardingFormProps {
   setDocument: (file: File | null) => void;
   qAndA: Record<string, string>;
   setQAndA: (value: Record<string, string>) => void;
+  uploadedFileUrl: string; // Changed from optional to required
+  setUploadedFileUrl: (url: string) => void; // Changed from optional to required
 }
 
 export interface AvatarWithEditProps {

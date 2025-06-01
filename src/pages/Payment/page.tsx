@@ -31,11 +31,12 @@ export default function JoyOrderDashboardTemplate() {
     email: string;
     diagnosis: string;
     status: string;
-    paymentStatus: string; // Added paymentStatus property
+    paymentStatus: string;
   }
 
   const [clients, setClients] = React.useState<TransformedClient[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const professionalId = useSelector((state: any) => state.professional?.data?.id);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
@@ -77,9 +78,8 @@ export default function JoyOrderDashboardTemplate() {
             phoneNumber: client.phone_number || "N/A",
             email: client.email || "N/A",
             diagnosis: client.disease || "N/A",
-          })).map((client: any) => ({
-            ...client,
-            paymentStatus: "Confirmed", // Assign a default or derived value for paymentStatus
+            status: "Active",
+            paymentStatus: "Confirmed",
           }));
           setClients(transformedData);
         } else {
@@ -103,11 +103,11 @@ export default function JoyOrderDashboardTemplate() {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     bankName: '',
+    name: '',
     ifscCode: '',
     bankAccount: '',
-    branch: '',
     notes: '',
-    accountType: '' // Added accountType property
+    accountType: ''
   });
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
@@ -126,18 +126,44 @@ export default function JoyOrderDashboardTemplate() {
     }));
   };
 
-  const handleSubmit = (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    setOpen(false);
-    setFormData({
-      bankName: '',
-      ifscCode: '',
-      bankAccount: '',
-      branch: '',
-      notes: '',
-      accountType: '' // Added accountType with a default value
-    });
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/professionals/update/${professionalId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: professionalId,
+          banking_details: formData
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update banking details");
+      }
+
+      const data = await response.json();
+      console.log('Banking details updated successfully:', data);
+      
+      setOpen(false);
+      setFormData({
+        bankName: '',
+        ifscCode: '',
+        name: '',
+        bankAccount: '',
+        notes: '',
+        accountType: ''
+      });
+
+    } catch (error) {
+      console.error("Error updating banking details:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -145,7 +171,7 @@ export default function JoyOrderDashboardTemplate() {
       <CssBaseline />
       <Box sx={{ 
         display: 'flex', 
-        minHeight: '100vh', // Changed from 100dvh to 100vh for more consistent behavior
+        minHeight: '100vh',
       }}>
         <Header />
         <Sidebar />
@@ -164,12 +190,11 @@ export default function JoyOrderDashboardTemplate() {
             display: 'flex',
             flexDirection: 'column',
             minWidth: 0,
-            minHeight: 0, // Allows content to determine height
-            height: 'auto', // Changed from fixed height to auto
+            minHeight: 0,
+            height: 'auto',
             gap: 2,
           }}
         >
-          {/* Breadcrumbs and Date */}
           <Stack sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
             <Breadcrumbs
               size="sm"
@@ -198,8 +223,6 @@ export default function JoyOrderDashboardTemplate() {
               </Typography>
             </Breadcrumbs>
 
-            
-
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"
@@ -219,7 +242,6 @@ export default function JoyOrderDashboardTemplate() {
             </LocalizationProvider>
           </Stack>
 
-          {/* Title and Button */}
           <Box
             sx={{
               display: 'flex',
@@ -237,17 +259,19 @@ export default function JoyOrderDashboardTemplate() {
               variant="solid"
               color="success"
               onClick={() => setOpen(true)}
-              sx={{ width: { xs: '100%', sm: 'auto' },
-            background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-            },
-            '&:active': {
-              background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
-            } }}
+              sx={{ 
+                width: { xs: '100%', sm: 'auto' },
+                background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+                  boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                },
+                '&:active': {
+                  background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+                }
+              }}
             >
               Add to Payment Checkout
             </Button>
@@ -255,121 +279,109 @@ export default function JoyOrderDashboardTemplate() {
 
           <PageViewBar />
           
-          {/* Tables - Removed fixed height constraints */}
           <Box sx={{ 
             display: 'flex',
             flexDirection: 'column',
             gap: 3,
             mt: 2,
             flex: 1,
-            minHeight: 0, // Allows content to scroll naturally
-            overflow: 'visible', // Changed from hidden to visible
+            minHeight: 0,
+            overflow: 'visible',
           }}>
             <OrderTable clients={filteredClients} isLoading={isLoading} />
             <OrderList clients={filteredClients} isLoading={isLoading} />
           </Box>
 
-          {/* Payment Checkout Modal */}
           <Modal open={open} onClose={() => setOpen(false)}>
-  <ModalDialog sx={{
-    width: { xs: '90%', sm: '80%', md: '500px' },
-    maxWidth: '100%',
-    p: { xs: 2, sm: 3 },
-    my: 'auto', // Centers modal vertically
-    mx: 'auto', // Centers modal horizontally
-  }}>
-    <ModalClose />
-    <DialogTitle>Add Payment Checkout Details</DialogTitle>
-    <form onSubmit={handleSubmit}>
-      <Stack spacing={2}>
-        <FormControl>
-          <FormControl>
-            <FormLabel>Account Holder Name</FormLabel>
-            <Input 
-              name="branch" 
-              value={formData.branch} 
-              onChange={handleChange} 
-              required 
-            />
-          </FormControl>
-          <FormLabel>Bank Name</FormLabel>
-          <Input 
-            name="bankName" 
-            value={formData.bankName} 
-            onChange={handleChange} 
-            required 
-          />
-        </FormControl>
+            <ModalDialog sx={{
+              width: { xs: '90%', sm: '80%', md: '500px' },
+              maxWidth: '100%',
+              p: { xs: 2, sm: 3 },
+              my: 'auto',
+              mx: 'auto',
+            }}>
+              <ModalClose />
+              <DialogTitle>Add Payment Checkout Details</DialogTitle>
+              <form onSubmit={handleSubmit}>
+                <Stack spacing={2}>
+                  <FormControl>
+                    <FormControl>
+                      <FormLabel>Account Holder Name</FormLabel>
+                      <Input 
+                        name="name" 
+                        value={formData.name} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </FormControl>
+                    <FormLabel>Bank Name</FormLabel>
+                    <Input 
+                      name="bankName" 
+                      value={formData.bankName} 
+                      onChange={handleChange} 
+                      required 
+                    />
+                  </FormControl>
 
-        <FormControl>
-          <FormLabel>Bank Account Number</FormLabel>
-          <Input 
-            name="bankAccount" 
-            type="number" 
-            value={formData.bankAccount} 
-            onChange={handleChange} 
-            required 
-          />
-        </FormControl>
-        
-        <FormControl>
-          <FormLabel>IFSC Code</FormLabel>
-          <Input 
-            name="ifscCode" 
-            value={formData.ifscCode} 
-            onChange={handleChange} 
-            required 
-          />
-        </FormControl>
-        
-        <FormControl>
-          <FormLabel>Branch</FormLabel>
-          <Input 
-            name="branch" 
-            value={formData.branch} 
-            onChange={handleChange} 
-            required 
-          />
-        </FormControl>
+                  <FormControl>
+                    <FormLabel>Bank Account Number</FormLabel>
+                    <Input 
+                      name="bankAccount" 
+                      type="number" 
+                      value={formData.bankAccount} 
+                      onChange={handleChange} 
+                      required 
+                    />
+                  </FormControl>
+                  
+                  <FormControl>
+                    <FormLabel>IFSC Code</FormLabel>
+                    <Input 
+                      name="ifscCode" 
+                      value={formData.ifscCode} 
+                      onChange={handleChange} 
+                      required 
+                    />
+                  </FormControl>
 
-        {/* New Account Type Select Input */}
-        <FormControl>
-          <FormLabel>Account Type</FormLabel>
-          <Select
-            name="accountType"
-            value={formData.accountType || ''}
-            onChange={handleChange1}
-            required
-          >
-            <Option value="savings">Savings Account</Option>
-            <Option value="current">Current Account</Option>
-          </Select>
-        </FormControl>
+                  <FormControl>
+                    <FormLabel>Account Type</FormLabel>
+                    <Select
+                      name="accountType"
+                      value={formData.accountType}
+                      onChange={handleChange1}
+                      required
+                    >
+                      <Option value="savings">Savings Account</Option>
+                      <Option value="current">Current Account</Option>
+                    </Select>
+                  </FormControl>
 
-        <Button 
-          type="submit" 
-          color="primary"
-          fullWidth
-          sx={{ 
-            mt: 1,
-            width: { xs: '100%', sm: 'auto' },
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-            },
-            '&:active': {
-              background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
-            }
-          }}
-        >
-          Submit Payment Details
-        </Button>
-      </Stack>
-    </form>
-  </ModalDialog>
-</Modal>
+                  <Button 
+                    type="submit" 
+                    color="primary"
+                    fullWidth
+                    loading={isSubmitting}
+                    sx={{ 
+                      mt: 1,
+                      width: { xs: '100%', sm: 'auto' },
+                      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                      },
+                      '&:active': {
+                        background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+                      }
+                    }}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Payment Details'}
+                  </Button>
+                </Stack>
+              </form>
+            </ModalDialog>
+          </Modal>
         </Box>
       </Box>
     </CssVarsProvider>

@@ -49,6 +49,7 @@ export const OnboardingStepper: React.FC = () => {
   const [document, setDocument] = React.useState<File | null>(null);
   const [areaOfExpertise, setAreaOfExpertise] = React.useState('');
   const [qAndA, setQAndA] = React.useState<Record<string, string>>({});
+  const [uploadedFileUrl, setUploadedFileUrl] = React.useState<string | null>(null);
 
   const handleNext = () => {
     if (activeStep === steps.length - 2) {
@@ -72,7 +73,7 @@ export const OnboardingStepper: React.FC = () => {
       date_of_birth: dateOfBirth,
       email: email,
       photo_url: avatar,
-      proof_document: document,
+      proof_document: uploadedFileUrl,
       area_of_expertise: areaOfExpertise, 
       q_and_a: qAndA,
     };
@@ -153,6 +154,8 @@ export const OnboardingStepper: React.FC = () => {
             handleBack={handleBack}
             document={document}
             setDocument={setDocument}
+            uploadedFileUrl={uploadedFileUrl ?? ''}
+            setUploadedFileUrl={setUploadedFileUrl}
             qAndA={qAndA}
             setQAndA={setQAndA}
           />
