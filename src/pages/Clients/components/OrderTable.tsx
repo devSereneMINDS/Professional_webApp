@@ -91,7 +91,9 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
     ) {
       return;
     }
-    navigate(`/profile/${clientId}`);
+    //navigate(`/profile/${clientId}`);
+    navigate(`/clients/${clientId}`);
+    
   };
 
   return (

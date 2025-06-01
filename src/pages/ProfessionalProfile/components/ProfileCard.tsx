@@ -490,7 +490,7 @@ console.log("afaf",professional)
                           <strong>Price:</strong> {service.price} {service.currency}
                         </Typography>
                         <Typography level="body-md">
-                          <strong>Duration:</strong> {service.duration} mins
+                          <strong>Duration:</strong> {service.duration}
                         </Typography>
                       </Box>
                     </Sheet>
