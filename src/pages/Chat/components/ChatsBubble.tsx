@@ -33,11 +33,11 @@ export default function ChatBubble(props: ChatBubbleProps) {
   const { chatId, user } = useSelector((state: any) => state.userChat);
   const currentUserId = useSelector((state: any) => state.user?.id);
   const isSent = variant === 'sent';
-  const [isHovered, setIsHovered] = React.useState<boolean>(false);
-  const [reactions, setReactions] = React.useState<{
-    likes: string[];
-    celebrations: string[];
-  }>({ likes: [], celebrations: [] });
+  // const [isHovered, setIsHovered] = React.useState<boolean>(false);
+  // const [reactions, setReactions] = React.useState<{
+  //   likes: string[];
+  //   celebrations: string[];
+  // }>({ likes: [], celebrations: [] });
 
   console.log("user is is ",user)
 
@@ -49,40 +49,40 @@ export default function ChatBubble(props: ChatBubbleProps) {
     const unsubscribe = onSnapshot(messageRef, (doc) => {
       if (doc.exists()) {
         const data = doc.data();
-        setReactions({
-          likes: data?.likes || [],
-          celebrations: data?.celebrations || []
-        });
+        // setReactions({
+        //   likes: data?.likes || [],
+        //   celebrations: data?.celebrations || []
+        // });
       }
     });
 
     return () => unsubscribe();
   }, [chatId, messageId]);
 
-  const isLiked = reactions.likes.includes(currentUserId);
-  const isCelebrated = reactions.celebrations.includes(currentUserId);
+  // const isLiked = reactions.likes.includes(currentUserId);
+  // const isCelebrated = reactions.celebrations.includes(currentUserId);
 
-  const handleReaction = async (type: 'like' | 'celebration') => {
-    if (!chatId || !messageId || !currentUserId) return;
+  // const handleReaction = async (type: 'like' | 'celebration') => {
+  //   if (!chatId || !messageId || !currentUserId) return;
 
-    const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
-    const reactionField = type === 'like' ? 'likes' : 'celebrations';
-    const isReacted = type === 'like' ? isLiked : isCelebrated;
+  //   const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
+  //   const reactionField = type === 'like' ? 'likes' : 'celebrations';
+  //   const isReacted = type === 'like' ? isLiked : isCelebrated;
 
-    try {
-      if (isReacted) {
-        await updateDoc(messageRef, {
-          [reactionField]: arrayRemove(currentUserId)
-        });
-      } else {
-        await updateDoc(messageRef, {
-          [reactionField]: arrayUnion(currentUserId)
-        });
-      }
-    } catch (error) {
-      console.error('Error updating reaction:', error);
-    }
-  };
+  //   try {
+  //     if (isReacted) {
+  //       await updateDoc(messageRef, {
+  //         [reactionField]: arrayRemove(currentUserId)
+  //       });
+  //     } else {
+  //       await updateDoc(messageRef, {
+  //         [reactionField]: arrayUnion(currentUserId)
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating reaction:', error);
+  //   }
+  // };
 
   // const formatTimestamp = (timestamp: any) => {
   //   if (!timestamp) return '';
@@ -178,7 +178,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
               {content}
             </Typography>
           </Sheet>
-          {(isHovered || isLiked || isCelebrated) && (
+{/*           {(isHovered || isLiked || isCelebrated) && (
             <Stack
               direction="row"
               spacing={0.5}
@@ -216,7 +216,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
                 )}
               </IconButton>
             </Stack>
-          )}
+          )} */}
         </Box>
       )}
     </Box>
