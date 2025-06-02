@@ -21,7 +21,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
     variant, 
     timestamp, 
     attachment = undefined, 
-    messageId 
+    //messageId 
   } = props;
   const { user } = useSelector((state: any) => state.userChat);
   const isSent = variant === 'sent';
