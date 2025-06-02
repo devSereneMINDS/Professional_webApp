@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 type ChatBubbleProps = MessageProps & {
   variant: 'sent' | 'received';
   chatId: string;
-  //messageId: string;
+  messageId: string;
 };
 
 export default function ChatBubble(props: ChatBubbleProps) {
@@ -21,7 +21,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
     variant, 
     timestamp, 
     attachment = undefined, 
-   // messageId 
+    messageId 
   } = props;
   const { user } = useSelector((state: any) => state.userChat);
   const isSent = variant === 'sent';
