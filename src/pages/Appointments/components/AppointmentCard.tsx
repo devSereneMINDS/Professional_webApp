@@ -39,9 +39,7 @@ interface AppointmentCardProps {
   meetLink?: string;
   isUpcoming?: boolean;
   isLoading?: boolean;
-  professional?: {
-    full_name: string;
-  };
+  professional?: string;
 }
 
 // Toastbar component
@@ -137,7 +135,7 @@ export default function AppointmentCard({
   meetLink,
   isUpcoming = true,
   isLoading = false,
-  professional = { full_name: 'Professional Name' },
+  professional = 'Professional Name',
 }: AppointmentCardProps) {
   const [open, setOpen] = React.useState(false);
   const [openMessage, setOpenMessage] = React.useState(false);
@@ -180,6 +178,13 @@ export default function AppointmentCard({
     if (!API_BASE_URL) {
       showToast("API configuration error. Please try again later.", false);
       console.error("API_BASE_URL is missing");
+      return;
+    }
+
+    // Validate professional name
+    if (!professional || professional.trim() === '' || professional === 'Professional Name') {
+      showToast("Professional name is invalid or not provided.", false);
+      console.error("Invalid professional name:", professional);
       return;
     }
 
