@@ -21,6 +21,7 @@ interface Appointment {
   meet_link?: string | null;
   message?: string;
   status?: string;
+  professionalName?: string;
   [x: string]: string | number | boolean | null | undefined | object;
 }
 
