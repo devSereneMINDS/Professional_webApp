@@ -255,6 +255,7 @@ const useFetchAppointments = () => {
   .catch(error => console.error('Error:', error));
                     return {
                       ...enrichedAppointment,
+                      professionalName: professional.data?.full_name,
                       meet_link: googleEvent.hangoutLink,
                       category: "upcoming",
                     };
@@ -267,6 +268,7 @@ const useFetchAppointments = () => {
 
               return {
                 ...enrichedAppointment,
+                professionalName: professional.data?.full_name,
                 category: enrichedAppointment.status?.toLowerCase() || "unknown",
               };
             } catch (error) {
