@@ -20,6 +20,33 @@ import Textarea from '@mui/joy/Textarea';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const GENDER_MAP: { [key: string]: string } = {
+  "0": "Male",
+  "1": "Female",
+  "2": "Other"
+};
+
+const AGE_GROUP_MAP: { [key: string]: string } = {
+  "0": "Under 18",
+  "1": "18-30",
+  "2": "31-50",
+  "3": "51+"
+};
+
+const OCCUPATION_MAP: { [key: string]: string } = {
+  "0": "Student",
+  "1": "Employed",
+  "2": "Unemployed",
+  "3": "Retired"
+};
+
+const MARITAL_STATUS_MAP: { [key: string]: string } = {
+  "0": "Single",
+  "1": "Married",
+  "2": "Divorced",
+  "3": "Widowed"
+};
+
 export default function ClientProfile() {
   const appointments = useSelector((state: RootState) => state.appointments);
   const { id } = useParams();
@@ -241,12 +268,12 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.sex || "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[clientData.q_and_a.gender] : "Not Available"}</Typography>
               </Box>
               
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Age</Typography>
-                <Typography level="body-md">{clientData.age || "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[clientData.q_and_a["age-group"]] : "Not Available"}</Typography>
               </Box>
             </Box>
 
@@ -254,12 +281,12 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-                <Typography level="body-md">{clientData.occupation || "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[clientData.q_and_a.occupation] : "Not Available"}</Typography>
               </Box>
               
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-                <Typography level="body-md">{clientData.marital_status || "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[clientData.q_and_a["marital-status"]] : "Not Available"}</Typography>
               </Box>
             </Box>
 
