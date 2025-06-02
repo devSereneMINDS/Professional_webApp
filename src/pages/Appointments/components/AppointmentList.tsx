@@ -181,6 +181,7 @@ const AppointmentList = () => {
           }
           meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
           message={typeof appointment.message === 'string' ? appointment.message : undefined}
+          professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
           isUpcoming={true}
         />
       ))}
