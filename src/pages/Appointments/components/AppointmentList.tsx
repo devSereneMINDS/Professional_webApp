@@ -270,6 +270,7 @@ const AppointmentList = () => {
                       contact={String(appointment.client?.phone_no || appointment.clientphone || 'N/A')}
                       meetLink={appointment.meet_link ?? undefined}
                       message={appointment.message}
+                      professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
                       isUpcoming={false}
                     />
                   ))}
