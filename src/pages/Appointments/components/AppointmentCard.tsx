@@ -200,7 +200,7 @@ export default function AppointmentCard({
           campaignName: "client_professional_message02",
           destination: contact,
           userName: "Serene MINDS",
-          templateParams: [name, professional.full_name, clientMessage],
+          templateParams: [name, professional, clientMessage],
         }),
       });
 
