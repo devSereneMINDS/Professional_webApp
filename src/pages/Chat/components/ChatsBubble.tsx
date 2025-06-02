@@ -2,16 +2,16 @@
 import * as React from 'react';
 import Avatar from '@mui/joy/Avatar';
 import Box from '@mui/joy/Box';
-import IconButton from '@mui/joy/IconButton';
+//import IconButton from '@mui/joy/IconButton';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import CelebrationOutlinedIcon from '@mui/icons-material/CelebrationOutlined';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+// import CelebrationOutlinedIcon from '@mui/icons-material/CelebrationOutlined';
+// import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import { MessageProps } from '../utils/types';
 import { db } from '../../../../firebaseConfig';
-import { doc, updateDoc, arrayUnion, arrayRemove, onSnapshot } from 'firebase/firestore';
+import { doc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { useSelector } from 'react-redux';
 
 type ChatBubbleProps = MessageProps & {
@@ -48,7 +48,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
     const messageRef = doc(db, 'chats', chatId, 'messages', messageId);
     const unsubscribe = onSnapshot(messageRef, (doc) => {
       if (doc.exists()) {
-        const data = doc.data();
+        //const data = doc.data();
         // setReactions({
         //   likes: data?.likes || [],
         //   celebrations: data?.celebrations || []
@@ -129,8 +129,8 @@ export default function ChatBubble(props: ChatBubbleProps) {
       ) : (
         <Box
           sx={{ position: 'relative' }}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+{/*           onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)} */}
         >
           <Sheet
             color={isSent ? 'primary' : 'neutral'}
