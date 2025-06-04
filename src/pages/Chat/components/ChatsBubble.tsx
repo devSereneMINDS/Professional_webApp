@@ -53,7 +53,7 @@ export default function ChatBubble(props: ChatBubbleProps) {
         >
           <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <Avatar color="primary" size="lg">
-              <InsertDriveFileRoundedIcon />
+{/*               <InsertDriveFileRoundedIcon /> */}
             </Avatar>
             <div>
               <Typography sx={{ fontSize: 'sm' }}>{attachment.fileName}</Typography>
