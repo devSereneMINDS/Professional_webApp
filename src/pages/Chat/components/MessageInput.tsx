@@ -55,7 +55,7 @@ export default function MessageInput(props: MessageInputProps) {
             <Stack
               direction="row"
               sx={{
-                justifyContent: 'space-between',
+                justifyContent: 'flex-end',
                 alignItems: 'center',
                 flexGrow: 1,
                 py: 1,
