@@ -166,12 +166,9 @@ React.useEffect(() => {
                 Dashboard
               </Link>
               <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                HomePage
+                Clients
               </Typography>
             </Breadcrumbs>
-
-            
-
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"

@@ -72,6 +72,9 @@ export default function ClientProfile() {
           throw new Error("Failed to fetch client data");
         }
         const data = await response.json();
+        console.log("Client data fetched:", data);
+
+        
         setClientData(data);
         setNotes(data.notes || ''); // Initialize notes from client data if available
       } catch (err: any) {

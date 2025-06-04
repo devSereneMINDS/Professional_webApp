@@ -13,6 +13,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../store/store";
 import ClientProfile from "../pages/ClientProfile/page"
 import AddNewClient from "../pages/AddNewClient/page";
+import Demo from "../pages/Demo/page";8
 
 interface ProfessionalData {
   id?: string;
@@ -171,6 +172,12 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ),
     errorElement: <ErrorPage />,
+  },
+   {
+    path: "/demo",
+    element: (
+       <Demo />
+    ),
   },
   // Catch-all route for non-existent paths
   {

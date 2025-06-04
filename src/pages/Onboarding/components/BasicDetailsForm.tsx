@@ -14,8 +14,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { BasicDetailsFormProps } from './types.ts';
 import { useDispatch } from 'react-redux';
 import { supabase } from '../../../../supabaseClient.ts';
-import { updatePersonalDetails, uploadProfilePic } from '../../../store/slices/userSlice.js'; // Adjust import path
-
+import { updatePersonalDetails, uploadProfilePic } from '../../../store/slices/userSlice.js';
+import Toastbar from '../../../components/ToastBar.tsx'; // Make sure to import your Toastbar component
 
 export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
   handleNext,
@@ -35,6 +35,25 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 }) => {
   const dispatch = useDispatch();
   const API_BASE_URL = "https://api.sereneminds.life/api";
+
+  // Toast state
+  const [toast, setToast] = React.useState<{
+    open: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({
+    open: false,
+    message: '',
+    type: 'info',
+  });
+
+  const triggerToast = (message: string, type: 'success' | 'error' | 'info') => {
+    setToast({ open: true, message, type });
+  };
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
 
   React.useEffect(() => {
     return () => {
@@ -73,6 +92,7 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
       console.error('Error uploading avatar:', error);
       setAvatar('');
       dispatch(uploadProfilePic(''));
+      triggerToast('Failed to upload profile picture', 'error');
     }
   };
 
@@ -95,33 +115,41 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
 
   const handleNextStep = async () => {
     try {
+      triggerToast('Sending OTP...', 'info');
+      
       const response = await fetch(`${API_BASE_URL}/otp/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: email , phoneNumber : phone }),
+        body: JSON.stringify({ email: email, phoneNumber: phone }),
       });
       
       if (!response.ok) {
-        // Check if response is JSON before trying to parse it
         const contentType = response.headers.get('content-type');
+        let errorMessage = 'OTP generation failed';
+        
         if (contentType && contentType.includes('application/json')) {
           const error = await response.json();
           console.error("Error generating OTP:", error);
+          errorMessage = error.message || errorMessage;
         } else {
           const text = await response.text();
           console.error("Non-JSON error response:", text);
+          errorMessage = text || errorMessage;
         }
-        throw new Error('OTP generation failed');
+        
+        triggerToast(errorMessage, 'error');
+        throw new Error(errorMessage);
       }
       
       console.log("OTP Done");
       updateReduxState();
+      triggerToast('OTP sent successfully!', 'success');
       handleNext();
     } catch (error) {
       console.error("Network or server error:", error);
-      // Handle the error appropriately (show user message, etc.)
+      triggerToast('Failed to send OTP. Please try again.', 'error');
     }
   };
 
@@ -195,27 +223,37 @@ export const BasicDetailsForm: React.FC<BasicDetailsFormProps> = ({
         size="large"
         onClick={handleNextStep}
         fullWidth
-        sx={{ mt: 2,
+        sx={{ 
+          mt: 2,
           background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
-            color: '#fff',
-            borderRadius: '6px',
-            border: 'none',
-            cursor: 'pointer',
-            fontWeight: 500,
-            fontSize: '0.875rem',
+          color: '#fff',
+          borderRadius: '6px',
+          border: 'none',
+          cursor: 'pointer',
+          fontWeight: 500,
+          fontSize: '0.875rem',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-              background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
-              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-            },
-            '&:active': {
-              background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
-            }
-         }}
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+          },
+          '&:active': {
+            background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+          }
+        }}
       >
         Continue
       </Button>
+
+      {/* Toast Notification */}
+      <Toastbar
+        open={toast.open}
+        onClose={handleCloseToast}
+        prompt={toast.message}
+        success={toast.type === 'success'}
+        neutral={toast.type === 'info'}
+      />
     </Box>
   );
 };

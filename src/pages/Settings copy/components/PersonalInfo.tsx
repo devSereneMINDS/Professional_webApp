@@ -10,7 +10,6 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import Button from '@mui/joy/Button';
 import CountrySelector from './ContrySelector';
 import { FormData } from './type';
-// import { supabase } from '../../../../supabaseClient';
 
 interface PersonalInfoProps {
   formData: FormData;
@@ -28,54 +27,10 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
     }));
   };
   
-//  const [avatarPreview, setAvatarPreview] = React.useState<string>(professional?.data?.photo_url || '');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
- const handleAvatarUploadClick = () => {
+  const handleAvatarUploadClick = () => {
     fileInputRef.current?.click();
   };
-
-  // const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const file = e.target.files?.[0];
-  //   if (!file) return;
-
-  //   try {
-  //     // Create temporary preview
-  //     const previewUrl = URL.createObjectURL(file);
-  //     setAvatarPreview(previewUrl);
-
-  //     // Upload to Supabase
-  //     const fileName = `${Date.now()}-${file.name}`;
-  //     const { error: uploadError } = await supabase.storage
-  //       .from('professional_profilepic')
-  //       .upload(fileName, file);
-
-  //     if (uploadError) throw uploadError;
-
-  //     // Get permanent URL
-  //     const { data: { publicUrl } } = supabase.storage
-  //       .from('professional_profilepic')
-  //       .getPublicUrl(fileName);
-
-  //     // Update preview with permanent URL
-  //     setAvatarPreview(publicUrl);
-      
-  //     // Update form data with new photo URL
-  //     setFormData(prev => ({
-  //       ...prev,
-  //       photo_url: publicUrl
-  //     }));
-
-  //   } catch (error) {
-  //     console.error('Error uploading avatar:', error);
-  //     // Reset to original if error occurs
-  //     setAvatarPreview(professional?.data?.photo_url || '');
-  //   } finally {
-  //     // Reset file input
-  //     if (fileInputRef.current) {
-  //       fileInputRef.current.value = '';
-  //     }
-  //   }
-  // };
 
   const handleLanguageChange = (_event: React.SyntheticEvent | null, newValue: string[]) => {
     setFormData(prev => ({
@@ -184,26 +139,24 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
           </Stack>
           <Stack direction="row" spacing={2}>
             <Stack spacing={1} sx={{ flex: 1 }}>
-  <FormLabel>Area of Expertise</FormLabel>
-  <Select
-    size="sm"
-    value={formData.area_of_expertise}
-    sx={{
-      // Selected value (displayed in the input)
-      '--Select-defaultTypography-fontWeight': '400',
-      // Dropdown options
-      '& [role="option"]': {
-        fontWeight: 400,
-      },
-    }}
-    onChange={(_e, newValue) => handleInputChange('area_of_expertise', newValue || '')}
-    placeholder="Select your area of expertise"
-  >
-    <Option value="Counseling Psychologist">Counseling Psychologist</Option>
-    <Option value="Clinical Psychologist">Clinical Psychologist</Option>
-    <Option value="Wellness Buddy">Wellness Buddy</Option>
-  </Select>
-</Stack>
+              <FormLabel>Area of Expertise</FormLabel>
+              <Select
+                size="sm"
+                value={formData.area_of_expertise}
+                sx={{
+                  '--Select-defaultTypography-fontWeight': '400',
+                  '& [role="option"]': {
+                    fontWeight: 400,
+                  },
+                }}
+                onChange={(_e, newValue) => handleInputChange('area_of_expertise', newValue || '')}
+                placeholder="Select your area of expertise"
+              >
+                <Option value="Counseling Psychologist">Counseling Psychologist</Option>
+                <Option value="Clinical Psychologist">Clinical Psychologist</Option>
+                <Option value="Wellness Buddy">Wellness Buddy</Option>
+              </Select>
+            </Stack>
             <Stack spacing={1} sx={{ flex: 1 }}>
               <FormLabel>Email</FormLabel>
               <Input
@@ -216,16 +169,27 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
               />
             </Stack>
           </Stack>
-          <Stack spacing={1}>
-            <CountrySelector 
-              value={formData.country}
-              onChange={(countryName) => {
-                setFormData(prev => ({
-                  ...prev,
-                  country: countryName
-                }));
-              }}
-            />
+          <Stack direction="row" spacing={2}>
+            <Stack spacing={1} sx={{ flex: 1 }}>
+              <CountrySelector 
+                value={formData.country}
+                onChange={(countryName) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    country: countryName
+                  }));
+                }}
+              />
+            </Stack>
+            <Stack spacing={1} sx={{ flex: 1 }}>
+              <FormLabel>City</FormLabel>
+              <Input
+                size="sm"
+                value={formData.city || ''}
+                onChange={(e) => handleInputChange('city', e.target.value)}
+                placeholder="Enter your city"
+              />
+            </Stack>
           </Stack>
           <Stack spacing={1}>
             <FormLabel>Languages</FormLabel>
@@ -362,6 +326,15 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
                 country: newCountryCode
               }));
             }}
+          />
+        </Stack>
+        <Stack spacing={1}>
+          <FormLabel>City</FormLabel>
+          <Input
+            size="sm"
+            value={formData.city || ''}
+            onChange={(e) => handleInputChange('city', e.target.value)}
+            placeholder="Enter your city"
           />
         </Stack>
         <Stack spacing={1}>

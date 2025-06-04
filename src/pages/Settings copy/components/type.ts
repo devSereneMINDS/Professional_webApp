@@ -1,3 +1,4 @@
+// type.ts
 export interface Service {
   name: string;
   description: string;
@@ -8,16 +9,7 @@ export interface Service {
 
 export interface AvailabilityDay {
   day: string;
-  times?: string[];
-  timeRange?: TimeRange;
-}
-
-export interface CountryType {
-  name: string | null;
-  code: string;
-  label: string;
-  phone: string;
-  suggested?: boolean;
+  times: string[];
 }
 
 export interface EducationEntry {
@@ -27,36 +19,49 @@ export interface EducationEntry {
 }
 
 export interface FormData {
-  photo_url: string | undefined;
+  photo_url: string; // Changed from optional to required
+  full_name: string;
+  email: string;
+  phone: string;
+  area_of_expertise: string; // Fixed typo (was expertise)
+  country: string | null;
+  city: string; // Changed from optional to required
+  about_me: string;
+  education: EducationEntry[];
+  instagram_account: string;
+  linkedin_account: string;
+  languages: string[];
+}
+
+export interface ProfessionalData {
+  id: string;
   full_name: string;
   email: string;
   phone: string;
   area_of_expertise: string;
   country: string | null;
   about_me: string;
+  city: string;
   education: EducationEntry[];
-  instagram_account: string;
-  linkedin_account: string;
+  services: {
+    serviceTitle: string;
+    serviceDescription: string;
+    duration: number;
+    price: number;
+    currency: string;
+  }[];
+  availability: Record<string, string>;
+  photo_url: string;
+  instagram_account?: string;
+  linkedin_account?: string;
   languages?: string[];
 }
 
-// Add this to your existing types in types.ts
+export interface ProfessionalState {
+  data: ProfessionalData;
+}
+// Add this to your type.ts file
 export interface AccountLinks {
   instagram_account: string;
   linkedin_account: string;
 }
-// interface AccountsSectionProps {
-//   formData: FormData;
-//   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
-//   isLoading: boolean;
-//   onSave: () => void;
-// }
-export interface FormData {
-  // Add existing fields here
-  instagram_account: string;
-  linkedin_account: string;
-}
-interface TimeRange {
-  start: string;
-  end: string;
-} 

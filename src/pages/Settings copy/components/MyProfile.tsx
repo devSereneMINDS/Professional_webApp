@@ -12,50 +12,41 @@ import EducationSection from './EducationSection';
 import ServicesSection from './ServicesSection';
 import AvailabilitySection from './AvailabilitySection';
 import AccountsSection from './AccountHandle';
-import { FormData, Service, AvailabilityDay } from './type';
+import Toastbar from '../../../components/ToastBar';
+import type { 
+  FormData, 
+  Service, 
+  AvailabilityDay, 
+  ProfessionalState,
+} from './type';
 
 export default function MyProfile() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   
-  interface ProfessionalState {
-    data: {
-      id: string;
-      full_name: string;
-      email: string;
-      phone: string;
-      area_of_expertise: string;
-      country: string | null;
-      about_me: string;
-      education: { institute: string; degree: string; description: string }[];
-      services: {
-        serviceTitle: string;
-        serviceDescription: string;
-        duration: number;
-        price: number;
-        currency: string;
-      }[];
-      availability: Record<string, string>;
-      photo_url: string;
-      instagram_account?: string;
-      linkedin_account?: string;
-      languages?: string[];
-    };
-  }
-
   const professional = useSelector((state: { professional: ProfessionalState }) => state.professional);
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = React.useState(0);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [saveSuccess, setSaveSuccess] = React.useState(false);
   
-  console.log(saveSuccess)
+  // Toast state
+  const [toast, setToast] = React.useState<{
+    open: boolean;
+    message: string;
+    type: 'success' | 'error' | 'info';
+  }>({
+    open: false,
+    message: '',
+    type: 'success',
+  });
+
   const [formData, setFormData] = React.useState<FormData>({
-    photo_url: undefined,
+    photo_url: '',
     full_name: '',
     email: '',
     phone: '',
     area_of_expertise: '',
     country: null,
+    city: '',
     about_me: '',
     education: [{ institute: '', degree: '', description: '' }],
     instagram_account: '',
@@ -87,25 +78,34 @@ export default function MyProfile() {
   React.useEffect(() => {
     if (professional?.data) {
       setFormData({
-        photo_url: professional.data.photo_url || undefined,
-        full_name: professional.data.full_name || '',
-        email: professional.data.email || '',
-        phone: professional.data.phone || '',
-        area_of_expertise: professional.data.area_of_expertise || '',
-        country: professional.data.country || null,
-        about_me: professional.data.about_me || '',
-        education: professional.data.education || [{ institute: '', degree: '', description: '' }],
-        instagram_account: professional.data.instagram_account || '',
-        linkedin_account: professional.data.linkedin_account || '',
-        languages: professional.data.languages || [],
+        photo_url: professional.data.photo_url ?? '',
+        full_name: professional.data.full_name ?? '',
+        email: professional.data.email ?? '',
+        phone: professional.data.phone ?? '',
+        area_of_expertise: professional.data.area_of_expertise ?? '',
+        city: professional.data.city ?? '',
+        country: professional.data.country ?? null,
+        about_me: professional.data.about_me ?? '',
+        education: professional.data.education ?? [{ institute: '', degree: '', description: '' }],
+        instagram_account: professional.data.instagram_account ?? '',
+        linkedin_account: professional.data.linkedin_account ?? '',
+        languages: professional.data.languages ?? [],
       });
     }
   }, [professional]);
 
+  const triggerToast = (message: string, type: 'success' | 'error' | 'info') => {
+    setToast({ open: true, message, type });
+    console.log("ity triggere")
+  };
+
+  const handleCloseToast = () => {
+    setToast((prev) => ({ ...prev, open: false }));
+  };
+
   const handleSaveProfile = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setIsLoading(true);
-    setSaveSuccess(false);
     
     try {
       const payload = {
@@ -114,6 +114,7 @@ export default function MyProfile() {
         phone: formData.phone,
         area_of_expertise: formData.area_of_expertise,
         country: formData.country,
+        city: formData.city,
         about_me: formData.about_me,
         education: formData.education,
         instagram_account: formData.instagram_account,
@@ -133,11 +134,11 @@ export default function MyProfile() {
 
       if (response.data?.data) {
         dispatch(setProfessionalData(response.data.data[0]));
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+        triggerToast('Profile information saved successfully!', 'success');
       }
     } catch (error) {
       console.error('Profile update failed:', error);
+      triggerToast('Failed to save profile information', 'error');
       if (axios.isAxiosError(error)) {
         console.error('Error details:', {
           status: error.response?.status,
@@ -152,7 +153,6 @@ export default function MyProfile() {
   const handleSaveServices = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setIsLoading(true);
-    setSaveSuccess(false);
     
     try {
       const payload = {
@@ -177,11 +177,11 @@ export default function MyProfile() {
 
       if (response.data?.data) {
         dispatch(setProfessionalData(response.data.data[0]));
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+        triggerToast('Services information saved successfully!', 'success');
       }
     } catch (error) {
       console.error('Services update failed:', error);
+      triggerToast('Failed to save services information', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -190,7 +190,6 @@ export default function MyProfile() {
   const handleSaveAvailability = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setIsLoading(true);
-    setSaveSuccess(false);
     
     try {
       const payload = {
@@ -214,11 +213,11 @@ export default function MyProfile() {
 
       if (response.data?.data) {
         dispatch(setProfessionalData(response.data.data[0]));
-        setSaveSuccess(true);
-        setTimeout(() => setSaveSuccess(false), 3000);
+        triggerToast('Availability information saved successfully!', 'success');
       }
     } catch (error) {
       console.error('Availability update failed:', error);
+      triggerToast('Failed to save availability information', 'error');
     } finally {
       setIsLoading(false);
     }
@@ -325,7 +324,6 @@ export default function MyProfile() {
             maxWidth: '800px',
           }}
         >
-
           {activeTab === 0 ? (
             <>
               <PersonalInfo 
@@ -351,13 +349,13 @@ export default function MyProfile() {
           ) : activeTab === 1 ? (
             <>
               {professional?.data?.area_of_expertise !== "Wellness Buddy" && (
-      <ServicesSection 
-        services={services} 
-        setServices={setServices} 
-        isLoading={isLoading} 
-        onSave={handleSaveServices}
-      />
-    )}
+                <ServicesSection 
+                  services={services} 
+                  setServices={setServices} 
+                  isLoading={isLoading} 
+                  onSave={handleSaveServices}
+                />
+              )}
               <AvailabilitySection 
                 availability={availability} 
                 setAvailability={setAvailability} 
@@ -375,6 +373,15 @@ export default function MyProfile() {
           )}
         </Stack>
       </Box>
+
+      {/* Toast Notification */}
+      <Toastbar
+        open={toast.open}
+        onClose={handleCloseToast}
+        prompt={toast.message}
+        success={toast.type === 'success'}
+        neutral={toast.type === 'info'}
+      />
     </Box>
   );
 }
