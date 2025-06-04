@@ -5,7 +5,7 @@ import Box from '@mui/joy/Box';
 import Stack from '@mui/joy/Stack';
 import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
-import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+//import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
 import { MessageProps } from '../utils/types';
 import { useSelector } from 'react-redux';
 
