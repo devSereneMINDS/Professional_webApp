@@ -24,6 +24,19 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+const GENDER_MAP: { [key: string]: string } = {
+  "0": "Male",
+  "1": "Female",
+  "2": "Other"
+};
+
+const AGE_GROUP_MAP: { [key: string]: string } = {
+  "0": "Under 18",
+  "1": "18-30",
+  "2": "31-50",
+  "3": "51+"
+};
+
 export default function JoyOrderDashboardTemplate() {
   interface TransformedClient {
     id: string;
@@ -42,7 +55,7 @@ export default function JoyOrderDashboardTemplate() {
   const professionalId = useSelector((state: any) => state.professional?.data?.id);
 
   // Fetch clients from API
-  React.useEffect(() => {
+React.useEffect(() => {
     if (!professionalId) return;
     
     const fetchClients = async () => {
@@ -65,32 +78,23 @@ export default function JoyOrderDashboardTemplate() {
             id: string;
             name: string;
             photo_url?: string | null;
-            age?: number;
-            sex?: string;
-            phone_number?: string;
+            phone_no?: string;
             email?: string;
-            disease?: string;
-          }
-
-          interface TransformedClient {
-            id: string;
-            name: string;
-            profileImage: string | null;
-            ageSex: string;
-            phoneNumber: string;
-            email: string;
-            diagnosis: string;
-            status: string;
+            diagnosis?: string;
+            q_and_a?: {
+              gender?: string;
+              "age-group"?: string;
+            };
           }
 
           const transformedData: TransformedClient[] = data.data.map((client: ClientData) => ({
             id: client.id,
             name: client.name,
             profileImage: client.photo_url ? client.photo_url : null,
-            ageSex: `${client.age || "N/A"}/${client.sex || "N/A"}`,
-            phoneNumber: client.phone_number || "N/A",
+            ageSex: `${client.q_and_a?.["age-group"] ? AGE_GROUP_MAP[client.q_and_a["age-group"]] : "N/A"} / ${client.q_and_a?.gender ? GENDER_MAP[client.q_and_a.gender] : "N/A"}`,
+            phoneNumber: client.phone_no || "N/A",
             email: client.email || "N/A",
-            diagnosis: client.disease || "N/A",
+            diagnosis: client.diagnosis || "N/A",
             status: "Confirmed", // Default status, adjust as needed
           }));
           setClients(transformedData);
@@ -100,6 +104,7 @@ export default function JoyOrderDashboardTemplate() {
         }
       } catch (error) {
         console.error("Error fetching clients:", error);
+        setClients([]);
       } finally {
         setIsLoading(false);
       }
