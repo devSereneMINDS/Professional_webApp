@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Stack, ActionIcon, Flex, Card, Text, Modal, Radio, Checkbox, Textarea } from '@mantine/core';
 import { IconArrowsMaximize } from '@tabler/icons-react'; 
 import { assessmentQuesData2 } from './data';
@@ -52,7 +52,7 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
     .filter((q): q is QuestionData & { id: number; answer: string | string[] } => !!q.question); // Ensure only valid questions are included
 
   // Function to render each question
-  const renderQuestion = ({ question, options, inputType, id, answer }: QuestionData & { id: number; answer: string | string[] }) => {
+  const renderQuestion = ({ question, options, inputType, answer }: QuestionData & { id: number; answer: string | string[] }) => {
     if (!question) return null; // Skip if question is missing
 
     const selectedValues = Array.isArray(answer) ? answer : [answer]; // Ensure array for checkboxes
