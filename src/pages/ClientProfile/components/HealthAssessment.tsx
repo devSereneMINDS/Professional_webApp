@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Stack, ActionIcon, Flex, Card, Text, Modal, Radio, Checkbox, Textarea } from '@mantine/core';
-import { IconArrowsMaximize } from '@tabler/icons-react'; 
+import { Box, Card, CardContent, Typography, IconButton, Modal, ModalDialog, Radio, RadioGroup, Checkbox, Textarea, Divider } from '@mui/joy';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import { assessmentQuesData2 } from './data';
 
-// Define types for the question data (based on usage in the code)
+// Define types for the question data
 interface QuestionData {
   id: number;
   question: string;
@@ -24,25 +24,35 @@ interface HealthAssessmentListProps {
 }
 
 export default function HealthAssessmentList({ data }: HealthAssessmentListProps) {
-  const [opened, setOpened] = useState(false);
+  const [open, setOpen] = useState(false);
 
   if (!data || !data.q_and_a) {
     return (
-      <Card withBorder radius="md" className="hover:shadow-md hover:cursor-pointer">
-        <Stack>
-          <Text fw={500} fz={20}>
-            Mental Health Assessment
-          </Text>
-          <Text fz={14} color="gray">
-            No data available
-          </Text>
-        </Stack>
+      <Card
+        variant="outlined"
+        sx={{
+          '&:hover': {
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            cursor: 'pointer',
+          },
+        }}
+      >
+        <CardContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography level="h4" fontWeight="500">
+              Mental Health Assessment
+            </Typography>
+            <Typography level="body-sm" color="neutral">
+              No data available
+            </Typography>
+          </Box>
+        </CardContent>
       </Card>
     );
   }
 
   // Filter q_and_a keys to only those that start with "q"
-  const filteredQandA: (QuestionData & { id: number; answer: string | string[] })[] = Object.entries(data.q_and_a)
+  const filteredQandA: (QuestionData & { id: number; answer: string | string[] })[] = Object.entries(data.q_and Grown-ups-and-downs/data.q_and_a)
     .filter(([key]) => key.startsWith('q'))
     .map(([key, value]) => {
       const questionId = parseInt(key.substring(1)); // Extract numeric part (e.g., "q2" -> 2)
@@ -56,47 +66,57 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
     if (!question) return null; // Skip if question is missing
 
     const selectedValues = Array.isArray(answer) ? answer : [answer]; // Ensure array for checkboxes
-    const optionStyles = { label: { color: '#000000' } };
 
     switch (inputType) {
       case 'radio':
         return (
-          <Radio.Group label={question} value={String(selectedValues[0])} disabled>
-            {options?.map((option, idx) => (
-              <Radio
-                key={idx}
-                value={String(idx)}
-                label={option}
-                checked={String(selectedValues[0]) === String(idx)}
-                styles={optionStyles}
-              />
-            ))}
-          </Radio.Group>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography level="body-md" fontWeight="500">
+              {question}
+            </Typography>
+            <RadioGroup value={String(selectedValues[0])} disabled>
+              {options?.map((option, idx) => (
+                <Radio
+                  key={idx}
+                  value={String(idx)}
+                  label={option}
+                  checked={String(selectedValues[0]) === String(idx)}
+                  sx={{ color: '#000000' }}
+                />
+              ))}
+            </RadioGroup>
+          </Box>
         );
 
       case 'checkbox':
         return (
-          <Checkbox.Group label={question} value={selectedValues.map(String)} disabled>
-            {options?.map((option, idx) => (
-              <Checkbox
-                key={idx}
-                value={String(idx)}
-                label={option}
-                checked={selectedValues.includes(String(idx))}
-                styles={optionStyles}
-              />
-            ))}
-          </Checkbox.Group>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography level="body-md" fontWeight="500">
+              {question}
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+              {options?.map((option, idx) => (
+                <Checkbox
+                  key={idx}
+                  value={String(idx)}
+                  label={option}
+                  checked={selectedValues.includes(String(idx))}
+                  disabled
+                  sx={{ color: '#000000' }}
+                />
+              ))}
+            </Box>
+          </Box>
         );
 
       case 'textarea':
         return (
-          <Textarea
-            label={question}
-            value={selectedValues[0] || ''}
-            disabled
-            styles={{ label: { color: '#000000' } }}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Typography level="body-md" fontWeight="500">
+              {question}
+            </Typography>
+            <Textarea value={selectedValues[0] || ''} disabled readOnly />
+          </Box>
         );
 
       default:
@@ -105,27 +125,51 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
   };
 
   return (
-    <Card withBorder radius="md" className="hover:shadow-md hover:cursor-pointer">
-      <Stack>
-        <Text fw={500} fz={20}>Mental Health Assessment</Text>
-        <Flex fz={10} justify="space-between">
-          <Text className="text-base font-normal">Onboarding</Text>
-          <ActionIcon variant="white" onClick={() => setOpened(true)}>
-            <IconArrowsMaximize /> {/* Replaced ExpandContent with a Tabler icon */}
-          </ActionIcon>
-        </Flex>
+    <Card
+      variant="outlined"
+      sx={{
+        '&:hover': {
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          cursor: 'pointer',
+        },
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Typography level="h4" fontWeight="500">
+            Mental Health Assessment
+          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography level="body-sm" fontSize={10}>
+              Onboarding
+            </Typography>
+            <IconButton variant="plain" onClick={() => setOpen(true)}>
+              <FullscreenIcon />
+            </IconButton>
+          </Box>
+        </Box>
 
         {/* Modal to show filtered questions and answers */}
-        <Modal opened={opened} onClose={() => setOpened(false)} title="Health Assessment Questions" size="xl">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '14px' }}>
-            {filteredQandA.map((q) => (
-              <div key={q.id} style={{ display: 'block' }}>
-                {renderQuestion(q)}
-              </div>
-            ))}
-          </div>
+        <Modal open={open} onClose={() => setOpen(false)}>
+          <ModalDialog
+            aria-labelledby="health-assessment-modal"
+            size="lg"
+            sx={{ width: '100%', maxWidth: 800, p: 2 }}
+          >
+            <Typography id="health-assessment-modal" level="h2" sx={{ mb: 2 }}>
+              Health Assessment Questions
+            </Typography>
+            <Divider />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 2, maxHeight: '70vh', overflow: 'auto' }}>
+              {filteredQandA.map((q) => (
+                <Box key={q.id}>
+                  {renderQuestion(q)}
+                </Box>
+              ))}
+            </Box>
+          </ModalDialog>
         </Modal>
-      </Stack>
+      </CardContent>
     </Card>
   );
 }
