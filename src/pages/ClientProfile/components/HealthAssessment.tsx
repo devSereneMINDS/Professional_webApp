@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Card, CardContent, Typography, IconButton, Modal, ModalDialog, Radio, RadioGroup, Checkbox, Textarea, Divider } from '@mui/joy';
+import { Box, Card, CardContent, Typography, IconButton, Modal, ModalDialog, Radio, RadioGroup, Checkbox, Divider } from '@mui/joy';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import { assessmentQuesData2 } from './data';
 
@@ -52,7 +52,7 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
   }
 
   // Filter q_and_a keys to only those that start with "q"
-  const filteredQandA: (QuestionData & { id: number; answer: string | string[] })[] = Object.entries(data.q_and_a)
+  const filteredQandA: (QuestionData & { answer: string | string[] })[] = Object.entries(data.q_and_a)
     .filter(([key]) => key.startsWith('q'))
     .map(([key, value]) => {
       const questionId = parseInt(key.substring(1)); // Extract numeric part (e.g., "q2" -> 2)
@@ -60,12 +60,12 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
       if (!questionData || value === undefined) {
         return null; // Skip if questionData is undefined or value is undefined
       }
-      return { id: questionId, answer: value, ...questionData };
+      return { answer: value, ...questionData }; // Remove explicit id to avoid duplication
     })
-    .filter((q): q is QuestionData & { id: number; answer: string | string[] } => q !== null && !!q.question); // Filter out null and ensure valid questions
+    .filter((q): q is QuestionData & { answer: string | string[] } => q !== null && !!q.question); // Filter out null and ensure valid questions
 
   // Function to render each question
-  const renderQuestion = ({ question, options, inputType, answer }: QuestionData & { id: number; answer: string | string[] }) => {
+  const renderQuestion = ({ question, options, inputType, answer }: QuestionData & { answer: string | string[] }) => {
     const selectedValues = Array.isArray(answer) ? answer : [answer]; // Ensure array for checkboxes
 
     switch (inputType) {
