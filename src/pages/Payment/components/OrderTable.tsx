@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 interface Client {
   id: string;
   name: string;
+  q_and_a?: { [key: string]: string | string[] | undefined }; 
   ageSex: string;
   phoneNumber: string;
   email: string;
@@ -24,6 +25,20 @@ interface OrderTableProps {
   clients: Client[];
   isLoading: boolean;
 }
+
+// Define mapping for gender and age group (aligned with ClientProfile)
+const GENDER_MAP: { [key: string]: string } = {
+  "0": "Male",
+  "1": "Female",
+  "2": "Other"
+};
+
+const AGE_GROUP_MAP: { [key: string]: string } = {
+  "0": "Under 18",
+  "1": "18-30",
+  "2": "31-50",
+  "3": "51+"
+};
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -177,7 +192,10 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
                     <Typography level="body-xs">{client.name}</Typography>
                   </td>
                   <td>
-                    <Typography level="body-xs">{client.ageSex}</Typography>
+                    <Typography level="body-xs">{client.q_and_a?.["age-group"] || client.q_and_a?.gender
+                        ? `${AGE_GROUP_MAP[client.q_and_a?.["age-group"] || ""] || 'Not Available'}/${GENDER_MAP[client.q_and_a?.gender || ""] || 'Not Available'}`
+                        : 'Not Available'}
+                    </Typography>
                   </td>
                   <td>
                     <Typography level="body-xs">{client.phoneNumber}</Typography>
