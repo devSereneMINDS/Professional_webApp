@@ -57,7 +57,7 @@ export default function JoyOrderDashboardTemplate() {
   // Fetch clients from API
 React.useEffect(() => {
     if (!professionalId) return;
-    
+
     const fetchClients = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/appointment/clients/appointments`, {
@@ -67,34 +67,32 @@ React.useEffect(() => {
           },
           body: JSON.stringify({ professionalId }),
         });
-    
+
         if (!response.ok) {
           throw new Error("Failed to fetch clients");
         }
-    
+
         const data = await response.json();
         if (Array.isArray(data.data)) {
           interface ClientData {
             id: string;
             name: string;
             photo_url?: string | null;
-            phone_no?: string;
+            phone_number?: string;
             email?: string;
-            diagnosis?: string;
-            q_and_a?: {
-              gender?: string;
-              "age-group"?: string;
-            };
+            disease?: string;
+            gender?: string;
+            agegroup?: string;
           }
 
           const transformedData: TransformedClient[] = data.data.map((client: ClientData) => ({
             id: client.id,
             name: client.name,
             profileImage: client.photo_url ? client.photo_url : null,
-            ageSex: `${client.q_and_a?.["age-group"] ? AGE_GROUP_MAP[client.q_and_a["age-group"]] : "N/A"} / ${client.q_and_a?.gender ? GENDER_MAP[client.q_and_a.gender] : "N/A"}`,
-            phoneNumber: client.phone_no || "N/A",
+            ageSex: `${client.agegroup ? AGE_GROUP_MAP[client.agegroup] : "N/A"} / ${client.gender ? GENDER_MAP[client.gender] : "N/A"}`,
+            phoneNumber: client.phone_number || "N/A",
             email: client.email || "N/A",
-            diagnosis: client.diagnosis || "N/A",
+            diagnosis: client.disease || "N/A",
             status: "Confirmed", // Default status, adjust as needed
           }));
           setClients(transformedData);
@@ -108,7 +106,7 @@ React.useEffect(() => {
       } finally {
         setIsLoading(false);
       }
-    };    
+    };
 
     fetchClients();
   }, [professionalId]);
