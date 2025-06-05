@@ -17,6 +17,7 @@ import TabPanel from '@mui/joy/TabPanel';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store/store';
 import Textarea from '@mui/joy/Textarea';
+import HealthAssessmentList from './HealthAssessment';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -498,7 +499,7 @@ export default function ClientProfile() {
           <CardContent>
             <Typography level="title-lg" sx={{ mb: 2 }}>Medical Assessment</Typography>
             
-            {clientData.assessment_id ? (
+{/*             {clientData.assessment_id ? (
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 <Box>
                   <Typography level="body-xs" textColor="text.tertiary">Diagnosis</Typography>
@@ -524,7 +525,8 @@ export default function ClientProfile() {
               <Typography level="body-md" textColor="text.tertiary">
                 No medical assessment available
               </Typography>
-            )}
+            )} */}
+            <HealthAssessmentList data={clientData} />
           </CardContent>
         </Card>
       </Box>
