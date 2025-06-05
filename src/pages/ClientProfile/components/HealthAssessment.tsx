@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Stack, ActionIcon, Flex, Card, Text, Modal, Radio, Checkbox, Textarea } from '@mantine/core';
 import { IconArrowsMaximize } from '@tabler/icons-react'; 
+import { assessmentQuesData2 } from './data';
 
 // Define types for the question data (based on usage in the code)
 interface QuestionData {
@@ -21,14 +22,6 @@ interface HealthAssessmentListProps {
     q_and_a?: QandA;
   } | null;
 }
-
-// Mock assessmentQuesData2 (replace with actual import)
-const assessmentQuesData2: QuestionData[] = [
-  // Example structure, replace with actual data
-  { id: 1, question: 'How would you rate your mood?', inputType: 'radio', options: ['Good', 'Average', 'Poor'] },
-  { id: 2, question: 'What symptoms are you experiencing?', inputType: 'checkbox', options: ['Anxiety', 'Depression', 'Insomnia'] },
-  { id: 3, question: 'Describe your mental health history', inputType: 'textarea' },
-];
 
 export default function HealthAssessmentList({ data }: HealthAssessmentListProps) {
   const [opened, setOpened] = useState(false);
