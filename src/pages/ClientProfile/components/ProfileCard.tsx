@@ -496,38 +496,7 @@ export default function ClientProfile() {
 
         {/* Medical Assessment Card */}
         <Card sx={{ flex: { xs: '1 1 auto', lg: 1 } }}>
-          <CardContent>
-            <Typography level="title-lg" sx={{ mb: 2 }}>Medical Assessment</Typography>
-            
-{/*             {clientData.assessment_id ? (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                <Box>
-                  <Typography level="body-xs" textColor="text.tertiary">Diagnosis</Typography>
-                  <Typography level="body-md">{clientData.diagnosis || "Not Available"}</Typography>
-                </Box>
-                
-                <Box>
-                  <Typography level="body-xs" textColor="text.tertiary">Treatment Plan</Typography>
-                  <Typography level="body-md">{clientData.treatment_plan || "Not Available"}</Typography>
-                </Box>
-                
-                <Box>
-                  <Typography level="body-xs" textColor="text.tertiary">Medications</Typography>
-                  <Typography level="body-md">{clientData.medications || "Not Available"}</Typography>
-                </Box>
-                
-                <Box>
-                  <Typography level="body-xs" textColor="text.tertiary">Notes</Typography>
-                  <Typography level="body-md">{clientData.medical_notes || "Not Available"}</Typography>
-                </Box>
-              </Box>
-            ) : (
-              <Typography level="body-md" textColor="text.tertiary">
-                No medical assessment available
-              </Typography>
-            )} */}
-            <HealthAssessmentList data={clientData} />
-          </CardContent>
+          <HealthAssessmentList data={clientData} />
         </Card>
       </Box>
     </Box>
