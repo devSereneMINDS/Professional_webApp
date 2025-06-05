@@ -85,13 +85,13 @@ export default function ChatBubble(props: ChatBubbleProps) {
                 : {
                     borderTopLeftRadius: 0,
                   },
-              isSent
-                ? {
-                    backgroundColor: 'var(--joy-palette-primary-solidBg)',
-                  }
-                : {
-                    backgroundColor: 'background.body',
-                  },
+              // isSent
+              //   ? {
+              //       backgroundColor: 'var(--joy-palette-primary-solidBg)',
+              //     }
+              //   : {
+              //       backgroundColor: 'background.body',
+              //     },
             ]}
           >
             <Typography
