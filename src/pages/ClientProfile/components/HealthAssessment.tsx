@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Stack, ActionIcon, Flex, Card, Text, Modal, Radio, Checkbox, Textarea } from '@mantine/core';
-import { IconArrowsMaximize } from '@tabler/icons-react'; // Assuming ExpandContent is an icon from @tabler/icons-react
+import { IconArrowsMaximize } from '@tabler/icons-react'; 
 
 // Define types for the question data (based on usage in the code)
 interface QuestionData {
