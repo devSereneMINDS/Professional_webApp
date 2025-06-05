@@ -52,7 +52,7 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
   }
 
   // Filter q_and_a keys to only those that start with "q"
-  const filteredQandA: (QuestionData & { id: number; answer: string | string[] })[] = Object.entries(data.q_and Grown-ups-and-downs/data.q_and_a)
+  const filteredQandA: (QuestionData & { id: number; answer: string | string[] })[] = Object.entries(data.q_and_a)
     .filter(([key]) => key.startsWith('q'))
     .map(([key, value]) => {
       const questionId = parseInt(key.substring(1)); // Extract numeric part (e.g., "q2" -> 2)
