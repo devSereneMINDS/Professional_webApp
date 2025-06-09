@@ -223,16 +223,18 @@ export default function ClientProfile() {
     );
   }
 
-  // Calculate completed and upcoming appointments count
-  const completedCount = appointments.completed?.length || 0;
-  const upcomingCount = appointments.upcoming?.length || 0;
+  // Calculate completed and upcoming appointments count with default empty arrays
+  const upcomingAppointments = appointments.upcoming ?? [];
+  const completedAppointments = appointments.completed ?? [];
+  const completedCount = completedAppointments.length;
+  const upcomingCount = upcomingAppointments.length;
 
   return (
     <Box sx={{ 
       display: 'flex', 
       flexDirection: 'column',
-      gap: 2,
-      width: '100%',
+      width: 'center',
+      gap: '10px',
       p: { xs: 1, sm: 2 },
       maxWidth: '1400px',
       mx: 'auto'
@@ -341,20 +343,25 @@ export default function ClientProfile() {
             }}
           >
             {/* First Column */}
-            <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
+            <Box sx={{ flex: 1, minWidth: 150, p: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available'}</Typography>
               </Box>
               
               <Box mb={2}>
-                <Typography level="body-xs" textColor="text.tertiary">Age</Typography>
+                <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
                 <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "Not Available"}</Typography>
               </Box>
             </Box>
 
             {/* Second Column */}
-            <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
+            <Box sx={{ 
+              flex: 1, 
+                minWidth: 150, 
+                p: 0,
+              }}
+            >
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
                 <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "Not Available"}</Typography>
@@ -364,10 +371,16 @@ export default function ClientProfile() {
                 <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
                 <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "Not Available"}</Typography>
               </Box>
+
             </Box>
 
             {/* Third Column */}
-            <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
+            <Box sx={{ 
+              flex: 1, 
+              minWidth: 150, 
+              p: 0,
+            }}
+            >
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Diagnosis</Typography>
                 <Typography level="body-md">{getDiagnosis()}</Typography>
@@ -484,8 +497,8 @@ export default function ClientProfile() {
               </TabList>
               
               <TabPanel value="upcoming" sx={{ p: { xs: 1, sm: 2 } }}>
-                {appointments.upcoming?.length > 0 ? (
-                  appointments.upcoming.map((appointment: Appointment, index: number) => (
+                {upcomingAppointments.length > 0 ? (
+                  upcomingAppointments.map((appointment: Appointment, index: number) => (
                     <Sheet 
                       key={index} 
                       variant="outlined" 
@@ -523,8 +536,8 @@ export default function ClientProfile() {
               </TabPanel>
               
               <TabPanel value="completed" sx={{ p: { xs: 1, sm: 2 } }}>
-                {appointments.completed?.length > 0 ? (
-                  appointments.completed.map((appointment: Appointment, index: number) => (
+                {completedAppointments.length > 0 ? (
+                  completedAppointments.map((appointment: Appointment, index: number) => (
                     <Sheet 
                       key={index} 
                       variant="outlined" 
