@@ -273,7 +273,7 @@ Serene MINDS
                     
                     // Send WhatsApp and Email in parallel
                     await Promise.all([
-                      axios.post(`${API_BASE_URL}/whatsapp/send`, whatsappPayload)
+                      axios.post(`${API_BASE_URL}/whatsapp/send`, payload)
                         .catch(error => {
                           console.error("WhatsApp Error for appointment:", enrichedAppointment.id, error);
                           // Continue despite error
