@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 interface Client {
   id: string;
   name: string;
-  q_and_a?: { [key: string]: string | string[] | undefined }; 
+  q_and_a?: { [key: string]: string | string[] | undefined | boolean };
   ageSex: string;
   phoneNumber: string;
   email: string;
@@ -81,6 +81,17 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
       return;
     }
     navigate(`/profile/${clientId}`);
+  };
+
+  // Helper function to safely get a string from q_and_a value
+  const getStringValue = (value: string | string[] | undefined | boolean): string => {
+    if (Array.isArray(value)) {
+      return value[0] || ''; // Take first element if array, or empty string
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    return ''; // Fallback for undefined or boolean
   };
 
   return (
@@ -192,8 +203,9 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
                     <Typography level="body-xs">{client.name}</Typography>
                   </td>
                   <td>
-                    <Typography level="body-xs">{client.q_and_a?.["age-group"] || client.q_and_a?.gender
-                        ? `${AGE_GROUP_MAP[client.q_and_a?.["age-group"] || ""] || 'Not Available'}/${GENDER_MAP[client.q_and_a?.gender || ""] || 'Not Available'}`
+                    <Typography level="body-xs">
+                      {client.q_and_a
+                        ? `${AGE_GROUP_MAP[getStringValue(client.q_and_a["age-group"])] || 'Not Available'}/${GENDER_MAP[getStringValue(client.q_and_a.gender)] || 'Not Available'}`
                         : 'Not Available'}
                     </Typography>
                   </td>
