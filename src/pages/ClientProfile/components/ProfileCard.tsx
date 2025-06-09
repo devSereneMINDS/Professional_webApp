@@ -274,7 +274,6 @@ export default function ClientProfile() {
                   },
                   '&:active': {
                     background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
-hierarchical
                   }
                 }}
               >
