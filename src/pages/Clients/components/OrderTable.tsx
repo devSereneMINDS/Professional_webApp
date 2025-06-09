@@ -15,8 +15,6 @@ import { ArrowDropDownIcon } from '@mui/x-date-pickers/icons';
 import Skeleton from '@mui/joy/Skeleton';
 import { useNavigate } from 'react-router-dom';
 
-
-
 interface Client {
   id: string;
   name: string;
@@ -26,12 +24,26 @@ interface Client {
   diagnosis: string;
   status: string;
   profileImage?: string | null;
+  q_and_a?: { [key: string]: string | string[] | undefined | boolean };
 }
 
 interface OrderTableProps {
   clients: Client[];
   isLoading: boolean;
 }
+
+const DIAGNOSIS_OPTIONS: string[] = [
+  'Anxiety/Stress',
+  'Depression/Low mood',
+  'Relationship issues',
+  'Work/School stress',
+  'Grief/Loss',
+  'Trauma/PTSD',
+  'Self-esteem issues',
+  'Anger management',
+  'Substance use concerns',
+  'Other'
+];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -78,10 +90,26 @@ const SkeletonRow = () => (
 );
 
 export default function OrderTable({ clients, isLoading }: OrderTableProps) {
-
   const navigate = useNavigate();
   const [order, setOrder] = React.useState<Order>('desc');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
+
+  // Helper function to format diagnosis
+  const getDiagnosis = (client: Client): string => {
+    if (client.diagnosis && client.diagnosis.trim() !== '') {
+      return client.diagnosis;
+    }
+    if (client.q_and_a?.q1) {
+      const q1Answers = Array.isArray(client.q_and_a.q1)
+        ? client.q_and_a.q1
+        : [client.q_and_a.q1];
+      const validAnswers = q1Answers
+        .filter((index) => typeof index === 'string' && DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
+        .map((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)]);
+      return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
+    }
+    return 'Not Available';
+  };
 
   const handleRowClick = (clientId: string, event: React.MouseEvent) => {
     // Prevent navigation if clicking on a checkbox or menu button
@@ -91,9 +119,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
     ) {
       return;
     }
-    //navigate(`/profile/${clientId}`);
     navigate(`/clients/${clientId}`);
-    
   };
 
   return (
@@ -107,7 +133,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
           flexShrink: 1,
           overflow: 'auto',
           minHeight: 0,
-          maxWidth: "95vw"
+          maxWidth: '95vw'
         }}
       >
         <Table
@@ -182,19 +208,13 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
             ) : (
               [...clients].sort(getComparator(order, 'id')).map((client) => (
                 <tr key={client.id} onClick={(e) => handleRowClick(client.id, e)}>
-                  <td style={{ textAlign: 'center' }} onChange={(event) => {
-                        event.stopPropagation();
-                        setSelected((ids) =>
-                          (event.target as HTMLInputElement).checked
-                            ? ids.concat(client.id)
-                            : ids.filter((itemId) => itemId !== client.id),
-                        );
-                      }}>
+                  <td style={{ textAlign: 'center' }}>
                     <Checkbox
                       size="sm"
                       checked={selected.includes(client.id)}
                       color={selected.includes(client.id) ? 'primary' : undefined}
                       onChange={(event) => {
+                        event.stopPropagation();
                         setSelected((ids) =>
                           event.target.checked
                             ? ids.concat(client.id)
@@ -221,7 +241,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
                     <Typography level="body-xs">{client.email}</Typography>
                   </td>
                   <td>
-                    <Typography level="body-xs">{client.diagnosis}</Typography>
+                    <Typography level="body-xs">{getDiagnosis(client)}</Typography>
                   </td>
                   <td>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
