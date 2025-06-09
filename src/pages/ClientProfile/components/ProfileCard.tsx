@@ -346,7 +346,7 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available'}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available"}</Typography>
               </Box>
               
               <Box mb={2}>
