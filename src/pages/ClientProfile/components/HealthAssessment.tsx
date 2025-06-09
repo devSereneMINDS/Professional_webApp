@@ -13,7 +13,7 @@ interface QuestionData {
 
 // Define type for the q_and_a object
 interface QandA {
-  [key: string]: string | string[] | undefined;
+  [key: string]: string | string[] | undefined | boolean;
 }
 
 // Define props for the component
@@ -51,9 +51,9 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
     );
   }
 
-  // Filter q_and_a keys to only those that start with "q"
+  // Filter q_and_a keys to only those that start with "q" and are numeric (e.g., q1, q2), excluding q10_* keys
   const filteredQandA: (QuestionData & { answer: string | string[] })[] = Object.entries(data.q_and_a)
-    .filter(([key]) => key.startsWith('q'))
+    .filter(([key]) => key.startsWith('q') && !key.includes('_') && !isNaN(parseInt(key.substring(1))))
     .map(([key, value]) => {
       const questionId = parseInt(key.substring(1)); // Extract numeric part (e.g., "q2" -> 2)
       const questionData = assessmentQuesData2.find((q) => q.id === questionId);
