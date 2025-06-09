@@ -48,6 +48,20 @@ const MARITAL_STATUS_MAP: { [key: string]: string } = {
   "3": "Widowed"
 };
 
+// Define options for q1 (What brings you to therapy?)
+const DIAGNOSIS_OPTIONS: string[] = [
+  'Anxiety/Stress',
+  'Depression/Low mood',
+  'Relationship issues',
+  'Work/School stress',
+  'Grief/Loss',
+  'Trauma/PTSD',
+  'Self-esteem issues',
+  'Anger management',
+  'Substance use concerns',
+  'Other'
+];
+
 export default function ClientProfile() {
   const appointments = useSelector((state: RootState) => state.appointments);
   const professionalId = useSelector((state: any) => state.professional?.data?.id);
@@ -76,7 +90,6 @@ export default function ClientProfile() {
         const data = await response.json();
         console.log("Client data fetched:", data);
 
-        
         setClientData(data);
         setNotes(data.notes || ''); // Initialize notes from client data if available
       } catch (err: any) {
@@ -121,6 +134,23 @@ export default function ClientProfile() {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  // Helper function to format diagnosis from q1
+  const getDiagnosis = () => {
+    if (clientData.diagnosis) {
+      return clientData.diagnosis;
+    }
+    if (clientData.q_and_a?.q1) {
+      const q1Answers = Array.isArray(clientData.q_and_a.q1)
+        ? clientData.q_and_a.q1
+        : [clientData.q_and_a.q1];
+      const validAnswers = q1Answers
+        .filter((index) => DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
+        .map((index) => DIAGNOSIS_OPTIONS[parseInt(index)]);
+      return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
+    }
+    return 'Not Available';
   };
 
   if (loading) {
@@ -215,11 +245,11 @@ export default function ClientProfile() {
               {/* Completed and Upcoming Appointments */}
               <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                 <Box sx={{ textAlign: 'center' }}>
-                  <Typography level="body-sm" textColor="text.tertiary">Completed</Typography>
+                  <Typography level="body-xs" textColor="text.tertiary">Completed</Typography>
                   <Typography level="title-md">{completedCount}</Typography>
                 </Box>
                 <Box sx={{ textAlign: 'center' }}>
-                  <Typography level="body-sm" textColor="text.tertiary">Upcoming</Typography>
+                  <Typography level="body-xs" textColor="text.tertiary">Upcoming</Typography>
                   <Typography level="title-md">{upcomingCount}</Typography>
                 </Box>
               </Box>
@@ -244,6 +274,7 @@ export default function ClientProfile() {
                   },
                   '&:active': {
                     background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
+hierarchical
                   }
                 }}
               >
@@ -299,7 +330,7 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Diagnosis</Typography>
-                <Typography level="body-md">{clientData.diagnosis || "Not Available"}</Typography>
+                <Typography level="body-md">{getDiagnosis()}</Typography>
               </Box>
               
               <Box>
