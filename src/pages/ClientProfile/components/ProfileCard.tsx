@@ -91,7 +91,7 @@ export default function ClientProfile() {
   const handleSaveNotes = async () => {
     setIsSavingNotes(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/clients2/${clientID}`, {
+      const response = await fetch(`${API_BASE_URL}/notes/${professionalId}/${clientID}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
