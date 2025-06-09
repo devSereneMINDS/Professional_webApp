@@ -131,7 +131,7 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
             Mental Health Assessment
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography level="body-sm" fontSize={10}>
+            <Typography level="body-sm" fontSize={14} fontWeight="bold">
               Onboarding
             </Typography>
             <IconButton variant="plain" onClick={() => setOpen(true)} aria-label="Open health assessment modal">
