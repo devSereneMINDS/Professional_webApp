@@ -50,6 +50,7 @@ const MARITAL_STATUS_MAP: { [key: string]: string } = {
 
 export default function ClientProfile() {
   const appointments = useSelector((state: RootState) => state.appointments);
+  const professionalId = useSelector((state: any) => state.professional?.data?.id);
   const { id } = useParams();
   const [clientData, setClientData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
