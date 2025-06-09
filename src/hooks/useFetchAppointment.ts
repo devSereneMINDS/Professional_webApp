@@ -250,9 +250,40 @@ const useFetchAppointments = () => {
                           googleEvent.hangoutLink
                           ]
                         };
-                    axios.post(`${API_BASE_URL}/whatsapp/send`, payload)
-  .then(response => console.log('Success:', response.data))
-  .catch(error => console.error('Error:', error));
+
+                    const emailContent = `
+Dear ${enrichedAppointment.client.name ?? "Client"},
+
+This is the meet link for your appointment scheduled with ${professional.data?.full_name ?? "our professional"}:
+- Date: ${dayjs(enrichedAppointment.appointment_time).format("DD MMM YYYY")}
+- Time: ${dayjs(enrichedAppointment.appointment_time).format("h:mm A")}
+- Service: ${enrichedAppointment.service?.toString().trim() || "Appointment"}
+- Meet Link: ${googleEvent.hangoutLink}
+
+${enrichedAppointment.message ? `Message: ${enrichedAppointment.message}\n` : ""}
+
+Best regards,
+Serene MINDS
+                    `.trim();
+
+                    const emailPayload = {
+                      email: enrichedAppointment.client.email,
+                      content: emailContent
+                    };
+                    
+                    // Send WhatsApp and Email in parallel
+                    await Promise.all([
+                      axios.post(`${API_BASE_URL}/whatsapp/send`, whatsappPayload)
+                        .catch(error => {
+                          console.error("WhatsApp Error for appointment:", enrichedAppointment.id, error);
+                          // Continue despite error
+                        }),
+                      axios.post(`${API_BASE_URL}/send/custom`, emailPayload)
+                        .catch(error => {
+                          console.error("Email Error for appointment:", enrichedAppointment.id, error);
+                          // Continue despite error
+                        })
+                    ]);
                     return {
                       ...enrichedAppointment,
                       professionalName: professional.data?.full_name,
