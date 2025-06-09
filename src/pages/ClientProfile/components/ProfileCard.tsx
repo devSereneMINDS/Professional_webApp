@@ -62,14 +62,33 @@ const DIAGNOSIS_OPTIONS: string[] = [
   'Other'
 ];
 
+// Define interfaces for better type safety
+interface Appointment {
+  service: string;
+  appointment_time: string;
+  duration: string;
+  message?: string;
+}
+
+interface Client {
+  name: string;
+  email: string;
+  phone_no: string;
+  photo_url?: string;
+  diagnosis?: string;
+  q_and_a?: { [key: string]: string | string[] | undefined | boolean };
+  created_at?: string;
+  notes?: string;
+}
+
 export default function ClientProfile() {
   const appointments = useSelector((state: RootState) => state.appointments);
-  const professionalId = useSelector((state: any) => state.professional?.data?.id);
-  const { id } = useParams();
-  const [clientData, setClientData] = useState<any>(null);
+  const professionalId = useSelector((state: { professional?: { data?: { id: string } } }) => state.professional?.data?.id);
+  const { id } = useParams<{ id: string }>();
+  const [clientData, setClientData] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed'>('upcoming');
   const [notes, setNotes] = useState('');
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [isSavingNotes, setIsSavingNotes] = useState(false);
@@ -87,13 +106,13 @@ export default function ClientProfile() {
         if (!response.ok) {
           throw new Error("Failed to fetch client data");
         }
-        const data = await response.json();
+        const data: Client = await response.json();
         console.log("Client data fetched:", data);
 
         setClientData(data);
-        setNotes(data.notes || ''); // Initialize notes from client data if available
-      } catch (err: any) {
-        setError(err.message);
+        setNotes(data.notes || '');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
       }
@@ -138,16 +157,16 @@ export default function ClientProfile() {
 
   // Helper function to format diagnosis from q1
   const getDiagnosis = () => {
-    if (clientData.diagnosis) {
+    if (clientData?.diagnosis) {
       return clientData.diagnosis;
     }
-    if (clientData.q_and_a?.q1) {
+    if (clientData?.q_and_a?.q1) {
       const q1Answers = Array.isArray(clientData.q_and_a.q1)
         ? clientData.q_and_a.q1
         : [clientData.q_and_a.q1];
       const validAnswers = q1Answers
-        .filter((index) => DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
-        .map((index) => DIAGNOSIS_OPTIONS[parseInt(index)]);
+        .filter((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)] !== undefined)
+        .map((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)]);
       return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
     }
     return 'Not Available';
@@ -398,22 +417,20 @@ export default function ClientProfile() {
                 >
                   {notes || 'Click to add notes...'}
                 </Typography>
-                {
-                    notes? <><Button 
-                  onClick={() => setIsEditingNotes(true)}
-                  sx={{
-                    background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
-                    color: '#fff',
-                    '&:hover': {
-                      background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
-                    }
-                  }}
-                >
-                  {notes ? 'Edit Notes' : 'Add Notes'}
-                </Button></>
-                : ''
-                }
-                
+                {notes ? (
+                  <Button 
+                    onClick={() => setIsEditingNotes(true)}
+                    sx={{
+                      background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
+                      color: '#fff',
+                      '&:hover': {
+                        background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
+                      }
+                    }}
+                  >
+                    Edit Notes
+                  </Button>
+                ) : null}
               </>
             )}
           </CardContent>
@@ -432,7 +449,7 @@ export default function ClientProfile() {
           <CardContent sx={{ p: { xs: 1, sm: 2 } }}>
             <Tabs 
               value={activeTab} 
-              onChange={(_event, newValue) => setActiveTab(newValue as string)}
+              onChange={(_event, newValue) => setActiveTab(newValue as 'upcoming' | 'completed')}
               sx={{
                 '& .MuiTabs-flexContainer': {
                   flexWrap: 'wrap'
@@ -446,7 +463,7 @@ export default function ClientProfile() {
               
               <TabPanel value="upcoming" sx={{ p: { xs: 1, sm: 2 } }}>
                 {appointments.upcoming?.length > 0 ? (
-                  appointments.upcoming.map((appointment: any, index: number) => (
+                  appointments.upcoming.map((appointment: Appointment, index: number) => (
                     <Sheet 
                       key={index} 
                       variant="outlined" 
@@ -485,7 +502,7 @@ export default function ClientProfile() {
               
               <TabPanel value="completed" sx={{ p: { xs: 1, sm: 2 } }}>
                 {appointments.completed?.length > 0 ? (
-                  appointments.completed.map((appointment: any, index: number) => (
+                  appointments.completed.map((appointment: Appointment, index: number) => (
                     <Sheet 
                       key={index} 
                       variant="outlined" 
