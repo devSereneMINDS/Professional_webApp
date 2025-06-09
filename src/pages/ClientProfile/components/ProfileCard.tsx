@@ -15,7 +15,6 @@ import TabList from '@mui/joy/TabList';
 import Tab from '@mui/joy/Tab';
 import TabPanel from '@mui/joy/TabPanel';
 import { useSelector } from 'react-redux';
-import { RootState } from '../../../store/store';
 import Textarea from '@mui/joy/Textarea';
 import HealthAssessmentList from './HealthAssessment';
 
@@ -81,9 +80,21 @@ interface Client {
   notes?: string;
 }
 
+interface RootState {
+  appointments: {
+    upcoming?: Appointment[];
+    completed?: Appointment[];
+  };
+  professional?: {
+    data?: {
+      id: string;
+    };
+  };
+}
+
 export default function ClientProfile() {
   const appointments = useSelector((state: RootState) => state.appointments);
-  const professionalId = useSelector((state: { professional?: { data?: { id: string } } }) => state.professional?.data?.id);
+  const professionalId = useSelector((state: RootState) => state.professional?.data?.id);
   const { id } = useParams<{ id: string }>();
   const [clientData, setClientData] = useState<Client | null>(null);
   const [loading, setLoading] = useState(true);
@@ -94,6 +105,17 @@ export default function ClientProfile() {
   const [isSavingNotes, setIsSavingNotes] = useState(false);
 
   const clientID = id;
+
+  // Helper function to safely get a string from q_and_a value
+  const getStringValue = (value: string | string[] | undefined | boolean): string => {
+    if (Array.isArray(value)) {
+      return value[0] || '';
+    }
+    if (typeof value === 'string') {
+      return value;
+    }
+    return '';
+  };
 
   useEffect(() => {
     const fetchClientData = async () => {
@@ -322,12 +344,12 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[clientData.q_and_a.gender] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available"}</Typography>
               </Box>
               
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Age</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[clientData.q_and_a["age-group"]] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "Not Available"}</Typography>
               </Box>
             </Box>
 
@@ -335,12 +357,12 @@ export default function ClientProfile() {
             <Box sx={{ flex: 1, minWidth: 150, p: 0, m: 0 }}>
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[clientData.q_and_a.occupation] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "Not Available"}</Typography>
               </Box>
               
               <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[clientData.q_and_a["marital-status"]] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "Not Available"}</Typography>
               </Box>
             </Box>
 
