@@ -32,19 +32,6 @@ interface OrderTableProps {
   isLoading: boolean;
 }
 
-// const DIAGNOSIS_OPTIONS: string[] = [
-//   'Anxiety/Stress',
-//   'Depression/Low mood',
-//   'Relationship issues',
-//   'Work/School stress',
-//   'Grief/Loss',
-//   'Trauma/PTSD',
-//   'Self-esteem issues',
-//   'Anger management',
-//   'Substance use concerns',
-//   'Other'
-// ];
-
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -93,23 +80,6 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
   const navigate = useNavigate();
   const [order, setOrder] = React.useState<Order>('desc');
   const [selected, setSelected] = React.useState<readonly string[]>([]);
-
-  // Helper function to format diagnosis
-  // const getDiagnosis = (client: Client): string => {
-  //   if (client.diagnosis && client.diagnosis.trim() !== '') {
-  //     return client.diagnosis;
-  //   }
-  //   if (client.q_and_a?.q1) {
-  //     const q1Answers = Array.isArray(client.q_and_a.q1)
-  //       ? client.q_and_a.q1
-  //       : [client.q_and_a.q1];
-  //     const validAnswers = q1Answers
-  //       .filter((index) => typeof index === 'string' && DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
-  //       .map((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)]);
-  //     return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
-  //   }
-  //   return 'Not Available';
-  // };
 
   const handleRowClick = (clientId: string, event: React.MouseEvent) => {
     // Prevent navigation if clicking on a checkbox or menu button
