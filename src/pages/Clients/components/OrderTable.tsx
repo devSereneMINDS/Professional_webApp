@@ -95,21 +95,21 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
   const [selected, setSelected] = React.useState<readonly string[]>([]);
 
   // Helper function to format diagnosis
-  const getDiagnosis = (client: Client): string => {
-    if (client.diagnosis && client.diagnosis.trim() !== '') {
-      return client.diagnosis;
-    }
-    if (client.q_and_a?.q1) {
-      const q1Answers = Array.isArray(client.q_and_a.q1)
-        ? client.q_and_a.q1
-        : [client.q_and_a.q1];
-      const validAnswers = q1Answers
-        .filter((index) => typeof index === 'string' && DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
-        .map((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)]);
-      return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
-    }
-    return 'Not Available';
-  };
+  // const getDiagnosis = (client: Client): string => {
+  //   if (client.diagnosis && client.diagnosis.trim() !== '') {
+  //     return client.diagnosis;
+  //   }
+  //   if (client.q_and_a?.q1) {
+  //     const q1Answers = Array.isArray(client.q_and_a.q1)
+  //       ? client.q_and_a.q1
+  //       : [client.q_and_a.q1];
+  //     const validAnswers = q1Answers
+  //       .filter((index) => typeof index === 'string' && DIAGNOSIS_OPTIONS[parseInt(index)] !== undefined)
+  //       .map((index) => DIAGNOSIS_OPTIONS[parseInt(index as string)]);
+  //     return validAnswers.length > 0 ? validAnswers.join(', ') : 'Not Available';
+  //   }
+  //   return 'Not Available';
+  // };
 
   const handleRowClick = (clientId: string, event: React.MouseEvent) => {
     // Prevent navigation if clicking on a checkbox or menu button
@@ -241,7 +241,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
                     <Typography level="body-xs">{client.email}</Typography>
                   </td>
                   <td>
-                    <Typography level="body-xs">{getDiagnosis(client)}</Typography>
+                    <Typography level="body-xs">{client.diagnosis || 'Not Available'}</Typography>
                   </td>
                   <td>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
