@@ -80,7 +80,7 @@ React.useEffect(() => {
             photo_url?: string | null;
             phone_number?: string;
             email?: string;
-            disease?: string;
+            diagnosis?: string;
             gender?: string;
             agegroup?: string;
           }
@@ -92,7 +92,7 @@ React.useEffect(() => {
             ageSex: `${client.agegroup ? AGE_GROUP_MAP[client.agegroup] : "N/A"} / ${client.gender ? GENDER_MAP[client.gender] : "N/A"}`,
             phoneNumber: client.phone_number || "N/A",
             email: client.email || "N/A",
-            diagnosis: client.disease || "N/A",
+            diagnosis: client.diagnosis || "N/A",
             status: "Confirmed", // Default status, adjust as needed
           }));
           setClients(transformedData);
