@@ -32,18 +32,18 @@ interface OrderTableProps {
   isLoading: boolean;
 }
 
-const DIAGNOSIS_OPTIONS: string[] = [
-  'Anxiety/Stress',
-  'Depression/Low mood',
-  'Relationship issues',
-  'Work/School stress',
-  'Grief/Loss',
-  'Trauma/PTSD',
-  'Self-esteem issues',
-  'Anger management',
-  'Substance use concerns',
-  'Other'
-];
+// const DIAGNOSIS_OPTIONS: string[] = [
+//   'Anxiety/Stress',
+//   'Depression/Low mood',
+//   'Relationship issues',
+//   'Work/School stress',
+//   'Grief/Loss',
+//   'Trauma/PTSD',
+//   'Self-esteem issues',
+//   'Anger management',
+//   'Substance use concerns',
+//   'Other'
+// ];
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
