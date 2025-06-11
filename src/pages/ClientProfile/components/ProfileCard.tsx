@@ -120,28 +120,51 @@ export default function ClientProfile() {
   useEffect(() => {
     const fetchClientData = async () => {
       try {
-        if (!clientID) {
-          console.log("No client id found");
-          return;
+        if (!clientId) {
+          throw new Error("No client ID found");
         }
-        const response = await fetch(`${API_BASE_URL}/clients2/${clientID}`);
+        const response = await fetch(`${API_BASE_URL}/clients2/${clientId}`);
         if (!response.ok) {
-          throw new Error("Failed to fetch client data");
+          throw new Error(`Failed to fetch client data: Status ${response.status}`);
         }
         const data: Client = await response.json();
         console.log("Client data fetched:", data);
-
         setClientData(data);
-        setNotes(data.notes || '');
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Unknown error');
+      }
+    };
+
+    const fetchNotes = async () => {
+      try {
+        if (!professionalId || !clientId) {
+          throw new Error("Missing professionalId or clientId");
+        }
+        const response = await fetch(
+          `${API_BASE_URL}/notes/${professionalId}/${clientId}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch notes: Status ${response.status}`);
+        }
+        const data = await response.json();
+        setNotes(data.data[0]?.content || "");
+      } catch (error: unknown) {
+        console.error("Error fetching notes:", error);
+        //toast.error(error instanceof Error ? error.message : "Failed to load notes");
+      }
+    };
+
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchClientData(), fetchNotes()]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchClientData();
-  }, [clientID]);
+    fetchData();
+  }, [clientId, professionalId]);
 
   const handleSaveNotes = async () => {
   setIsSavingNotes(true);
