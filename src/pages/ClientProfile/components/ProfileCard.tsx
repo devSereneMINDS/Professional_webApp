@@ -258,11 +258,15 @@ export default function ClientProfile() {
   // Calculate completed and upcoming appointments count with default empty arrays
   // const upcomingAppointments = appointments.upcoming ?? [];
   // const completedAppointments = appointments.completed ?? [];
+  // Parse clientID to number, default to -1 if undefined/invalid
+  const clientIdNumber = clientID ? parseInt(clientID, 10) : -1;
+
+  // Filter appointments by clientId
   const upcomingAppointments = (appointments.upcoming ?? []).filter(
-    (appointment) => appointment.client_id === clientID
+    (appointment) => appointment.client_id === clientIdNumber
   );
   const completedAppointments = (appointments.completed ?? []).filter(
-    (appointment) => appointment.client_id === clientID
+    (appointment) => appointment.client_id === clientIdNumber
   );
   const upcomingCount = upcomingAppointments.length;
   const completedCount = completedAppointments.length;
