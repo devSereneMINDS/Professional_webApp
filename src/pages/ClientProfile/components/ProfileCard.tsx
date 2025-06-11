@@ -120,10 +120,10 @@ export default function ClientProfile() {
   useEffect(() => {
     const fetchClientData = async () => {
       try {
-        if (!clientId) {
+        if (!clientID) {
           throw new Error("No client ID found");
         }
-        const response = await fetch(`${API_BASE_URL}/clients2/${clientId}`);
+        const response = await fetch(`${API_BASE_URL}/clients2/${clientID}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch client data: Status ${response.status}`);
         }
@@ -137,11 +137,11 @@ export default function ClientProfile() {
 
     const fetchNotes = async () => {
       try {
-        if (!professionalId || !clientId) {
+        if (!professionalId || !clientID) {
           throw new Error("Missing professionalId or clientId");
         }
         const response = await fetch(
-          `${API_BASE_URL}/notes/${professionalId}/${clientId}`
+          `${API_BASE_URL}/notes/${professionalId}/${clientID}`
         );
         if (!response.ok) {
           throw new Error(`Failed to fetch notes: Status ${response.status}`);
@@ -164,7 +164,7 @@ export default function ClientProfile() {
     };
 
     fetchData();
-  }, [clientId, professionalId]);
+  }, [clientID, professionalId]);
 
   const handleSaveNotes = async () => {
   setIsSavingNotes(true);
