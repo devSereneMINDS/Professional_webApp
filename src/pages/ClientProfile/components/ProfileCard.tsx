@@ -255,10 +255,20 @@ export default function ClientProfile() {
   }
 
   // Calculate completed and upcoming appointments count with default empty arrays
-  const upcomingAppointments = appointments.upcoming ?? [];
-  const completedAppointments = appointments.completed ?? [];
-  const completedCount = completedAppointments.length;
+  // const upcomingAppointments = appointments.upcoming ?? [];
+  // const completedAppointments = appointments.completed ?? [];
+  const upcomingAppointments = (appointments.upcoming ?? []).filter(
+    (appointment) => appointment.client_id === clientId
+  );
+  const completedAppointments = (appointments.completed ?? []).filter(
+    (appointment) => appointment.client_id === clientId
+  );
   const upcomingCount = upcomingAppointments.length;
+  const completedCount = completedAppointments.length;
+
+  // Log filtered appointments
+  console.log("Filtered Upcoming Appointments:", upcomingAppointments);
+  console.log("Filtered Completed Appointments:", completedAppointments);
 
   return (
     <Box sx={{ 
