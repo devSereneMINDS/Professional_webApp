@@ -144,27 +144,35 @@ export default function ClientProfile() {
   }, [clientID]);
 
   const handleSaveNotes = async () => {
-    setIsSavingNotes(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/notes/${professionalId}/${clientID}`, {
+  setIsSavingNotes(true);
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/notes/${professionalId}/${clientId}`,
+      {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ notes }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save notes');
+        body: JSON.stringify({ content: notes }), // Changed 'notes' to 'content' for consistency
       }
+    );
 
-      setIsEditingNotes(false);
-    } catch (err) {
-      console.error('Error saving notes:', err);
-    } finally {
-      setIsSavingNotes(false);
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        errorData.message || `Server error! Status: ${response.status}`
+      );
     }
-  };
+
+    //toast.success('Notes saved successfully!');
+    setIsEditingNotes(false); // Disable editing after successful save
+  } catch (error: any) {
+    console.error('Error saving notes:', error);
+    //toast.error(error.message || 'Failed to save notes');
+  } finally {
+    setIsSavingNotes(false);
+  }
+};
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
