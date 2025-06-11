@@ -63,6 +63,7 @@ const DIAGNOSIS_OPTIONS: string[] = [
 
 // Define interfaces for better type safety
 interface Appointment {
+  client_id: number;
   service: string;
   appointment_time: string;
   duration: string;
@@ -258,10 +259,10 @@ export default function ClientProfile() {
   // const upcomingAppointments = appointments.upcoming ?? [];
   // const completedAppointments = appointments.completed ?? [];
   const upcomingAppointments = (appointments.upcoming ?? []).filter(
-    (appointment) => appointment.client_id === clientId
+    (appointment) => appointment.client_id === clientID
   );
   const completedAppointments = (appointments.completed ?? []).filter(
-    (appointment) => appointment.client_id === clientId
+    (appointment) => appointment.client_id === clientID
   );
   const upcomingCount = upcomingAppointments.length;
   const completedCount = completedAppointments.length;
