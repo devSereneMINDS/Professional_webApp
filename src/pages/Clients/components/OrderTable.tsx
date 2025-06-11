@@ -213,11 +213,11 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
                   <td>
                     <Typography level="body-xs">{client.diagnosis || 'Not Available'}</Typography>
                   </td>
-                  <td>
+{/*                   <td>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }} onClick={(e) => e.stopPropagation()}>
                       <RowMenu />
                     </Box>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             )}
