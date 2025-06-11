@@ -413,7 +413,7 @@ export default function ClientProfile() {
             }}
             >
               <Box mb={2}>
-                <Typography level="body-xs" textColor="text.tertiary">Diagnosis</Typography>
+                <Typography level="body-xs" textColor="text.tertiary">Issues</Typography>
                 <Typography level="body-md">{getDiagnosis()}</Typography>
               </Box>
               
