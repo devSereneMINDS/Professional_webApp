@@ -49,6 +49,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^6.30.0",
     "react-spring": "^9.7.5",
+    "uuid": "^11.1.0",
     "vite-plugin-pwa": "^1.0.0"
   },
   "devDependencies": {

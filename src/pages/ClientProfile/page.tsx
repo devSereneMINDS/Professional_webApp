@@ -71,7 +71,7 @@ export default function JoyOrderDashboardTemplate() {
                 Dashboard
               </Link>
               <Typography color="primary" sx={{ fontWeight: 500, fontSize: 12 }}>
-                HomePage
+                Clients
               </Typography>
             </Breadcrumbs>
 
@@ -106,7 +106,7 @@ export default function JoyOrderDashboardTemplate() {
               }}
             >
               <Typography level="h2" component="h1">
-                Welcome to your dashboard
+                Client Profile
               </Typography>
             </Box>
             <Box

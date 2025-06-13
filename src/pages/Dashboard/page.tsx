@@ -22,7 +22,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { closeSidebar } from '../../components/utils';
-import ConfirmationSnackbar  from '../../components/Snackbar'
+import ConfirmationSnackbar from '../../components/Snackbar';
 import React from 'react';
 
 interface ProfessionalData {
@@ -30,6 +30,7 @@ interface ProfessionalData {
   full_name?: string;
   email?: string;
   photo_url?: string;
+  type?: string; // Add type to ProfessionalData interface
 }
 
 interface PaymentStats {
@@ -47,6 +48,15 @@ interface SearchResult {
 interface SearchResponse {
   clients?: SearchResult[];
   professionals?: SearchResult[];
+}
+
+interface NullFieldsResponse {
+  message: string;
+  data: {
+    id: number;
+    full_name: string;
+    null_fields: string[];
+  };
 }
 
 function SearchInput({ professionalId }: { professionalId?: string }) {
@@ -71,57 +81,52 @@ function SearchInput({ professionalId }: { professionalId?: string }) {
     };
   }, []);
 
+  const fetchSearchResults = async (query: string) => {
+    if (!query || !professionalId) {
+      setSearchResults([]);
+      return;
+    }
 
+    setIsLoading(true);
+    try {
+      const response = await axios.get<SearchResponse>(
+        `${import.meta.env.VITE_API_BASE_URL}/professionals/search/${query}/${professionalId}`
+      );
+      
+      const responseData: SearchResponse =
+        typeof response.data === 'object' &&
+        response.data !== null &&
+        'data' in response.data &&
+        typeof (response.data as { data?: unknown }).data === 'object'
+          ? (response.data as { data: SearchResponse }).data
+          : response.data;
 
-
-const fetchSearchResults = async (query: string) => {
-  if (!query || !professionalId) {
-    setSearchResults([]);
-    return;
-  }
-
-  setIsLoading(true);
-  try {
-    const response = await axios.get<SearchResponse>(
-      `${import.meta.env.VITE_API_BASE_URL}/professionals/search/${query}/${professionalId}`
-    );
-    
-    // Handle both possible response structures:
-    // 1. Direct response with clients/professionals
-    // 2. Response with data property containing clients/professionals
-    const responseData: SearchResponse =
-      typeof response.data === 'object' &&
-      response.data !== null &&
-      'data' in response.data &&
-      typeof (response.data as { data?: unknown }).data === 'object'
-        ? (response.data as { data: SearchResponse }).data
-        : response.data;
-
-    const results: SearchResult[] = [
-      ...(responseData.clients?.map(c => ({ ...c, type: 'client' as const })) || []),
-      ...(responseData.professionals?.map(p => ({ ...p, type: 'professional' as const })) || [])
-    ];
-
-    setSearchResults(results);
-    setShowSuggestions(true);
-  } catch (error) {
-    // Check if this is a 404 with actual data in the response
-    if (axios.isAxiosError(error) && error.response?.data?.data) {
-      const responseData = error.response.data.data;
       const results: SearchResult[] = [
-        ...(responseData.clients?.map((c: SearchResult) => ({ ...c, type: 'client' as const })) || []),
-        ...(responseData.professionals?.map((p: SearchResult) => ({ ...p, type: 'professional' as const })) || [])
+        ...(responseData.clients?.map(c => ({ ...c, type: 'client' as const })) || []),
+        ...(responseData.professionals?.map(p => ({ ...p, type: 'professional' as const })) || [])
       ];
+
       setSearchResults(results);
       setShowSuggestions(true);
-    } else {
-      console.error('Error fetching search results:', error);
-      setSearchResults([]);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404 && error.response?.data?.data) {
+          const responseData = error.response.data.data;
+          const results: SearchResult[] = [
+            ...(responseData.clients?.map((c: SearchResult) => ({ ...c, type: 'client' as const })) || []),
+            ...(responseData.professionals?.map((p: SearchResult) => ({ ...p, type: 'professional' as const })) || [])
+          ];
+          setSearchResults(results);
+          setShowSuggestions(true);
+        }
+      } else {
+        console.error('Error fetching search results:', error);
+        setSearchResults([]);
+      }
+    } finally {
+      setIsLoading(false);
     }
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -231,19 +236,63 @@ export default function JoyOrderDashboardTemplate() {
   };
 
   const navigate = useNavigate();
-  // Snackbar state and handlers
-  
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [_missingFields, setMissingFields] = useState<string[]>([]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setSnackbarOpen(true);
-    }, 15000); // 30 seconds
+    const checkMissingFields = async () => {
+      try {
+        if (!professional?.data?.id) return;
 
-    console.log("i did")
+        const response = await axios.get<NullFieldsResponse>(
+          `https://api.sereneminds.life/api/professionals/null/${professional.data.id}`
+        );
+
+        if (response.data.message === "Null fields retrieved successfully") {
+          // Define required fields based on professional type
+          const isWellnessBuddy = professional.data.type === 'Wellness Buddy';
+          
+          const requiredFields = [
+            "experience",
+            "domain",
+            "twitter_account",
+            "linkedin_account",
+            "facebook_account",
+            "city",
+            "country",
+            "pin_code"
+          ];
+
+          // Add services to required fields if not Wellness Buddy
+          if (!isWellnessBuddy) {
+            requiredFields.push("services");
+          }
+
+          // Find which required fields are missing
+          const missing = requiredFields.filter(field => 
+            response.data.data.null_fields.includes(field)
+          );
+
+          setMissingFields(missing);
+          console.log("Missing fields:", missing);
+          // Only show snackbar if any required fields are missing
+          if (missing.length > 0) {
+            setSnackbarOpen(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking missing fields:", error);
+      }
+    };
+
+    // Initial check
+    checkMissingFields();
+    
+    // Set up periodic check every 15 seconds
+    const interval = setInterval(checkMissingFields, 15000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [professional?.data?.id, professional?.data?.type]);
 
   const handleCloseSnackbar = () => {
     setSnackbarOpen(false);
@@ -251,38 +300,36 @@ export default function JoyOrderDashboardTemplate() {
 
   const handleConfirm = () => {
     setSnackbarOpen(false);
-    navigate('/settings')
-    // Add any confirmation logic here
-    
+    navigate('/settings');
   };
- 
+
   const NavigatePersonalWebsite = () => {
     window.location.href = `https://site.sereneminds.life/${professional?.data?.id}`;
   };
 
-  const statCardsData = [
-    {
-      title: 'Appointments',
-      value: `${stats?.totalAppointments || 0}`,
-      timePeriod: 'Last 30 days',
-      gradientColors: ['#C8FAD9', '#D4FDE1'] as [string, string],
-      barColor: '#00A36C'
-    },
-    {
-      title: 'Distinct Clients',
-      value: `${stats?.distinctClientsThisMonth || 0}`,
-      timePeriod: 'Last 30 days',
-      gradientColors: ['#FAD4D4', '#FDE1E1'] as [string, string],
-      barColor: '#D32F2F'
-    },
-    {
-      title: 'Earnings',
-      value: `${stats?.totalFeesThisMonth || 0}`,
-      timePeriod: 'Last 30 days',
-      gradientColors: ['#E8EAF6', '#F0F2FA'] as [string, string],
-      barColor: '#3F51B5'
-    }
-  ];
+ const statCardsData = [
+  {
+    title: 'Appointments',
+    value: `${stats?.totalAppointments || 0}`,
+    timePeriod: 'Last 30 days',
+    gradientColors: ['#C8FAD9', '#D4FDE1'] as [string, string],
+    barColor: '#00A36C'
+  },
+  {
+    title: 'Distinct Clients',
+    value: `${stats?.distinctClientsThisMonth || 0}`,
+    timePeriod: 'Last 30 days',
+    gradientColors: ['#FAD4D4', '#FDE1E1'] as [string, string],
+    barColor: '#D32F2F'
+  },
+  {
+    title: 'Earnings',
+    value: `${stats?.totalFeesThisMonth || 0}`,
+    timePeriod: 'Last 30 days',
+    gradientColors: ['#E8EAF6', '#F0F2FA'] as [string, string],
+    barColor: '#3F51B5'
+  }
+];
 
   const actionCardData = {
     title: 'Explore Your Page ✨',
@@ -306,7 +353,7 @@ export default function JoyOrderDashboardTemplate() {
         <Box
           component="main"
           className="MainContent"
-          onClick = {() => closeSidebar()}
+          onClick={() => closeSidebar()}
           sx={{
             px: { xs: 2, md: 6 },
             pt: {
@@ -416,12 +463,6 @@ export default function JoyOrderDashboardTemplate() {
                 mt: 1,
               }}
             >
-                <ConfirmationSnackbar 
-        open={snackbarOpen}
-        onClose={handleCloseSnackbar}
-        onConfirm={handleConfirm}
-      />
-
               {statCardsData.map((card, index) => (
                 <StatCard
                   key={index}
@@ -437,6 +478,12 @@ export default function JoyOrderDashboardTemplate() {
             <SessionsChart />
             <PageViewsBarChart />
           </Box>
+
+          <ConfirmationSnackbar 
+        open={snackbarOpen}
+        onClose={handleCloseSnackbar}
+        onConfirm={handleConfirm}
+      />
         </Box>
       </Box>
     </CssVarsProvider>
