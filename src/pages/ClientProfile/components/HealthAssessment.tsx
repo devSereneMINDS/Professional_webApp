@@ -40,7 +40,7 @@ export default function HealthAssessmentList({ data }: HealthAssessmentListProps
         <CardContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             <Typography level="h4" fontWeight="500">
-              Mental Health Assessment
+              Intake Form
             </Typography>
             <Typography level="body-sm" color="neutral">
               No data available
