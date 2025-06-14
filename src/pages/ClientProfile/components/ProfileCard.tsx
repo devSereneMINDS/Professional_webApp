@@ -342,7 +342,7 @@ export default function ClientProfile() {
                   <Typography level="title-md">{upcomingCount}</Typography>
                 </Box>
               </Box>
-              <Button 
+{/*               <Button 
                 variant="outlined" 
                 size="sm" 
                 sx={{
@@ -367,7 +367,7 @@ export default function ClientProfile() {
                 }}
               >
                 Add to Chat
-              </Button>
+              </Button> */}
             </Box>
           </CardContent>
         </Card>
