@@ -17,6 +17,7 @@ import TabPanel from '@mui/joy/TabPanel';
 import { useSelector } from 'react-redux';
 import Textarea from '@mui/joy/Textarea';
 import HealthAssessmentList from './HealthAssessment';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -317,10 +318,15 @@ export default function ClientProfile() {
                 alignSelf: 'center'
               }}
             >
-              <img
-                src={clientData.photo_url || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"}
-                alt={clientData.name}
-              />
+             {clientData.photo_url ? (
+                <img
+                  src={clientData.photo_url}
+                  alt={clientData.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              ) : (
+                <AccountCircle sx={{ fontSize: { xs: 80, sm: 120 }, color: 'text.secondary' }} />
+              )}
             </AspectRatio>
             
             <Box sx={{ 
