@@ -10,6 +10,7 @@ import { useProfessionalJournal } from "./hooks/useProfessionalJournal.js";
 import { CircularProgress, CssVarsProvider } from "@mui/joy";
 import { CssBaseline } from "@mui/joy";
 import { initializeGroupChat } from "./utils/utility";
+import useInactivityTimer from "./hooks/useInactivityTimer.js";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -78,6 +79,7 @@ function App() {
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(true);
 
+  useInactivityTimer(8);
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     if (userEmail) {

@@ -224,6 +224,9 @@ export default function JoySignInSideTemplate() {
       });
       
       navigate("/");
+
+      const event = new Event('mousedown');
+  window.dispatchEvent(event);
     } else if (response.status === 404) {
       dispatch(updateEmail(user.email || ''));
       navigate("/register");
