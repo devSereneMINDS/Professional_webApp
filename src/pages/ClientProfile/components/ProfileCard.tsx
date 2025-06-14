@@ -47,6 +47,7 @@ const MARITAL_STATUS_MAP: { [key: string]: string } = {
   "3": "Widowed"
 };
 
+// Define options for q1 (What brings you to therapy?)
 const DIAGNOSIS_OPTIONS: string[] = [
   'Anxiety/Stress',
   'Depression/Low mood',
@@ -60,6 +61,7 @@ const DIAGNOSIS_OPTIONS: string[] = [
   'Other'
 ];
 
+// Define interfaces for better type safety
 interface Appointment {
   client_id: number;
   service: string;
@@ -105,6 +107,7 @@ export default function ClientProfile() {
 
   const clientID = id;
 
+  // Helper function to safely get a string from q_and_a value
   const getStringValue = (value: string | string[] | undefined | boolean): string => {
     if (Array.isArray(value)) {
       return value[0] || '';
@@ -126,6 +129,7 @@ export default function ClientProfile() {
           throw new Error(`Failed to fetch client data: Status ${response.status}`);
         }
         const data: Client = await response.json();
+        console.log("Client data fetched:", data);
         setClientData(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -147,6 +151,7 @@ export default function ClientProfile() {
         setNotes(data.data[0]?.content || "");
       } catch (error: unknown) {
         console.error("Error fetching notes:", error);
+        //toast.error(error instanceof Error ? error.message : "Failed to load notes");
       }
     };
 
@@ -182,9 +187,12 @@ export default function ClientProfile() {
           errorData.message || `Server error! Status: ${response.status}`
         );
       }
+
+      //toast.success('Notes saved successfully!');
       setIsEditingNotes(false);
     } catch (error: any) {
       console.error('Error saving notes:', error);
+      //toast.error(error.message || 'Failed to save notes');
     } finally {
       setIsSavingNotes(false);
     }
@@ -201,15 +209,18 @@ export default function ClientProfile() {
     });
   };
 
+  // Format duration to show just minutes
   const formatDuration = (duration: string) => {
+    // Assuming format is "DD:HH:MM"
     const parts = duration.split(':');
     if (parts.length === 3) {
       const minutes = parts[2];
       return `${minutes} minutes`;
     }
-    return duration;
+    return duration; // fallback if format is unexpected
   };
 
+  // Helper function to format diagnosis from q1
   const getDiagnosis = () => {
     if (clientData?.diagnosis) {
       return clientData.diagnosis;
@@ -269,7 +280,8 @@ export default function ClientProfile() {
     <Box sx={{ 
       display: 'flex', 
       flexDirection: 'column',
-      gap: 2,
+      width: 'center',
+      gap: '10px',
       p: { xs: 1, sm: 2 },
       maxWidth: '1400px',
       mx: 'auto'
@@ -280,7 +292,7 @@ export default function ClientProfile() {
         gap: 2,
         flexDirection: { xs: 'column', md: 'row' },
         width: '100%',
-        alignItems: 'stretch'
+        alignItems: 'stretch' // Make cards equal height
       }}>
         {/* Profile Card */}
         <Card sx={{ 
@@ -295,13 +307,12 @@ export default function ClientProfile() {
             display: 'flex',
             alignItems: 'center',
             gap: 2,
-            textAlign: { xs: 'center', sm: 'left' },
-            p: 2
+            textAlign: { xs: 'center', sm: 'left' }
           }}>
             <AspectRatio 
               ratio="1" 
               sx={{ 
-                width: { xs: 100, sm: 150 }, 
+                width: { xs: 120, sm: 200 }, 
                 borderRadius: 'sm',
                 alignSelf: 'center'
               }}
@@ -321,6 +332,7 @@ export default function ClientProfile() {
               flex: 1
             }}>
               <Typography level="title-lg">{clientData.name}</Typography>
+              
               <Typography level="body-sm">{clientData.email}</Typography>
               <Typography level="body-sm">{clientData.phone_no}</Typography>
 
@@ -341,48 +353,61 @@ export default function ClientProfile() {
         {/* Personal Details Card */}
         <Card sx={{ 
           flex: { xs: '1 1 auto', md: 2 },
-          p: 2,
+          p: { xs: 1, sm: 2, md: 3 },
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <Typography level="title-lg" mb={1.5}>Personal Details</Typography>
+          <Typography level="title-lg" mb={2}>Personal Details</Typography>
           
           <Box
             sx={{
               flex: 1,
               display: 'flex',
               flexDirection: { xs: 'column', sm: 'row' },
-              gap: { xs: 1.5, sm: 3 },
+              gap: { xs: 2, sm: 4 },
               flexWrap: 'wrap',
               alignItems: 'flex-start',
             }}
           >
-            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
-              <Box mb={1.5}>
+            {/* First Column */}
+            <Box sx={{ flex: 1, minWidth: 150, p: 0 }}>
+              <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "N/A"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available"}</Typography>
               </Box>
               
-              <Box mb={1.5}>
+              <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "N/A"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "Not Available"}</Typography>
               </Box>
             </Box>
 
-            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
-              <Box mb={1.5}>
+            {/* Second Column */}
+            <Box sx={{ 
+              flex: 1, 
+              minWidth: 150, 
+              p: 0,
+            }}
+            >
+              <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "N/A"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "Not Available"}</Typography>
               </Box>
               
-              <Box mb={1.5}>
+              <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "N/A"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "Not Available"}</Typography>
               </Box>
             </Box>
 
-            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
-              <Box mb={1.5}>
+            {/* Third Column */}
+            <Box sx={{ 
+              flex: 1, 
+              minWidth: 150, 
+              p: 0,
+            }}
+            >
+              <Box mb={2}>
                 <Typography level="body-xs" textColor="text.tertiary">Issues</Typography>
                 <Typography level="body-md">{getDiagnosis()}</Typography>
               </Box>
@@ -390,7 +415,7 @@ export default function ClientProfile() {
               <Box>
                 <Typography level="body-xs" textColor="text.tertiary">Member Since</Typography>
                 <Typography level="body-md">
-                  {clientData.created_at ? new Date(clientData.created_at).toLocaleDateString() : "N/A"}
+                  {clientData.created_at ? new Date(clientData.created_at).toLocaleDateString() : "Not Available"}
                 </Typography>
               </Box>
             </Box>
@@ -403,13 +428,8 @@ export default function ClientProfile() {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <CardContent sx={{ 
-            flex: 1, 
-            display: 'flex', 
-            flexDirection: 'column',
-            p: 2
-          }}>
-            <Typography level="title-lg" sx={{ mb: 1.5 }}>Notes</Typography>
+          <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Typography level="title-lg" sx={{ mb: 2 }}>Notes</Typography>
             
             {isEditingNotes ? (
               <>
@@ -417,9 +437,9 @@ export default function ClientProfile() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   minRows={4}
-                  maxRows={6}
-                  sx={{ mb: 1.5, flex: 1 }}
-                  placeholder="Write notes here..."
+                  maxRows={8}
+                  sx={{ mb: 2, flex: 1 }}
+                  placeholder="Write your notes here..."
                 />
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button
@@ -449,11 +469,11 @@ export default function ClientProfile() {
                 <Typography 
                   level="body-md" 
                   sx={{ 
-                    mb: 1.5, 
+                    mb: 2, 
                     whiteSpace: 'pre-wrap',
                     flex: 1,
                     cursor: 'pointer',
-                    minHeight: '80px'
+                    minHeight: '100px'
                   }}
                   onClick={() => setIsEditingNotes(true)}
                 >
