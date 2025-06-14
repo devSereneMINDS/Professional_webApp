@@ -129,7 +129,7 @@ export default function AppointmentCard({
   photoUrl,
   date = 'MM/DD/YYYY',
   time = '00:00:00 PM',
-  duration = '0 minutes',
+  duration = '00:00:00',
   contact = 'N/A',
   message = 'No message',
   meetLink,
@@ -154,9 +154,50 @@ export default function AppointmentCard({
 
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  const formattedDuration = duration
-    ? `${parseInt(duration.split(':')[1])} minutes`
-    : '0 minutes';
+  // Fixed duration parsing - now correctly handles HH:MM:SS format
+const parseDuration = (durationString: string) => {
+  if (!durationString) return '0 minutes';
+  
+  const parts = durationString.split(':');
+  if (parts.length !== 3) return '0 minutes';
+  
+  const days = parseInt(parts[0]) || 0;
+  const hours = parseInt(parts[1]) || 0;
+  const minutes = parseInt(parts[2]) || 0;
+  
+  // Convert everything to minutes
+  const totalMinutes = (days * 24 * 60) + (hours * 60) + minutes;
+  
+  // Format the output based on the total duration
+  if (totalMinutes >= 1440) { // More than 1 day
+    const totalDays = Math.floor(totalMinutes / 1440);
+    const remainingMinutes = totalMinutes % 1440;
+    const remainingHours = Math.floor(remainingMinutes / 60);
+    const finalMinutes = remainingMinutes % 60;
+    
+    let result = `${totalDays} day${totalDays !== 1 ? 's' : ''}`;
+    if (remainingHours > 0) {
+      result += ` ${remainingHours} hour${remainingHours !== 1 ? 's' : ''}`;
+    }
+    if (finalMinutes > 0) {
+      result += ` ${finalMinutes} minute${finalMinutes !== 1 ? 's' : ''}`;
+    }
+    return result;
+  } else if (totalMinutes >= 60) { // More than 1 hour
+    const totalHours = Math.floor(totalMinutes / 60);
+    const remainingMinutes = totalMinutes % 60;
+    
+    let result = `${totalHours} hour${totalHours !== 1 ? 's' : ''}`;
+    if (remainingMinutes > 0) {
+      result += ` ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}`;
+    }
+    return result;
+  } else { // Less than 1 hour
+    return `${totalMinutes} minute${totalMinutes !== 1 ? 's' : ''}`;
+  }
+};
+
+  const formattedDuration = parseDuration(duration);
 
   const showToast = (message: string, success: boolean) => {
     setToastMessage(message);
