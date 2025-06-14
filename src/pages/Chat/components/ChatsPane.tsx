@@ -5,7 +5,6 @@ import Sheet from '@mui/joy/Sheet';
 import Typography from '@mui/joy/Typography';
 import { Box, IconButton, Input } from '@mui/joy';
 import List from '@mui/joy/List';
-//import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import GroupsIcon from '@mui/icons-material/Groups';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -19,7 +18,6 @@ import { changeChat } from '../../../store/slices/userChatSlice';
 import Avatar from '@mui/joy/Avatar';
 import ListItemButton from '@mui/joy/ListItemButton';
 import ListDivider from '@mui/joy/ListDivider';
-
 
 type ChatsPaneProps = {
   selectedChatId?: string;
@@ -76,7 +74,6 @@ export default function ChatsPane(props: ChatsPaneProps) {
     setChats(updatedChats);
     dispatch(changeChat({ chatId: chat.id, user: chat.sender }));
     
-    // Call the onSelectChat prop to notify parent component
     if (onSelectChat) {
       onSelectChat();
     }
@@ -94,6 +91,11 @@ export default function ChatsPane(props: ChatsPaneProps) {
         isGroupChat: true,
       })
     );
+    
+    // Call the onSelectChat prop to notify parent component
+    if (onSelectChat) {
+      onSelectChat();
+    }
   };
 
   const filteredChats = chats.filter(
@@ -122,15 +124,6 @@ export default function ChatsPane(props: ChatsPaneProps) {
         >
           Messages
         </Typography>
-{/*         <IconButton
-          variant="plain"
-          aria-label="edit"
-          color="neutral"
-          size="sm"
-          sx={{ display: { xs: 'none', sm: 'unset' } }}
-        >
-          <EditNoteRoundedIcon />
-        </IconButton> */}
         <IconButton
           variant="plain"
           aria-label="edit"
