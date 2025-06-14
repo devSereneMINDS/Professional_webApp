@@ -99,7 +99,6 @@ const router = createBrowserRouter([
         <Appointments />
       </ProtectedRoute>
     ),
-    errorElement: <ErrorPage />
   },
   {
     path: "/clients",

@@ -47,7 +47,6 @@ const MARITAL_STATUS_MAP: { [key: string]: string } = {
   "3": "Widowed"
 };
 
-// Define options for q1 (What brings you to therapy?)
 const DIAGNOSIS_OPTIONS: string[] = [
   'Anxiety/Stress',
   'Depression/Low mood',
@@ -61,7 +60,6 @@ const DIAGNOSIS_OPTIONS: string[] = [
   'Other'
 ];
 
-// Define interfaces for better type safety
 interface Appointment {
   client_id: number;
   service: string;
@@ -107,7 +105,6 @@ export default function ClientProfile() {
 
   const clientID = id;
 
-  // Helper function to safely get a string from q_and_a value
   const getStringValue = (value: string | string[] | undefined | boolean): string => {
     if (Array.isArray(value)) {
       return value[0] || '';
@@ -129,7 +126,6 @@ export default function ClientProfile() {
           throw new Error(`Failed to fetch client data: Status ${response.status}`);
         }
         const data: Client = await response.json();
-        console.log("Client data fetched:", data);
         setClientData(data);
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -151,7 +147,6 @@ export default function ClientProfile() {
         setNotes(data.data[0]?.content || "");
       } catch (error: unknown) {
         console.error("Error fetching notes:", error);
-        //toast.error(error instanceof Error ? error.message : "Failed to load notes");
       }
     };
 
@@ -168,35 +163,32 @@ export default function ClientProfile() {
   }, [clientID, professionalId]);
 
   const handleSaveNotes = async () => {
-  setIsSavingNotes(true);
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/notes/${professionalId}/${clientID}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content: notes }), // Changed 'notes' to 'content' for consistency
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || `Server error! Status: ${response.status}`
+    setIsSavingNotes(true);
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/notes/${professionalId}/${clientID}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ content: notes }),
+        }
       );
-    }
 
-    //toast.success('Notes saved successfully!');
-    setIsEditingNotes(false); // Disable editing after successful save
-  } catch (error: any) {
-    console.error('Error saving notes:', error);
-    //toast.error(error.message || 'Failed to save notes');
-  } finally {
-    setIsSavingNotes(false);
-  }
-};
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(
+          errorData.message || `Server error! Status: ${response.status}`
+        );
+      }
+      setIsEditingNotes(false);
+    } catch (error: any) {
+      console.error('Error saving notes:', error);
+    } finally {
+      setIsSavingNotes(false);
+    }
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -209,7 +201,15 @@ export default function ClientProfile() {
     });
   };
 
-  // Helper function to format diagnosis from q1
+  const formatDuration = (duration: string) => {
+    const parts = duration.split(':');
+    if (parts.length === 3) {
+      const minutes = parts[2];
+      return `${minutes} minutes`;
+    }
+    return duration;
+  };
+
   const getDiagnosis = () => {
     if (clientData?.diagnosis) {
       return clientData.diagnosis;
@@ -255,13 +255,7 @@ export default function ClientProfile() {
     );
   }
 
-  // Calculate completed and upcoming appointments count with default empty arrays
-  // const upcomingAppointments = appointments.upcoming ?? [];
-  // const completedAppointments = appointments.completed ?? [];
-  // Parse clientID to number, default to -1 if undefined/invalid
   const clientIdNumber = clientID ? parseInt(clientID, 10) : -1;
-
-  // Filter appointments by clientId
   const upcomingAppointments = (appointments.upcoming ?? []).filter(
     (appointment) => appointment.client_id === clientIdNumber
   );
@@ -271,16 +265,11 @@ export default function ClientProfile() {
   const upcomingCount = upcomingAppointments.length;
   const completedCount = completedAppointments.length;
 
-  // Log filtered appointments
-  console.log("Filtered Upcoming Appointments:", upcomingAppointments);
-  console.log("Filtered Completed Appointments:", completedAppointments);
-
   return (
     <Box sx={{ 
       display: 'flex', 
       flexDirection: 'column',
-      width: 'center',
-      gap: '10px',
+      gap: 2,
       p: { xs: 1, sm: 2 },
       maxWidth: '1400px',
       mx: 'auto'
@@ -290,25 +279,29 @@ export default function ClientProfile() {
         display: 'flex',
         gap: 2,
         flexDirection: { xs: 'column', md: 'row' },
-        width: '100%'
+        width: '100%',
+        alignItems: 'stretch'
       }}>
         {/* Profile Card */}
         <Card sx={{ 
           flex: { xs: '1 1 auto', md: 3 },
-          minWidth: 0 // prevents overflow
+          minWidth: 0,
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           <CardContent sx={{
+            flex: 1,
             flexDirection: { xs: 'column', sm: 'row' },
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
             gap: 2,
-            textAlign: { xs: 'center', sm: 'left' }
+            textAlign: { xs: 'center', sm: 'left' },
+            p: 2
           }}>
             <AspectRatio 
               ratio="1" 
               sx={{ 
-                width: { xs: 120, sm: 200 }, 
+                width: { xs: 100, sm: 150 }, 
                 borderRadius: 'sm',
                 alignSelf: 'center'
               }}
@@ -324,14 +317,13 @@ export default function ClientProfile() {
               flexDirection: 'column', 
               justifyContent: "center",
               alignItems: { xs: 'center', sm: 'flex-start' },
-              gap: 1
+              gap: 1,
+              flex: 1
             }}>
               <Typography level="title-lg">{clientData.name}</Typography>
-              
               <Typography level="body-sm">{clientData.email}</Typography>
               <Typography level="body-sm">{clientData.phone_no}</Typography>
 
-              {/* Completed and Upcoming Appointments */}
               <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
                 <Box sx={{ textAlign: 'center' }}>
                   <Typography level="body-xs" textColor="text.tertiary">Completed</Typography>
@@ -342,32 +334,6 @@ export default function ClientProfile() {
                   <Typography level="title-md">{upcomingCount}</Typography>
                 </Box>
               </Box>
-{/*               <Button 
-                variant="outlined" 
-                size="sm" 
-                sx={{
-                  mt: 2,
-                  px: 4,
-                  background: 'linear-gradient(rgba(2, 122, 242, 0.8), rgb(2, 107, 212))',
-                  color: '#fff',
-                  borderRadius: '6px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontWeight: 400,
-                  fontSize: '0.875rem',
-                  boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                  transition: 'all 0.2s ease',
-                  '&:hover': {
-                    background: 'linear-gradient(rgba(2, 122, 242, 1), rgb(2, 94, 186))',
-                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
-                  },
-                  '&:active': {
-                    background: 'linear-gradient(rgba(1, 102, 202, 1), rgb(1, 82, 162))'
-                  }
-                }}
-              >
-                Add to Chat
-              </Button> */}
             </Box>
           </CardContent>
         </Card>
@@ -375,59 +341,48 @@ export default function ClientProfile() {
         {/* Personal Details Card */}
         <Card sx={{ 
           flex: { xs: '1 1 auto', md: 2 },
-          p: { xs: 1, sm: 2, md: 3 }
+          p: 2,
+          display: 'flex',
+          flexDirection: 'column'
         }}>
-          <Typography level="title-lg" mb={2}>Personal Details</Typography>
+          <Typography level="title-lg" mb={1.5}>Personal Details</Typography>
           
           <Box
             sx={{
+              flex: 1,
               display: 'flex',
               flexDirection: { xs: 'column', sm: 'row' },
-              gap: { xs: 2, sm: 4 },
+              gap: { xs: 1.5, sm: 3 },
               flexWrap: 'wrap',
               alignItems: 'flex-start',
             }}
           >
-            {/* First Column */}
-            <Box sx={{ flex: 1, minWidth: 150, p: 0 }}>
-              <Box mb={2}>
+            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
+              <Box mb={1.5}>
                 <Typography level="body-xs" textColor="text.tertiary">Gender</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.gender ? GENDER_MAP[getStringValue(clientData.q_and_a.gender)] : "N/A"}</Typography>
               </Box>
               
-              <Box mb={2}>
+              <Box mb={1.5}>
                 <Typography level="body-xs" textColor="text.tertiary">Age Group</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["age-group"] ? AGE_GROUP_MAP[getStringValue(clientData.q_and_a["age-group"])] : "N/A"}</Typography>
               </Box>
             </Box>
 
-            {/* Second Column */}
-            <Box sx={{ 
-              flex: 1, 
-                minWidth: 150, 
-                p: 0,
-              }}
-            >
-              <Box mb={2}>
+            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
+              <Box mb={1.5}>
                 <Typography level="body-xs" textColor="text.tertiary">Occupation</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.occupation ? OCCUPATION_MAP[getStringValue(clientData.q_and_a.occupation)] : "N/A"}</Typography>
               </Box>
               
-              <Box mb={2}>
+              <Box mb={1.5}>
                 <Typography level="body-xs" textColor="text.tertiary">Marital Status</Typography>
-                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "Not Available"}</Typography>
+                <Typography level="body-md">{clientData.q_and_a?.["marital-status"] ? MARITAL_STATUS_MAP[getStringValue(clientData.q_and_a["marital-status"])] : "N/A"}</Typography>
               </Box>
-
             </Box>
 
-            {/* Third Column */}
-            <Box sx={{ 
-              flex: 1, 
-              minWidth: 150, 
-              p: 0,
-            }}
-            >
-              <Box mb={2}>
+            <Box sx={{ flex: 1, minWidth: 140, p: 0 }}>
+              <Box mb={1.5}>
                 <Typography level="body-xs" textColor="text.tertiary">Issues</Typography>
                 <Typography level="body-md">{getDiagnosis()}</Typography>
               </Box>
@@ -435,7 +390,7 @@ export default function ClientProfile() {
               <Box>
                 <Typography level="body-xs" textColor="text.tertiary">Member Since</Typography>
                 <Typography level="body-md">
-                  {clientData.created_at ? new Date(clientData.created_at).toLocaleDateString() : "Not Available"}
+                  {clientData.created_at ? new Date(clientData.created_at).toLocaleDateString() : "N/A"}
                 </Typography>
               </Box>
             </Box>
@@ -448,8 +403,13 @@ export default function ClientProfile() {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          <CardContent sx={{ flex: 1 }}>
-            <Typography level="title-lg" sx={{ mb: 2 }}>Notes</Typography>
+          <CardContent sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column',
+            p: 2
+          }}>
+            <Typography level="title-lg" sx={{ mb: 1.5 }}>Notes</Typography>
             
             {isEditingNotes ? (
               <>
@@ -457,9 +417,9 @@ export default function ClientProfile() {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   minRows={4}
-                  maxRows={8}
-                  sx={{ mb: 2 }}
-                  placeholder="Write your notes here..."
+                  maxRows={6}
+                  sx={{ mb: 1.5, flex: 1 }}
+                  placeholder="Write notes here..."
                 />
                 <Box sx={{ display: 'flex', gap: 1 }}>
                   <Button
@@ -489,16 +449,17 @@ export default function ClientProfile() {
                 <Typography 
                   level="body-md" 
                   sx={{ 
-                    mb: 2, 
+                    mb: 1.5, 
                     whiteSpace: 'pre-wrap',
-                    minHeight: '100px',
-                    cursor: 'pointer'
+                    flex: 1,
+                    cursor: 'pointer',
+                    minHeight: '80px'
                   }}
                   onClick={() => setIsEditingNotes(true)}
                 >
                   {notes || 'Click to add notes...'}
                 </Typography>
-                {notes ? (
+                <Box>
                   <Button 
                     onClick={() => setIsEditingNotes(true)}
                     sx={{
@@ -509,9 +470,9 @@ export default function ClientProfile() {
                       }
                     }}
                   >
-                    Edit Notes
+                    {notes ? 'Edit Notes' : 'Add Notes'}
                   </Button>
-                ) : null}
+                </Box>
               </>
             )}
           </CardContent>
@@ -562,7 +523,7 @@ export default function ClientProfile() {
                         <strong>Date & Time:</strong> {formatDate(appointment.appointment_time)}
                       </Typography>
                       <Typography level="body-md">
-                        <strong>Duration:</strong> {appointment.duration}
+                        <strong>Duration:</strong> {formatDuration(appointment.duration)}
                       </Typography>
                       {appointment.message && (
                         <>
@@ -601,7 +562,7 @@ export default function ClientProfile() {
                         <strong>Date & Time:</strong> {formatDate(appointment.appointment_time)}
                       </Typography>
                       <Typography level="body-md">
-                        <strong>Duration:</strong> {appointment.duration}
+                        <strong>Duration:</strong> {formatDuration(appointment.duration)}
                       </Typography>
                       {appointment.message && (
                         <>

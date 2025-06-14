@@ -4,7 +4,6 @@ import Box from '@mui/joy/Box';
 import Breadcrumbs from '@mui/joy/Breadcrumbs';
 import Link from '@mui/joy/Link';
 import Typography from '@mui/joy/Typography';
-
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import Sidebar from '../../components/Slidebar';
@@ -17,17 +16,22 @@ import { Input, Stack } from '@mui/joy';
 import dayjs from 'dayjs';
 
 export default function JoyOrderDashboardTemplate() {
-
   interface RootState {
-    appointment: { id: string; date: string; time: string; clientName: string; status: string }; // Replace with the actual structure of 'appointment'
+    appointment: { id: string; date: string; time: string; clientName: string; status: string };
   }
 
   const appointment = useSelector((state: RootState) => state.appointment);
   console.log('appointment', appointment);
+
   return (
     <CssVarsProvider disableTransitionOnChange>
       <CssBaseline />
-      <Box sx={{ display: 'flex', minHeight: '100dvh',width:"98vw" }}>
+      <Box sx={{ 
+        display: 'flex', 
+        minHeight: '100vh', 
+        width: '100vw',
+        overflow: 'hidden'
+      }}>
         <Header />
         <Sidebar />
         <Box
@@ -45,11 +49,20 @@ export default function JoyOrderDashboardTemplate() {
             display: 'flex',
             flexDirection: 'column',
             minWidth: 0,
-            height: '100dvh',
+            height: '100vh',
             gap: 1,
+            overflow: 'hidden',
           }}
         >
-          <Stack  sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%',flexDirection: { xs: 'row', sm: 'row' }, gap: 1 }}>
+          <Stack sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            width: '100%',
+            flexDirection: { xs: 'row', sm: 'row' }, 
+            gap: 1,
+            flexShrink: 0
+          }}>
             <Breadcrumbs
               size="sm"
               aria-label="breadcrumbs"
@@ -77,8 +90,6 @@ export default function JoyOrderDashboardTemplate() {
               </Typography>
             </Breadcrumbs>
 
-            
-
             <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Input
                 size="sm"
@@ -97,6 +108,7 @@ export default function JoyOrderDashboardTemplate() {
               />
             </LocalizationProvider>
           </Stack>
+
           <Box
             sx={{
               display: 'flex',
@@ -106,6 +118,7 @@ export default function JoyOrderDashboardTemplate() {
               alignItems: { xs: 'start', sm: 'center' },
               flexWrap: 'wrap',
               justifyContent: '',
+              flexShrink: 0
             }}
           >
             <Typography level="h2" component="h1">
@@ -113,7 +126,15 @@ export default function JoyOrderDashboardTemplate() {
             </Typography>
           </Box>
           
-          <AppointmentList />
+          <Box sx={{ 
+            flex: 1, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            overflow: 'hidden',
+            position: 'relative'
+          }}>
+            <AppointmentList />
+          </Box>
         </Box>
       </Box>
     </CssVarsProvider>

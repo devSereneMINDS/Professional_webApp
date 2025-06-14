@@ -8,13 +8,12 @@ import AppointmentCard from './AppointmentCard';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Button from '@mui/joy/Button';
-import { RootState } from '../../../store/store'; // Adjust the path to your store file
+import { RootState } from '../../../store/store';
 
 const AppointmentList = () => {
   const navigate = useNavigate();
 
   const appointments = useSelector((state: RootState) => state.appointments);
-  console.log("Appointment", appointments)
   
   // Sort appointments
   const upcomingAppointments = appointments.upcoming
@@ -72,6 +71,7 @@ const AppointmentList = () => {
       }}>
         {Array.from({ length: 3 }).map((_, index) => (
           <AppointmentCard 
+            key={index}
             id={index} 
             photoUrl={undefined} 
             meetLink={undefined} 
@@ -83,18 +83,31 @@ const AppointmentList = () => {
   }
 
   return (
-    <Box sx={{ flex: 1, width: '100%' }}>
-      <Box
-        sx={{
-          position: 'sticky',
-          top: { sm: -100, md: -110 },
-          bgcolor: 'background.body',
-          width: '100%',
-          maxWidth: 'none',
-          zIndex: 1,
-        }}
-      >
-        <Tabs defaultValue={0} sx={{ bgcolor: 'transparent' }}>
+    <Box sx={{ 
+      flex: 1, 
+      width: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      overflow: 'hidden'
+    }}>
+      <Tabs defaultValue={0} sx={{ 
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        // Removed bgcolor to let parent theme dominate
+      }}>
+        <Box
+          sx={{
+            position: 'sticky',
+            top: 0,
+            // Removed bgcolor to let parent theme dominate
+            width: '100%',
+            zIndex: 1,
+            pt: 1,
+            pb: 1
+          }}
+        >
           <TabList
             tabFlex={1}
             size="sm"
@@ -123,163 +136,100 @@ const AppointmentList = () => {
               Completed
             </Tab>
           </TabList>
+        </Box>
 
-          <Box
-            sx={{
-              display: 'flex',
-              width: '100%',
-              mx: 'auto',
-              px: { xs: 2, md: 2 },
-              py: { xs: 2, md: 3 },
-            }}
-          >
-            {/* Upcoming Appointments */}
-            {/* Upcoming Appointments */}
-<TabPanel value={0} sx={{ width: '100%', p: 0 }}>
-  {upcomingAppointments.length > 0 ? (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 2,
-        maxHeight: 'calc(100vh - 200px)',
-        justifyContent: 'flex-start',
-        overflowY: 'auto',
-        pr: 1,
-        '&::-webkit-scrollbar': {
-          width: '4px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'neutral.400',
-          borderRadius: '2px',
-        },
-      }}
-    >
-      {upcomingAppointments.map((appointment) => (
-        <AppointmentCard
-          id={appointment.id}
-          name={
-            typeof appointment.client?.name === 'string' ? appointment.client.name :
-            typeof appointment.clientname === 'string' ? appointment.clientname :
-            'Unknown'
-          }
-          photoUrl={
-            typeof appointment.client?.photo_url === 'string' ? 
-            appointment.client.photo_url : 
-            undefined
-          }
-          date={new Date(appointment.appointment_time).toLocaleDateString()}
-          time={new Date(appointment.appointment_time).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-          duration={appointment.duration || '45:00'}
-          contact={
-            typeof appointment.client?.phone_no === 'string' ? appointment.client.phone_no :
-            typeof appointment.clientphone === 'string' ? appointment.clientphone :
-            'N/A'
-          }
-          meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
-          message={typeof appointment.message === 'string' ? appointment.message : undefined}
-          professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
-          isUpcoming={true}
-        />
-      ))}
-    </Box>
-  ) : renderEmptyState()}
-</TabPanel>
+        <Box sx={{ 
+          flex: 1,
+          overflow: 'auto',
+          pt: 2,
+          pb: 2,
+          // Removed bgcolor to let parent theme dominate
+        }}>
+          <TabPanel value={0} sx={{ width: '100%', p: 0 }}>
+            {upcomingAppointments.length > 0 ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  justifyContent: 'flex-start',
+                  minHeight: 'min-content',
+                  p: 1
+                }}
+              >
+                {upcomingAppointments.map((appointment) => (
+                  <AppointmentCard
+                    key={appointment.id}
+                    id={appointment.id}
+                    name={
+                      typeof appointment.client?.name === 'string' ? appointment.client.name :
+                      typeof appointment.clientname === 'string' ? appointment.clientname :
+                      'Unknown'
+                    }
+                    photoUrl={
+                      typeof appointment.client?.photo_url === 'string' ? 
+                      appointment.client.photo_url : 
+                      undefined
+                    }
+                    date={new Date(appointment.appointment_time).toLocaleDateString()}
+                    time={new Date(appointment.appointment_time).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                    duration={appointment.duration || '00:30:00'}
+                    contact={
+                      typeof appointment.client?.phone_no === 'string' ? appointment.client.phone_no :
+                      typeof appointment.clientphone === 'string' ? appointment.clientphone :
+                      'N/A'
+                    }
+                    meetLink={typeof appointment.meet_link === 'string' ? appointment.meet_link : undefined}
+                    message={typeof appointment.message === 'string' ? appointment.message : undefined}
+                    professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
+                    isUpcoming={true}
+                  />
+                ))}
+              </Box>
+            ) : renderEmptyState()}
+          </TabPanel>
 
-{/* Completed Appointments
-<TabPanel value={1} sx={{ width: '100%', p: 0 }}>
-  {completedAppointments.length > 0 ? (
-    <Box
-      sx={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: 2,
-        maxHeight: 'calc(100vh - 200px)',
-        justifyContent: 'flex-start',
-        overflowY: 'auto',
-        pr: 1,
-        '&::-webkit-scrollbar': {
-          width: '4px',
-        },
-        '&::-webkit-scrollbar-thumb': {
-          backgroundColor: 'neutral.400',
-          borderRadius: '2px',
-        },
-      }}
-    >
-      {completedAppointments.map((appointment) => (
-        <AppointmentCard
-          id={appointment.id}
-          name={typeof appointment.client?.name === 'string' ? appointment.client.name : 
-                typeof appointment.clientname === 'string' ? appointment.clientname : 
-                'Unknown'}
-          photoUrl={appointment.client?.photo_url}
-          date={new Date(appointment.appointment_time).toLocaleDateString()}
-          time={new Date(appointment.appointment_time).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-          duration={appointment.duration || '45:00'}
-          contact={String(appointment.client?.phone_no || appointment.clientphone || 'N/A')}
-          meetLink={appointment.meet_link ?? undefined}
-          message={appointment.message}
-          isUpcoming={false}
-        />
-      ))}
-    </Box>
-  ) : renderEmptyState()}
-</TabPanel> */}
-
-            {/* Completed Appointments */}
-            <TabPanel value={1} sx={{ width: '100%', p: 0 }}>
-              {completedAppointments.length > 0 ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: 2,
-                    maxHeight: 'calc(100vh - 200px)',
-                    justifyContent: 'flex-start',
-                    overflowY: 'auto',
-                    pr: 1,
-                    '&::-webkit-scrollbar': {
-                      width: '4px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      backgroundColor: 'neutral.400',
-                      borderRadius: '2px',
-                    },
-                  }}
-                >
-                  {completedAppointments.map((appointment) => (
-                    <AppointmentCard
-                      id={appointment.id}
-                      name={typeof appointment.client?.name === 'string' ? appointment.client.name : 
-                            typeof appointment.clientname === 'string' ? appointment.clientname : 
-                            'Unknown'}
-                      photoUrl={appointment.client?.photo_url}
-                      date={new Date(appointment.appointment_time).toLocaleDateString()}
-                      time={new Date(appointment.appointment_time).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                      duration={appointment.duration || '45:00'}
-                      contact={String(appointment.client?.phone_no || appointment.clientphone || 'N/A')}
-                      meetLink={appointment.meet_link ?? undefined}
-                      message={appointment.message}
-                      professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
-                      isUpcoming={false}
-                    />
-                  ))}
-                </Box>
-              ) : renderEmptyState()}
-            </TabPanel>
-          </Box>
-        </Tabs>
-      </Box>
+          <TabPanel value={1} sx={{ width: '100%', p: 0 }}>
+            {completedAppointments.length > 0 ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 2,
+                  justifyContent: 'flex-start',
+                  minHeight: 'min-content',
+                  p: 1
+                }}
+              >
+                {completedAppointments.map((appointment) => (
+                  <AppointmentCard
+                    key={appointment.id}
+                    id={appointment.id}
+                    name={typeof appointment.client?.name === 'string' ? appointment.client.name : 
+                          typeof appointment.clientname === 'string' ? appointment.clientname : 
+                          'Unknown'}
+                    photoUrl={appointment.client?.photo_url}
+                    date={new Date(appointment.appointment_time).toLocaleDateString()}
+                    time={new Date(appointment.appointment_time).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                    duration={appointment.duration || '00:30:00'}
+                    contact={String(appointment.client?.phone_no || appointment.clientphone || 'N/A')}
+                    meetLink={appointment.meet_link ?? undefined}
+                    message={appointment.message}
+                    professional={typeof appointment.professionalName === 'string' ? appointment.professionalName : undefined}
+                    isUpcoming={false}
+                  />
+                ))}
+              </Box>
+            ) : renderEmptyState()}
+          </TabPanel>
+        </Box>
+      </Tabs>
     </Box>
   );
 };
