@@ -47,6 +47,7 @@ export default function Sidebar() {
 
   const AddNewClient = () => {
     navigate("/add-new-client");
+    closeSidebar();
   };
 
   const userEmail = localStorage.getItem("userEmail");

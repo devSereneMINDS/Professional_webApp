@@ -80,7 +80,7 @@ export default function OrderTable({ clients, isLoading }: OrderTableProps) {
     ) {
       return;
     }
-    navigate(`/profile/${clientId}`);
+    navigate(`/clients/${clientId}`);
   };
 
   // Helper function to safely get a string from q_and_a value

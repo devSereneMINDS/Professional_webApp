@@ -80,6 +80,8 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useInactivityTimer(8);
+
+  
   useEffect(() => {
     const userEmail = localStorage.getItem("userEmail");
     if (userEmail) {
@@ -92,7 +94,6 @@ function App() {
           if (data.id) {
             dispatch(setProfessionalData(data));
             dispatch(setProfessionalId(data.id));
-
             if (!data.banking_details) {
               await createAccountForProfessional(data);
             }

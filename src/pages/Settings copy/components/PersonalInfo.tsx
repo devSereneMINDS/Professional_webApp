@@ -317,7 +317,6 @@ export default function PersonalInfo({ formData, setFormData, professional, isLo
           />
         </Stack>
         <Stack spacing={1}>
-          <FormLabel>Country</FormLabel>
           <CountrySelector 
             value={formData.country}
             onChange={(newCountryCode) => {
